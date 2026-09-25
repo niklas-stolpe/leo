@@ -84,10 +84,18 @@ alla beroenden stängts. Roadmapen är issue #1.
 
 ## Manuella steg som inte går att scripta (Admin)
 
-Samlade i ett issue på boardet. I korthet:
+Gjort 2026-09-25 (#2). Behövs igen när en nyckel går ut eller flyttas till Leo.
+
+Lägg in secrets via webben (repo → Settings → Secrets and variables → Actions), **inte** med
+`gh secret set` i Windows-terminalen – den dolda inmatningen tappade inklistringen och sparade tomma värden.
+Klistra först in i Anteckningar: `claude setup-token` skriver nyckeln över två rader, och ett mellanslag
+i skarven gjorde den ogiltig (401). Rätt nyckel: 108 tecken, `sk-ant-oat01-…AAA`, inga blanksteg.
 
 1. **Claude GitHub App** installerad på `niklas-stolpe/leo` (github.com/apps/claude).
-2. **Secret `CLAUDE_CODE_OAUTH_TOKEN`** – `claude setup-token`, klistra in under Settings → Secrets and variables → Actions.
-3. **Secrets `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID`** – Cloudflare → My Profile → API Tokens → mallen "Edit Cloudflare Workers". Samma konto som Eaves.
-4. **Secret `PROCESS_TOKEN`** – classic token från Admins konto med scope `repo` + `project` (Settings → Developer settings → Tokens (classic)). Låter workflows flytta kort på boardet och publicera efter Leos godkännande.
-5. Kör `deploy` en gång för hand (Actions → deploy → Run workflow) så att Workern skapas – förhandsvisningarna kräver att den finns.
+2. **Secret `CLAUDE_CODE_OAUTH_TOKEN`** – `claude setup-token`. Giltig 1 år – **går ut ~2027-09-25**.
+3. **Secrets `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID`** – Cloudflare → My Profile → API Tokens → mallen "Edit Cloudflare Workers", nyckeln heter "Leo", begränsad till Admins konto. Account ID står i adressfältet i Cloudflare-dashboarden. Samma konto som Eaves.
+4. **Secret `PROCESS_TOKEN`** – classic token "leo-process" från Admins konto med scope `repo`, `workflow`, `project`, `read:org` (utan `read:org`: "unknown owner type" från `gh project`). **Går ut 2027-03-26** – förnya under github.com/settings/tokens → leo-process → Regenerate, och byt secreten.
+5. Kör `deploy` en gång för hand (Actions → deploy → Run workflow) så att Workern skapas – förhandsvisningarna kräver att den finns. Produktion: https://leo.niklasstolpe.workers.dev
+
+Utgången nyckel syns som: Claude svarar inte på `@claude` (Claude-nyckeln), boardet står still och "godkänt"
+publicerar inte (processnyckeln), eller ingen förhandsvisningslänk (Cloudflare).
