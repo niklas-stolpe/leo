@@ -1,35 +1,179 @@
 ---
-import { getCollection } from 'astro:content';
+import { Image, getImage } from 'astro:assets';
 import Bas from '../layouts/Bas.astro';
+import Ringar from '../components/Ringar.astro';
+import { allaKappar, romersk, rubrik } from '../lib/kappa';
+import leoVaggen from '../assets/leo-vaggen.jpg';
 
-const kappar = (await getCollection('kappar')).sort((a, b) => a.data.ordning - b.data.ordning);
+const kappar = await allaKappar();
+const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg' });
 ---
 
-<Bas titel="Leo – käppar">
+<Bas titel="Leo – käppar" delningsbild={delningsbild.src}>
   <main>
-    <h1>Leo</h1>
-    <p class="ingress">Käppar som konstverk – gjorda för att användas.</p>
-    {kappar.length === 0 && <p class="dampad">Galleriet öppnar snart.</p>}
+    <section class="hero">
+      <div class="text">
+        <p class="versaler overrad">Handgjorda käppar</p>
+        <h1>Leo</h1>
+        <p class="ingress">Käppar som konstverk – gjorda för att användas.</p>
+        <a class="versaler knapp" href="#samlingen">Se samlingen</a>
+      </div>
+      <figure class="ram">
+        <Image
+          src={leoVaggen}
+          alt="Leo sitter framför en vägg med upphängda käppar i trä, med handtag i olika former."
+          widths={[480, 800, 1080]}
+          sizes="(min-width: 60rem) 45vw, 100vw"
+          loading="eager"
+          fetchpriority="high"
+        />
+        <figcaption>Leo och en vägg av käppar</figcaption>
+      </figure>
+    </section>
+
+    <div class="avdelare"><Ringar /></div>
+
+    <section id="samlingen" class="samlingen" aria-labelledby="samlingen-rubrik">
+      <header>
+        <p class="versaler overrad">{romersk(kappar.length)} verk</p>
+        <h2 id="samlingen-rubrik">Samlingen</h2>
+      </header>
+      <ol class="galleri">
+        {
+          kappar.map((k) => (
+            <li>
+              <a href={`/kappar/${k.id}/`}>
+                <Image
+                  src={k.data.bilder[0]}
+                  alt={k.data.alt}
+                  widths={[360, 540, 720]}
+                  sizes="(min-width: 70rem) 22rem, (min-width: 40rem) 45vw, 92vw"
+                />
+                <span class="bildtext">{rubrik(k)}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
   </main>
 </Bas>
 
 <style>
   main {
-    max-width: 40rem;
+    padding: 0 clamp(1rem, 4vw, 3rem);
+  }
+  .hero {
+    display: grid;
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: center;
+    max-width: 72rem;
     margin: 0 auto;
-    padding: 20vh 1rem 4rem;
-    text-align: center;
+    padding: clamp(3rem, 9vw, 7rem) 0 clamp(3rem, 7vw, 5rem);
+  }
+  @media (min-width: 60rem) {
+    .hero {
+      grid-template-columns: 1fr 1.1fr;
+    }
+  }
+  .overrad {
+    color: var(--massing);
+    margin: 0 0 1rem;
   }
   h1 {
-    font-weight: normal;
-    font-size: clamp(3rem, 12vw, 6rem);
-    letter-spacing: 0.1em;
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(5rem, 18vw, 10rem);
+    line-height: 0.85;
     margin: 0;
+    letter-spacing: -0.01em;
   }
   .ingress {
-    font-size: 1.25rem;
-  }
-  .dampad {
+    font-size: clamp(1.35rem, 3vw, 1.7rem);
+    font-style: italic;
     color: var(--dampad);
+    max-width: 24ch;
+    margin: 1.5rem 0 2.25rem;
+  }
+  .knapp {
+    display: inline-block;
+    text-decoration: none;
+    color: var(--elfenben);
+    border: 1px solid var(--massing);
+    padding: 0.9rem 1.6rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  .knapp:hover {
+    background: var(--massing);
+    color: var(--svart);
+  }
+  .ram {
+    margin: 0;
+    padding: clamp(0.5rem, 1.5vw, 0.9rem);
+    border: 1px solid rgb(184 149 90 / 0.5);
+    outline: 1px solid rgb(184 149 90 / 0.2);
+    outline-offset: 6px;
+    background: var(--yta);
+  }
+  .ram figcaption {
+    font-style: italic;
+    color: var(--dampad);
+    text-align: center;
+    padding-top: 0.75rem;
+    font-size: 1rem;
+  }
+  .avdelare {
+    margin: 1rem auto 4rem;
+  }
+  .samlingen {
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+  .samlingen header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  h2 {
+    font-weight: 400;
+    font-size: clamp(2.5rem, 6vw, 3.75rem);
+    margin: 0;
+    line-height: 1;
+  }
+  .galleri {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+    gap: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 2.5vw, 2rem);
+  }
+  .galleri a {
+    display: block;
+    text-decoration: none;
+  }
+  .galleri img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border: 1px solid rgb(184 149 90 / 0.18);
+    transition: border-color 0.4s, filter 0.4s;
+    filter: saturate(0.92);
+  }
+  .galleri a:hover img,
+  .galleri a:focus-visible img {
+    border-color: var(--massing);
+    filter: saturate(1.05);
+  }
+  .bildtext {
+    display: block;
+    text-align: center;
+    font-style: italic;
+    font-size: 1.15rem;
+    padding-top: 0.6rem;
+    color: var(--dampad);
+    transition: color 0.3s;
+  }
+  .galleri a:hover .bildtext {
+    color: var(--massing-ljus);
   }
 </style>

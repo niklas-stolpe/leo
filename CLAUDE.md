@@ -37,7 +37,9 @@ Krav: `docs/requirements.md` · Process: `docs/process.md` · Leos guide: `READM
    ```
 6. Kommentera i issuet till Leo: vad du gjort och att länken att titta på kommer i ändringen om ett par minuter.
 
-**Ny käpp:** spara bilderna i `site/src/content/kappar/<namn>/` (namn: små bokstäver, bindestreck, inga å/ä/ö), skriv `index.md` enligt schemat i `site/src/content.config.ts`. Hitta inte på fakta – står inget år eller material, lämna fältet tomt. Alt-text på varje bild beskriver käppen.
+**Ny käpp:** ny mapp `site/src/content/kappar/nr-<NN>/` med nästa lediga nummer, bilderna bredvid `index.md`. Frontmatter enligt `site/src/content.config.ts`: `nummer` (styr ordningen, visas som Nº XXIV), `bilder`, `alt` (beskriv käppen för den som inte ser den), `bildtexter` (en beskrivning per extra bild), och bara det Leo faktiskt skrivit: `titel`, `ar`, `material`, `status`. Berättelsen skrivs som text under frontmattern. Hitta aldrig på fakta.
+
+**Personer på bild:** Leo själv går bra. Andra personer, särskilt kända (F-23), visas bara när Admin bekräftat samtycke – fråga i stället för att lägga in.
 
 **Från en PR-kommentar:** ändra på PR:ens branch, kör check + build, pusha. En ny förhandsvisning postas automatiskt.
 

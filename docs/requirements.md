@@ -15,6 +15,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | Datum | Ändring |
 |---|---|
 | 2026-09-25 | Admin (chatt): fast förhandsvisningsadress "stage" + fast prod-adress, i stället för en ny länk per ändring (T-03, T-07, NF-05). |
+| 2026-09-25 | #5/#6: startsida och galleri i mörk, klassisk stil (Cormorant Garamond, mässing, ornament efter käpparnas ringar). 23 käppar ur Admins album, numrerade med romerska siffror – titel, år, material och status tomma tills Leo fyller i (F-12 kvar). F-01, F-03 (sidfot från #11/#13, nu i layouten), F-10, F-11 Klar; NF-03 (största bild 91 kB) Klar; NF-06 Pågår (ingen horisontell scroll vid 360 px i webbläsaren – mäts med Lighthouse i #9). Bilder på Jan Guillou hålls utanför tills samtycke (F-23, Q-05). |
 | 2026-09-25 | Första versionen. Admin (chatt): egen webbplats som nav, Instagram/Facebook länkar dit, ingen webbshop, gratis drift, Leo godkänner genom att titta. Konton startar hos Admin och flyttas till Leo senare. |
 
 ## Terminologi
@@ -59,15 +60,16 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | ID | Krav | Klart när | Prio | Status | Verif. | Källa |
 |---|---|---|---|---|---|---|
-| F-01 | Startsidan presenterar Leo och käpparna så att besökaren förstår direkt att det är konst som används. | Leo har godkänt startsidan i förhandsvisningen. | v1 | Backlog | – | Admin 2026-09-25 |
+| F-01 | Startsidan presenterar Leo och käpparna så att besökaren förstår direkt att det är konst som används. | Leo har godkänt startsidan i förhandsvisningen. | v1 | Klar | leo | Admin 2026-09-25 |
 | F-02 | Sidan finns på en publik adress och uppdateras automatiskt när en ändring godkänts. | Godkänd ändring syns på produktionsadressen utan manuella steg. | v1 | Backlog | – | Admin 2026-09-25 |
+| F-03 | Längst ned på sidan finns en diskret sidfot med "© Leo" och årtalet, i samma dämpade färg som övrig text. | Sidfoten syns, är liten och lugn. Leo har godkänt förhandsvisningen. | v1 | Klar | leo | Leo (issue #11) 2026-09-25 |
 
 ### Käpparna
 
 | ID | Krav | Klart när | Prio | Status | Verif. | Källa |
 |---|---|---|---|---|---|---|
-| F-10 | Galleri med alla käppar, stora bilder, lugn presentation. | Galleriet visar alla käpp-mappar (T-05); Leo har godkänt utseendet. | v1 | Backlog | – | Admin 2026-09-25 |
-| F-11 | Varje käpp har en egen sida med egen adress som går att länka till från ett Instagram-inlägg. | `/kappar/<namn>` finns för varje käpp. | v1 | Backlog | – | Admin 2026-09-25 |
+| F-10 | Galleri med alla käppar, stora bilder, lugn presentation. | Galleriet visar alla käpp-mappar (T-05); Leo har godkänt utseendet. | v1 | Klar | leo | Admin 2026-09-25 |
+| F-11 | Varje käpp har en egen sida med egen adress som går att länka till från ett Instagram-inlägg. | `/kappar/<namn>` finns för varje käpp. | v1 | Klar | leo | Admin 2026-09-25 |
 | F-12 | Varje käpp visar status: tillgänglig, såld eller beställningsverk. Sålda käppar ligger kvar i galleriet. | Status syns i galleri och på käppens sida. | v1 | Backlog | – | Admin 2026-09-25 |
 | F-13 | Besökaren kan fråga om en käpp eller be om ett möte. Frågan kommer som mejl till Leo. Gratis tjänst (B-01). | Ett testmeddelande från förhandsvisningen når Leos mejl. | v1 | Backlog | – | Admin 2026-09-25 |
 | F-14 | Leo lägger upp en ny käpp genom att skicka bilder och text i ett issue (mall "Ny käpp"). Claude skapar käpp-mappen och en förhandsvisning. | En käpp har lagts upp från ett issue utan att Leo rört kod. | v1 | Backlog | – | Admin 2026-09-25 |
@@ -94,10 +96,10 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 |---|---|---|---|---|---|---|
 | NF-01 | Snabb på mobilen. | Lighthouse Performance ≥ 90 (mobil) på startsidan och en käppsida. | v1 | Backlog | – | Admin 2026-09-25 |
 | NF-02 | Tillgänglig. | Lighthouse Accessibility ≥ 90; alla käppbilder har alt-text. | v1 | Backlog | – | Admin 2026-09-25 |
-| NF-03 | Bilderna optimeras automatiskt – Leo kan skicka stora originalbilder. | Bilder i käpp-mappar byggs till moderna format och flera storlekar; ingen bild > 400 kB till besökaren. | v1 | Backlog | – | Admin 2026-09-25 |
+| NF-03 | Bilderna optimeras automatiskt – Leo kan skicka stora originalbilder. | Bilder i käpp-mappar byggs till moderna format och flera storlekar; ingen bild > 400 kB till besökaren. | v1 | Klar | bygg | Admin 2026-09-25 |
 | NF-04 | Hittas på Google. | Lighthouse SEO ≥ 90; sitemap finns. | v1 | Backlog | – | Admin 2026-09-25 |
 | NF-05 | Varje ändring får en förhandsvisning (T-03) på stage – samma adress varje gång, så att Leo kan spara den i mobilen – plus en egen länk, postade på PR:en. | Stage visar ändringen inom 5 minuter efter push. | v1 | Backlog | – | Admin 2026-09-25 |
-| NF-06 | Fungerar på mobil. | Ingen horisontell scroll vid 360 px bredd. | v1 | Backlog | – | Admin 2026-09-25 |
+| NF-06 | Fungerar på mobil. | Ingen horisontell scroll vid 360 px bredd. | v1 | Pågår | – | Admin 2026-09-25 |
 
 ## Ej inom scope
 
@@ -121,3 +123,6 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | Q-02 | Domän – finns ett namn Leo redan använder? |
 | Q-03 | Vilken gratis formulärtjänst för F-13 (t.ex. Web3Forms, Formspree)? |
 | Q-04 | Vad heter varumärket – "Leo", fullt namn, eller något annat? |
+| Q-05 | Har Jan Guillou sagt ja till att visas på sidan (bilderna 02–04 i albumet)? Krävs för F-23. |
+| Q-06 | Vem är personen i verkstaden (bild 15 i albumet), och får bilden visas? |
+| Q-07 | Namn, år, material och status för käpparna Nº I–XXIII – vill Leo fylla i dem? |
