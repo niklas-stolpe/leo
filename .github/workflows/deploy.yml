@@ -43,6 +43,9 @@ jobs:
       - name: Typkontroll
         run: npm run check
       - name: Bygg
+        env:
+          # prod-ikon och indexering bara för det som publiceras från main – allt annat är stage (F-32).
+          PUBLIC_MILJO: ${{ github.event_name == 'pull_request' && 'stage' || 'prod' }}
         run: npm run build
       - uses: actions/upload-artifact@v7
         with:

@@ -3,6 +3,7 @@ import '@fontsource/cormorant-garamond/400.css';
 import '@fontsource/cormorant-garamond/400-italic.css';
 import '@fontsource/cormorant-garamond/600.css';
 import Ringar from '../components/Ringar.astro';
+import { appNamn, arProd, favicon, ikon, temafarg } from '../lib/miljo';
 
 interface Props {
   titel: string;
@@ -20,12 +21,16 @@ const bildUrl = delningsbild ? new URL(delningsbild, Astro.url).href : undefined
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={beskrivning} />
-    <meta name="theme-color" content="#0e0d0b" />
+    <meta name="theme-color" content={temafarg} />
+    {!arProd && <meta name="robots" content="noindex, nofollow" />}
     <meta property="og:type" content="website" />
     <meta property="og:title" content={titel} />
     <meta property="og:description" content={beskrivning} />
     {bildUrl && <meta property="og:image" content={bildUrl} />}
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={favicon} />
+    <link rel="apple-touch-icon" href={ikon(180)} />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="apple-mobile-web-app-title" content={appNamn} />
     <title>{titel}</title>
   </head>
   <body>
