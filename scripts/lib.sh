@@ -46,14 +46,9 @@ board_set() {
   if [ -z "$id" ]; then
     local url
     url="$(gh api "repos/$REPO/issues/$n" --jq .html_url)"
-    gh project item-add "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --url "$url" >/dev/null
-    # item-add är asynkront i GitHubs ände – polla i stället för en fast paus.
-    for _ in 1 2 3 4 5 6 7 8 9 10; do
-      sleep 2
-      id="$(gh project item-list "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --format json --limit 500 \
-            --jq ".items[] | select(.content.number==$n) | .id" | head -1)"
-      [ -n "$id" ] && break
-    done
+    # item-add returnerar kortets id direkt. item-list kan släpa över 20 s efter att kortet
+    # lagts till (#10 2026-09-25) – polla den inte.
+    id="$(gh project item-add "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --url "$url" --format json --jq .id)"
   fi
   [ -n "$id" ] || fail "#$n finns inte på boardet och kunde inte läggas till"
   gh project item-edit --id "$id" --project-id "$PROJECT_ID" \
