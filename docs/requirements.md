@@ -8,11 +8,13 @@ Verifiering: `leo` (Leo har godkänt i förhandsvisningen) · `bygg` (CI bygger 
 `lighthouse` (mätt med Lighthouse på förhandsvisningen) · `admin` (Admin har kontrollerat) · `–` (ej verifierad).
 
 Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller känna. Tekniken står i
-"Klart när" eller i `docs/process.md`, inte i själva Klar | bygg || bygg || leo || leo || leo |Ändringslogg
+"Klart när" eller i `docs/process.md`, inte i själva kravet.
+
+## Ändringslogg
 
 | Datum | Ändring |
 |---|---|
-| 2026-09-25 | #5/#6: startsida och galleri i mörk, klassisk stil (Cormorant Garamond, mässing, ornament efter käpparnas ringar). 23 käppar ur Admins album, numrerade med romerska siffror – titel, år, material och status tomma tills Leo fyller i (F-12 kvar). F-01, F-10, F-11 Klar; NF-03 (största bild 91 kB) och NF-06 (ingen horisontell scroll vid 360 px) Klar. Bilder på Jan Guillou hålls utanför tills samtycke (F-23, Q-05). |
+| 2026-09-25 | #5/#6: startsida och galleri i mörk, klassisk stil (Cormorant Garamond, mässing, ornament efter käpparnas ringar). 23 käppar ur Admins album, numrerade med romerska siffror – titel, år, material och status tomma tills Leo fyller i (F-12 kvar). F-01, F-10, F-11 Klar; NF-03 (största bild 91 kB) Klar; NF-06 Pågår (ingen horisontell scroll vid 360 px i webbläsaren – mäts med Lighthouse i #9). Bilder på Jan Guillou hålls utanför tills samtycke (F-23, Q-05). |
 | 2026-09-25 | Första versionen. Admin (chatt): egen webbplats som nav, Instagram/Facebook länkar dit, ingen webbshop, gratis drift, Leo godkänner genom att titta. Konton startar hos Admin och flyttas till Leo senare. |
 
 ## Terminologi
@@ -94,7 +96,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | NF-03 | Bilderna optimeras automatiskt – Leo kan skicka stora originalbilder. | Bilder i käpp-mappar byggs till moderna format och flera storlekar; ingen bild > 400 kB till besökaren. | v1 | Klar | bygg | Admin 2026-09-25 |
 | NF-04 | Hittas på Google. | Lighthouse SEO ≥ 90; sitemap finns. | v1 | Backlog | – | Admin 2026-09-25 |
 | NF-05 | Varje ändring får en förhandsvisning (T-03) med egen länk, postad på PR:en. | Länken postas inom 5 minuter efter push. | v1 | Backlog | – | Admin 2026-09-25 |
-| NF-06 | Fungerar på mobil. | Ingen horisontell scroll vid 360 px bredd. | v1 | Klar | bygg | Admin 2026-09-25 |
+| NF-06 | Fungerar på mobil. | Ingen horisontell scroll vid 360 px bredd. | v1 | Pågår | – | Admin 2026-09-25 |
 
 ## Ej inom scope
 
