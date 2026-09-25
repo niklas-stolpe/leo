@@ -17,7 +17,7 @@ logins_json="$(printf '%s' "$LEO_LOGINS" | tr ' ' '\n' | sed 's/.*/"&"/' | paste
 approved_at="$(gh api --paginate "repos/$REPO/issues/$pr/comments" --jq "
   .[] | select(.user.login as \$u | [$logins_json] | index(\$u))
       | select(.created_at > \"$last_commit\")
-      | select(.body | split(\"\n\")[0] | test(\"^\\s*godkän(t|d|ner)\\b\"; \"i\"))
+      | select(.body | split(\"\n\")[0] | test(\"^[[:space:]]*godkän(t|d|ner)([^[:alpha:]]|$)\"; \"i\"))
       | .created_at" | tail -1)"
 
 [ -n "$approved_at" ] || fail "PR #$pr ändrar webbplatsen men Leo har inte skrivit 'godkänt' efter senaste ändringen ($last_commit). Förhandsvisningen står i PR:en."

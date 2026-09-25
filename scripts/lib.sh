@@ -48,7 +48,7 @@ board_set() {
     url="$(gh api "repos/$REPO/issues/$n" --jq .html_url)"
     gh project item-add "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --url "$url" >/dev/null
     # item-add är asynkront i GitHubs ände – polla i stället för en fast paus.
-    for _ in 1 2 3 4 5 6; do
+    for _ in 1 2 3 4 5 6 7 8 9 10; do
       sleep 2
       id="$(gh project item-list "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --format json --limit 500 \
             --jq ".items[] | select(.content.number==$n) | .id" | head -1)"

@@ -36,7 +36,7 @@ jobs:
       GH_TOKEN: ${{ secrets.PROCESS_TOKEN }}
       PR: ${{ github.event.issue.number }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: main
 
