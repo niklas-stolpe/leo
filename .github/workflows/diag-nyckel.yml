@@ -1,0 +1,22 @@
+name: diag-nyckel
+# Tillfällig: skriver bara ut längd och format på nycklarna, aldrig värdena. Mergas inte.
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          T: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          printf 'längd: %s\n' "${#T}"
+          case "$T" in sk-ant-oat01-*) echo "prefix: ok" ;; *) echo "prefix: FEL" ;; esac
+          printf '%s' "$T" | grep -q '[[:space:]]' && echo "blanksteg/radbrytning: JA" || echo "blanksteg/radbrytning: nej"
+          printf '%s' "$T" | grep -q 'AAA$' && echo "slutar på AAA: ja" || echo "slutar på AAA: NEJ"
+          code=$(curl -s -o /dev/null -w '%{http_code}' https://api.anthropic.com/v1/messages \
+            -H "Authorization: Bearer $T" -H "anthropic-version: 2023-06-01" -H "anthropic-beta: oauth-2025-04-20" \
+            -H "content-type: application/json" \
+            -d '{"model":"claude-haiku-4-5-20251001","max_tokens":5,"messages":[{"role":"user","content":"hej"}]}')
+          echo "API-svar: $code"
