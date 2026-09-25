@@ -1,0 +1,22 @@
+name: requirements-gate
+
+# Deterministisk kravgrind på varje PR – samma script som scripts/merge-pr.sh kör.
+# Körs även vid `edited` så en rättad PR-text räcker för att bli grön.
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, edited]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  requirements-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Kravgrind
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/requirements-check.sh ${{ github.event.pull_request.number }}

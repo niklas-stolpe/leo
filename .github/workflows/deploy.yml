@@ -1,0 +1,125 @@
+name: deploy
+
+# Bygger webbplatsen på varje PR och på main.
+#   PR   → site-build (grind i merge-pr.sh) + förhandsvisning på egen länk, postad på PR:en (NF-05, T-03).
+#   main → site-build + publicering till produktion (F-02).
+#
+# Kräver repo-secrets (Admin, B-07):
+#   CLOUDFLARE_API_TOKEN   – mallen "Edit Cloudflare Workers" i Cloudflare → My Profile → API Tokens
+#   CLOUDFLARE_ACCOUNT_ID  – står i Cloudflare-dashboarden under Workers & Pages
+# Saknas de byggs sidan ändå, men ingen förhandsvisning/publicering sker – PR:en får en kommentar om det.
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  site-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+      - name: Typkontroll
+        run: npm run check
+      - name: Bygg
+        run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: site/dist
+          retention-days: 3
+
+  preview:
+    if: github.event_name == 'pull_request'
+    needs: site-build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      GH_TOKEN: ${{ github.token }}
+      PR: ${{ github.event.pull_request.number }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: site/dist
+      - name: Förhandsvisning
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            gh pr comment "$PR" --edit-last --create-if-none --body "**Förhandsvisning:** inte uppsatt än – Admin behöver lägga in Cloudflare-nycklarna (se \`docs/process.md\`, manuella steg)."
+            exit 0
+          fi
+          npx wrangler versions upload --preview-alias "pr-$PR" --message "PR #$PR" | tee upload.log
+          url="$(grep -oE "https://pr-$PR-leo\.[a-z0-9.-]+\.workers\.dev" upload.log | head -1)"
+          [ -n "$url" ] || { echo "Hittade ingen förhandsvisningslänk i wrangler-utskriften" >&2; exit 1; }
+          sha="$(git rev-parse --short HEAD)"
+          gh pr comment "$PR" --edit-last --create-if-none --body "$(cat <<EOF
+          ## 👀 Förhandsvisning
+
+          **$url**
+
+          Öppna länken i mobilen och titta. (Version \`$sha\`.)
+
+          - Ser det bra ut? Svara med en kommentar som börjar med **godkänt** – då publiceras det.
+          - Vill du ändra något? Skriv **@claude** och beskriv vad, gärna med en bild.
+          EOF
+          )"
+
+  production:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: site-build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: site/dist
+      - name: Publicera
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::warning::Cloudflare-nycklarna saknas – ingen publicering. Se docs/process.md, manuella steg."
+            exit 0
+          fi
+          npx wrangler deploy

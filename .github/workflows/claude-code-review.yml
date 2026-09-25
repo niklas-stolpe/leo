@@ -1,0 +1,74 @@
+name: Claude Code Review
+
+# Automatisk granskning av varje PR. Claude läser diffen, kommenterar relevanta rader och avslutar
+# med en sammanfattning. Rättar inget – "@claude åtgärda granskningsfynden" på PR:en gör det.
+# Leo bedömer utseendet (förhandsvisningen); granskaren bedömer allt Leo inte ser.
+#
+# Kräver repo-secret: CLAUDE_CODE_OAUTH_TOKEN (samma som claude.yml).
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: read
+  id-token: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Claude review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          use_sticky_comment: true
+          prompt: |
+            Granska pull request #${{ github.event.pull_request.number }}
+            (${{ github.head_ref }} → ${{ github.base_ref }}).
+
+            Läs `CLAUDE.md`, `docs/requirements.md` och `docs/process.md` först – koden ska följa de
+            låsta besluten (B-raderna).
+            Levererar PR:en ett krav (`Uppfyller: F-xx`/`NF-xx`, eller uppenbart av diffen) ska raden ha
+            status `Klar` i samma PR – annars fynd. Nytt synligt beteende utan F-/NF-rad – fynd.
+
+            Leo godkänner hur det SER UT. Du granskar det han inte ser:
+            - Buggar, trasiga länkar, sidor som inte byggs för alla käppar.
+            - Mobil: horisontell scroll vid 360 px, för små tryckytor, text som inte går att läsa (NF-06).
+            - Bilder: går de via Astros bildhantering (`<Image>`/`<Picture>`, `image()` i schemat) och inte
+              direkt från `public/`? Alt-text på varje käppbild (NF-02, NF-03)?
+            - Hastighet: onödig JavaScript, stora typsnitt, bilder utan storlek (NF-01).
+            - Delning: titel, beskrivning och förhandsbild (Open Graph) per sida (F-30).
+            - Hemligheter eller personuppgifter som inte ska vara publika (mejladresser i klartext, nycklar).
+            - B-01 (gratis): nytt beroende av en betaltjänst är ett blockerande fynd.
+            - B-04: kassa/betalning är ett blockerande fynd.
+            - Onödig komplexitet – sidan ska vara enkel att ändra för nästa Claude-körning.
+
+            Admins yta (`.github/`, `scripts/`, `site/wrangler.jsonc`, `site/package*.json`), B-07: kravgrinden
+            kräver en rad `Säkerhet:`. Kontrollera innehållet mot diffen – `oförändrad` med ett skäl som
+            diffen motsäger är ett fynd. Nya beroenden: behövs de, och är de välkända?
+
+            Lägg kommentarer direkt på berörda rader vid behov.
+
+            **Posta ALLTID en avslutande PR-kommentar** – även när inget hittas. Format:
+
+            > **Granskning – <commit-sha kort>** · <PASS ✅ | FYND ⚠️>
+            > Blockerande: <antal eller "inga">  ·  Nice-to-have: <antal eller "inga">
+            >
+            > <1–3 meningar. Vid FYND: kort lista. Vid PASS: "Inga invändningar.">
+
+            Var koncis.
+          claude_args: |
+            --allowed-tools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(gh api:*)"

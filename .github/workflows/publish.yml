@@ -1,0 +1,76 @@
+name: publish
+
+# Leo skriver "godkänt" på en PR → scripts/merge-pr.sh kör alla grindar och mergar.
+# Pushen till main startar deploy.yml som publicerar webbplatsen. Ingen människa behöver
+# köra något efter Leos godkännande.
+#
+# Säkerhet: workflowen och scripten körs från main (issue_comment kör alltid main:s version),
+# aldrig från PR:ens branch. Vem som får godkänna står i scripts/lib.sh (LEO_LOGINS) –
+# leo-approval.sh vägrar alla andra.
+#
+# Kräver repo-secret PROCESS_TOKEN (Admin, B-07): classic token med scope `repo` + `project`
+# från Admins konto. Behövs för boardet (GITHUB_TOKEN når inte organisationsprojekt) och för att
+# mergen ska starta deploy.yml (merge med GITHUB_TOKEN startar inga workflows).
+
+on:
+  issue_comment:
+    types: [created]
+
+concurrency:
+  group: publish-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  publish:
+    # startsWith är skiftlägesokänslig i GitHub Actions: "Godkänt", "godkänt!" osv.
+    if: >
+      github.event.issue.pull_request &&
+      github.event.sender.type != 'Bot' &&
+      startsWith(github.event.comment.body, 'godkän')
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PROCESS_TOKEN }}
+      PR: ${{ github.event.issue.number }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Grindar och merge
+        id: merge
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "PROCESS_TOKEN saknas – Admin behöver lägga in den (docs/process.md, manuella steg)." | tee merge.log
+            exit 1
+          fi
+          set -o pipefail
+          bash scripts/merge-pr.sh "$PR" 2>&1 | tee merge.log
+
+      - name: Berätta att det är publicerat
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "✅ Tack! Ändringen publiceras nu och syns på webbplatsen om ett par minuter."
+
+      - name: Berätta varför det inte gick
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          reason="$(grep -E '✗' merge.log | tail -1 | sed 's/\x1b\[[0-9;]*m//g')"
+          [ -n "$reason" ] || reason="$(tail -3 merge.log | sed 's/\x1b\[[0-9;]*m//g')"
+          gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "$(cat <<EOF
+          ⏸️ Det går inte att publicera än. Ingen fara – inget har ändrats på webbplatsen.
+
+          Skälet (tekniskt, till Admin/Claude):
+          \`\`\`
+          $reason
+          \`\`\`
+          Admin eller Claude tittar på det. Leo, du behöver inte göra något.
+          EOF
+          )"

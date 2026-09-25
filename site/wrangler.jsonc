@@ -1,0 +1,14 @@
+// Cloudflare Workers med statiska filer (B-03). Ingen serverkod – bara det Astro bygger till dist/.
+// Produktion: `wrangler deploy` från main. Förhandsvisning per PR: `wrangler versions upload
+// --preview-alias pr-<n>` ⇒ https://pr-<n>-leo.<konto>.workers.dev (se .github/workflows/deploy.yml).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "leo",
+  "compatibility_date": "2026-09-25",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  },
+  "workers_dev": true,
+  "preview_urls": true
+}

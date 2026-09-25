@@ -1,0 +1,45 @@
+---
+interface Props {
+  titel: string;
+  beskrivning?: string;
+}
+const { titel, beskrivning = 'Käppar av Leo – konst som används.' } = Astro.props;
+---
+
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={beskrivning} />
+    <meta property="og:title" content={titel} />
+    <meta property="og:description" content={beskrivning} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{titel}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    color-scheme: light dark;
+    --bakgrund: #f6f3ee;
+    --text: #1f1c18;
+    --dampad: #6b645b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bakgrund: #16140f;
+      --text: #ece6dc;
+      --dampad: #a39b8f;
+    }
+  }
+  body {
+    margin: 0;
+    background: var(--bakgrund);
+    color: var(--text);
+    font-family: Georgia, 'Times New Roman', serif;
+    line-height: 1.6;
+  }
+</style>

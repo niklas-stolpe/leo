@@ -1,0 +1,76 @@
+name: requirements-audit
+
+# Nattlig kravagent. Kör bara om någon PR mergats till main senaste dygnet. Claude läser dagens
+# mergade PR:er mot docs/requirements.md och issue-läget, och skriver fynden till ETT
+# återanvänt issue med etiketten `kravavvikelser` – aldrig ett nytt issue per fynd.
+#
+# Kräver: repo-secret CLAUDE_CODE_OAUTH_TOKEN (samma som granskningen).
+
+on:
+  schedule:
+    - cron: "0 3 * * *"   # 05:00 svensk sommartid, 04:00 vintertid
+  workflow_dispatch:
+    inputs:
+      hours:
+        description: "Titta så här många timmar bakåt (default 24)"
+        default: "24"
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: write
+  id-token: write
+
+jobs:
+  changed:
+    runs-on: ubuntu-latest
+    outputs:
+      prs: ${{ steps.list.outputs.prs }}
+    steps:
+      - id: list
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          hours="${{ github.event.inputs.hours || '24' }}"
+          since="$(date -u -d "-${hours} hours" +%Y-%m-%dT%H:%M:%SZ)"
+          prs="$(gh pr list --repo "$GITHUB_REPOSITORY" --state merged --limit 50 --json number,title,mergedAt \
+                 --jq "[.[] | select(.mergedAt > \"$since\")] | map(\"#\(.number) \(.title)\") | join(\"; \")")"
+          echo "prs=$prs" >> "$GITHUB_OUTPUT"
+          echo "Mergat sedan $since: ${prs:-inget}"
+
+  audit:
+    needs: changed
+    if: needs.changed.outputs.prs != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Kravagent
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: |
+            --allowed-tools "Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr list:*),Bash(gh issue view:*),Bash(gh issue list:*),Bash(gh issue create:*),Bash(gh issue edit:*),Bash(gh issue comment:*),Bash(gh api:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*)"
+          prompt: |
+            Du är Leos kravagent. Läs `CLAUDE.md`, `docs/requirements.md` och `docs/process.md`.
+
+            Mergat till main senaste dygnet: ${{ needs.changed.outputs.prs }}
+
+            Kontrollera, i denna ordning, och var konkret (ID, PR, fil):
+            1. För varje mergad PR: vilka krav (`Uppfyller:`) säger den sig leverera? Läs diffen.
+               Gör koden det raden säger, och håller "Klart när"? Är verifieringen rimlig?
+            2. Inför PR:en synligt beteende som saknar F-/NF-rad? Nya termer utan T-rad?
+            3. Önskemål från Leo (issues) som stängts: finns det en rad för önskemålet om det var ett nytt krav?
+            4. Rader med status `Pågår` vars källa (issue/PR) är stängd/mergad.
+            5. Bryter något mot ett låst beslut (B-rad) – t.ex. betaltjänst (B-01) eller kassa (B-04)?
+
+            Rapportering – EXAKT så här, för att undvika brus:
+            - Hitta issuet med etiketten `kravavvikelser` (`gh issue list --label kravavvikelser --state open`).
+              Finns det inte: skapa ETT med titeln "Kravavvikelser (nattlig kontroll)" och den etiketten.
+            - Skriv om issuets body så att den ALLTID är den aktuella listan av avvikelser (inte en logg):
+              en rad per avvikelse med datum upptäckt, krav-ID, PR/issue, vad som avviker, föreslagen åtgärd.
+              Ta bort avvikelser som inte längre gäller. Skriv "Inga avvikelser" om listan är tom.
+            - Lägg EN kommentar med dagens sammanfattning (vad kontrollerades, vad ändrades i listan).
+            - Skapa aldrig andra issues. Ändra aldrig kod eller dokument.

@@ -1,0 +1,35 @@
+---
+import { getCollection } from 'astro:content';
+import Bas from '../layouts/Bas.astro';
+
+const kappar = (await getCollection('kappar')).sort((a, b) => a.data.ordning - b.data.ordning);
+---
+
+<Bas titel="Leo – käppar">
+  <main>
+    <h1>Leo</h1>
+    <p class="ingress">Käppar som konstverk – gjorda för att användas.</p>
+    {kappar.length === 0 && <p class="dampad">Galleriet öppnar snart.</p>}
+  </main>
+</Bas>
+
+<style>
+  main {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 20vh 1rem 4rem;
+    text-align: center;
+  }
+  h1 {
+    font-weight: normal;
+    font-size: clamp(3rem, 12vw, 6rem);
+    letter-spacing: 0.1em;
+    margin: 0;
+  }
+  .ingress {
+    font-size: 1.25rem;
+  }
+  .dampad {
+    color: var(--dampad);
+  }
+</style>

@@ -1,0 +1,55 @@
+name: board
+
+# Håller boardet (organisationsprojekt 1 "leo") i takt utan att någon behöver köra script:
+#   nytt issue            → Backlog
+#   @claude i ett issue   → In progress (Claude bygger)
+#   PR öppnas             → PR + issuet den stänger → In review (scripts/pr-open.sh)
+# Done sätts av scripts/merge-pr.sh.
+#
+# Kräver repo-secret PROCESS_TOKEN (se publish.yml). Saknas den hoppas stegen över med en varning.
+
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  board:
+    if: github.event.sender.type != 'Bot' || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PROCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Uppdatera boardet
+        env:
+          EVENT: ${{ github.event_name }}
+          ISSUE: ${{ github.event.issue.number }}
+          IS_PR: ${{ github.event.issue.pull_request != null }}
+          PR: ${{ github.event.pull_request.number }}
+          HAS_CLAUDE: ${{ contains(github.event.issue.body, '@claude') || contains(github.event.comment.body, '@claude') }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::warning::PROCESS_TOKEN saknas – boardet uppdateras inte automatiskt."
+            exit 0
+          fi
+          source scripts/lib.sh
+          case "$EVENT" in
+            issues)
+              if [ "$HAS_CLAUDE" = true ]; then board_set "$ISSUE" "In progress"; else board_set "$ISSUE" Backlog; fi ;;
+            issue_comment)
+              if [ "$IS_PR" != true ] && [ "$HAS_CLAUDE" = true ]; then board_set "$ISSUE" "In progress"; fi ;;
+            pull_request)
+              # Kravgrinden körs separat (requirements-gate) – här bara boardet.
+              board_set "$PR" "In review"
+              for n in $(pr_closes "$PR"); do board_set "$n" "In review"; done ;;
+          esac
