@@ -18,6 +18,8 @@ const kappar = defineCollection({
       bilder: z.array(image()).min(1),
       // Beskriver huvudbilden för den som inte ser den (NF-02).
       alt: z.string().min(10),
+      // Beskrivning av bild 2, 3 … i samma ordning som `bilder` (NF-02).
+      bildtexter: z.array(z.string().min(10)).default([]),
     }),
 });
 

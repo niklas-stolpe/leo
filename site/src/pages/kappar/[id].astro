@@ -40,7 +40,7 @@ const fakta = [
           kappa.data.bilder.map((bild, i) => (
             <Image
               src={bild}
-              alt={i === 0 ? kappa.data.alt : `${titel}, bild ${i + 1}`}
+              alt={i === 0 ? kappa.data.alt : (kappa.data.bildtexter[i - 1] ?? `${titel}, bild ${i + 1}`)}
               widths={[540, 900, 1400]}
               sizes="(min-width: 64rem) 60rem, 100vw"
               loading={i === 0 ? 'eager' : 'lazy'}

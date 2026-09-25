@@ -122,7 +122,11 @@ const bildUrl = delningsbild ? new URL(delningsbild, Astro.url).href : undefined
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--dampad);
-    padding: 0.5rem 0;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 0.5rem;
+    margin-right: -0.5rem;
   }
   nav a:hover {
     color: var(--elfenben);
