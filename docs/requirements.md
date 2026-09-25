@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-09-25 | Admin (chatt): fast förhandsvisningsadress "stage" + fast prod-adress, i stället för en ny länk per ändring (T-03, T-07, NF-05). |
 | 2026-09-25 | #5/#6: startsida och galleri i mörk, klassisk stil (Cormorant Garamond, mässing, ornament efter käpparnas ringar). 23 käppar ur Admins album, numrerade med romerska siffror – titel, år, material och status tomma tills Leo fyller i (F-12 kvar). F-01, F-03 (sidfot från #11/#13, nu i layouten), F-10, F-11 Klar; NF-03 (största bild 91 kB) Klar; NF-06 Pågår (ingen horisontell scroll vid 360 px i webbläsaren – mäts med Lighthouse i #9). Bilder på Jan Guillou hålls utanför tills samtycke (F-23, Q-05). |
 | 2026-09-25 | Första versionen. Admin (chatt): egen webbplats som nav, Instagram/Facebook länkar dit, ingen webbshop, gratis drift, Leo godkänner genom att titta. Konton startar hos Admin och flyttas till Leo senare. |
 
@@ -23,7 +24,8 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 |---|---|---|
 | T-01 | **Leo** | Konstnären. Beställare och konstnärlig ledare – bestämmer hur sidan ska se ut och kännas. |
 | T-02 | **Admin** | Niklas. Beslutar om säkerhet, konton, domän, pengar och låsta beslut (B-rader). |
-| T-03 | **Förhandsvisning** | En egen länk per ändring (`pr-<nummer>-leo…workers.dev`) där Leo ser ändringen innan den publiceras. |
+| T-03 | **Förhandsvisning (stage)** | Fast adress https://stage-leo.niklasstolpe.workers.dev som alltid visar den senaste ändringen innan den publiceras. Varje ändring har dessutom en egen länk (`pr-<nummer>-leo…workers.dev`). |
+| T-07 | **Prod** | Den publicerade sidan, https://leo.niklasstolpe.workers.dev (tills egen domän, Q-02). |
 | T-04 | **Godkänt** | Leo skriver `godkänt` som kommentar på PR:en efter att ha tittat på förhandsvisningen. Då publiceras ändringen. |
 | T-05 | **Käpp-mappen** | `site/src/content/kappar/<namn>/` – en mapp per käpp med `index.md` (text) och bilderna. |
 | T-06 | **Önskemål** | Ett issue där Leo beskriver vad han vill ändra, med ord och bilder. Claude bygger det. |
@@ -96,7 +98,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | NF-02 | Tillgänglig. | Lighthouse Accessibility ≥ 90; alla käppbilder har alt-text. | v1 | Backlog | – | Admin 2026-09-25 |
 | NF-03 | Bilderna optimeras automatiskt – Leo kan skicka stora originalbilder. | Bilder i käpp-mappar byggs till moderna format och flera storlekar; ingen bild > 400 kB till besökaren. | v1 | Klar | bygg | Admin 2026-09-25 |
 | NF-04 | Hittas på Google. | Lighthouse SEO ≥ 90; sitemap finns. | v1 | Backlog | – | Admin 2026-09-25 |
-| NF-05 | Varje ändring får en förhandsvisning (T-03) med egen länk, postad på PR:en. | Länken postas inom 5 minuter efter push. | v1 | Backlog | – | Admin 2026-09-25 |
+| NF-05 | Varje ändring får en förhandsvisning (T-03) på stage – samma adress varje gång, så att Leo kan spara den i mobilen – plus en egen länk, postade på PR:en. | Stage visar ändringen inom 5 minuter efter push. | v1 | Backlog | – | Admin 2026-09-25 |
 | NF-06 | Fungerar på mobil. | Ingen horisontell scroll vid 360 px bredd. | v1 | Pågår | – | Admin 2026-09-25 |
 
 ## Ej inom scope
