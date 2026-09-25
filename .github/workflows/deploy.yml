@@ -85,16 +85,23 @@ jobs:
           npx wrangler versions upload --preview-alias "pr-$PR" --message "PR #$PR" | tee upload.log
           url="$(grep -oE "https://pr-$PR-leo\.[a-z0-9.-]+\.workers\.dev" upload.log | head -1)"
           [ -n "$url" ] || { echo "Hittade ingen förhandsvisningslänk i wrangler-utskriften" >&2; exit 1; }
-          npx wrangler versions upload --preview-alias stage --message "stage = PR #$PR" | tee stage.log
-          stage="$(grep -oE "https://stage-leo\.[a-z0-9.-]+\.workers\.dev" stage.log | head -1)"
-          [ -n "$stage" ] || { echo "Hittade ingen stage-länk i wrangler-utskriften" >&2; exit 1; }
+          # Misslyckas stage ska Leo ändå få länken till pr-<n> – steget blir rött först efter kommentaren.
+          stage=""
+          if npx wrangler versions upload --preview-alias stage --message "stage = PR #$PR" | tee stage.log; then
+            stage="$(grep -oE "https://stage-leo\.[a-z0-9.-]+\.workers\.dev" stage.log | head -1)"
+          fi
+          if [ -n "$stage" ]; then
+            visa="$stage"; om="det är samma adress varje gång"
+          else
+            visa="$url"; om="stage kunde inte uppdateras den här gången, så använd den här länken"
+          fi
           sha="$(git rev-parse --short HEAD)"
           gh pr comment "$PR" --edit-last --create-if-none --body "$(cat <<EOF
           ## 👀 Förhandsvisning
 
-          **$stage**
+          **$visa**
 
-          Öppna länken i mobilen och titta – det är samma adress varje gång. (Version \`$sha\`.)
+          Öppna länken i mobilen och titta – $om. (Version \`$sha\`.)
 
           - Ser det bra ut? Svara med en kommentar som börjar med **godkänt** – då publiceras det.
           - Vill du ändra något? Skriv **@claude** och beskriv vad, gärna med en bild.
@@ -102,6 +109,7 @@ jobs:
           <sub>Stage visar alltid den senaste ändringen. Är flera ändringar på gång samtidigt finns just den här på $url</sub>
           EOF
           )"
+          [ -n "$stage" ] || { echo "stage-uppladdningen misslyckades – kommentaren pekar på $url i stället" >&2; exit 1; }
 
   production:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
