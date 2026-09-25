@@ -11,6 +11,7 @@ const kappar = (await getCollection('kappar')).sort((a, b) => a.data.ordning - b
     <p class="ingress">Käppar som konstverk – gjorda för att användas.</p>
     {kappar.length === 0 && <p class="dampad">Galleriet öppnar snart.</p>}
   </main>
+  <footer class="sidfot">© Leo {new Date().getFullYear()}</footer>
 </Bas>
 
 <style>
@@ -19,6 +20,12 @@ const kappar = (await getCollection('kappar')).sort((a, b) => a.data.ordning - b
     margin: 0 auto;
     padding: 20vh 1rem 4rem;
     text-align: center;
+  }
+  .sidfot {
+    text-align: center;
+    padding: 0 1rem 2rem;
+    font-size: 0.85rem;
+    color: var(--dampad);
   }
   h1 {
     font-weight: normal;

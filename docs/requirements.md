@@ -15,6 +15,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | Datum | Ändring |
 |---|---|
 | 2026-09-25 | Första versionen. Admin (chatt): egen webbplats som nav, Instagram/Facebook länkar dit, ingen webbshop, gratis drift, Leo godkänner genom att titta. Konton startar hos Admin och flyttas till Leo senare. |
+| 2026-09-25 | F-03 tillagd: diskret sidfot på startsidan (Leo, issue #11). |
 
 ## Terminologi
 
@@ -59,6 +60,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 |---|---|---|---|---|---|---|
 | F-01 | Startsidan presenterar Leo och käpparna så att besökaren förstår direkt att det är konst som används. | Leo har godkänt startsidan i förhandsvisningen. | v1 | Backlog | – | Admin 2026-09-25 |
 | F-02 | Sidan finns på en publik adress och uppdateras automatiskt när en ändring godkänts. | Godkänd ändring syns på produktionsadressen utan manuella steg. | v1 | Backlog | – | Admin 2026-09-25 |
+| F-03 | Längst ned på startsidan finns en diskret sidfot med "© Leo" och årtalet, i samma dämpade färg som övrig text. | Sidfoten syns, är liten och lugn. Leo har godkänt förhandsvisningen. | v1 | Klar | leo | Leo (issue #11) 2026-09-25 |
 
 ### Käpparna
 
