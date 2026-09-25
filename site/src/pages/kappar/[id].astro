@@ -1,0 +1,140 @@
+---
+// En sida per käpp med egen adress, så att ett Instagram-inlägg kan länka direkt hit (F-11).
+import { Image, getImage } from 'astro:assets';
+import { render } from 'astro:content';
+import Bas from '../../layouts/Bas.astro';
+import Ringar from '../../components/Ringar.astro';
+import { allaKappar, rubrik, type Kappa } from '../../lib/kappa';
+
+export async function getStaticPaths() {
+  const kappar = await allaKappar();
+  return kappar.map((k, i) => ({
+    params: { id: k.id },
+    props: { kappa: k, forra: kappar[i - 1], nasta: kappar[i + 1] },
+  }));
+}
+
+interface Props {
+  kappa: Kappa;
+  forra?: Kappa;
+  nasta?: Kappa;
+}
+const { kappa, forra, nasta } = Astro.props;
+const { Content } = await render(kappa);
+const titel = rubrik(kappa);
+const harBerattelse = (kappa.body ?? '').trim().length > 0;
+const delningsbild = await getImage({ src: kappa.data.bilder[0], width: 1200, format: 'jpg' });
+const fakta = [
+  kappa.data.ar && String(kappa.data.ar),
+  kappa.data.material.length > 0 && kappa.data.material.join(', '),
+  kappa.data.status,
+].filter(Boolean);
+---
+
+<Bas titel={`${titel} – Leo`} beskrivning={`${titel} ur Leos samling. ${kappa.data.alt}`} delningsbild={delningsbild.src}>
+  <main>
+    <p class="tillbaka"><a class="versaler" href="/#samlingen">← Samlingen</a></p>
+    <article>
+      <figure class="ram">
+        {
+          kappa.data.bilder.map((bild, i) => (
+            <Image
+              src={bild}
+              alt={i === 0 ? kappa.data.alt : `${titel}, bild ${i + 1}`}
+              widths={[540, 900, 1400]}
+              sizes="(min-width: 64rem) 60rem, 100vw"
+              loading={i === 0 ? 'eager' : 'lazy'}
+            />
+          ))
+        }
+      </figure>
+      <header>
+        <h1>{titel}</h1>
+        {fakta.length > 0 && <p class="fakta">{fakta.join(' · ')}</p>}
+      </header>
+      {
+        harBerattelse && (
+          <>
+            <Ringar />
+            <div class="berattelse">
+              <Content />
+            </div>
+          </>
+        )
+      }
+    </article>
+    <nav class="bladdra" aria-label="Fler käppar">
+      {forra ? <a href={`/kappar/${forra.id}/`}>← {rubrik(forra)}</a> : <span />}
+      {nasta ? <a href={`/kappar/${nasta.id}/`}>{rubrik(nasta)} →</a> : <span />}
+    </nav>
+  </main>
+</Bas>
+
+<style>
+  main {
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 4vw, 3rem);
+  }
+  .tillbaka {
+    margin: 2rem 0;
+  }
+  .tillbaka a {
+    text-decoration: none;
+    color: var(--dampad);
+  }
+  .tillbaka a:hover {
+    color: var(--elfenben);
+  }
+  .ram {
+    margin: 0;
+    padding: clamp(0.5rem, 1.5vw, 0.9rem);
+    border: 1px solid rgb(184 149 90 / 0.5);
+    outline: 1px solid rgb(184 149 90 / 0.2);
+    outline-offset: 6px;
+    background: var(--yta);
+    display: grid;
+    gap: 0.9rem;
+  }
+  .ram img {
+    width: 100%;
+  }
+  header {
+    text-align: center;
+    margin: 3rem 0 1.5rem;
+  }
+  h1 {
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(3rem, 9vw, 5rem);
+    line-height: 1;
+    margin: 0;
+  }
+  .fakta {
+    color: var(--dampad);
+    margin: 0.75rem 0 0;
+  }
+  .berattelse {
+    max-width: 38rem;
+    margin: 2rem auto 0;
+    font-size: 1.3rem;
+  }
+  .bladdra {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 4rem 0 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgb(184 149 90 / 0.25);
+    font-style: italic;
+    font-size: 1.2rem;
+  }
+  .bladdra a {
+    text-decoration: none;
+    color: var(--dampad);
+    padding: 0.5rem 0;
+  }
+  .bladdra a:hover {
+    color: var(--massing-ljus);
+  }
+</style>

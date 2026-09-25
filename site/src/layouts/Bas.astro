@@ -1,9 +1,18 @@
 ---
+import '@fontsource/cormorant-garamond/400.css';
+import '@fontsource/cormorant-garamond/400-italic.css';
+import '@fontsource/cormorant-garamond/600.css';
+import Ringar from '../components/Ringar.astro';
+
 interface Props {
   titel: string;
   beskrivning?: string;
+  /** Bild som visas när länken delas (F-30). Absolut eller rot-relativ URL. */
+  delningsbild?: string;
 }
-const { titel, beskrivning = 'Käppar av Leo – konst som används.' } = Astro.props;
+const { titel, beskrivning = 'Käppar av Leo – konst som används.', delningsbild } = Astro.props;
+const ar = new Date().getFullYear();
+const bildUrl = delningsbild ? new URL(delningsbild, Astro.url).href : undefined;
 ---
 
 <html lang="sv">
@@ -11,35 +20,121 @@ const { titel, beskrivning = 'Käppar av Leo – konst som används.' } = Astro.
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={beskrivning} />
+    <meta name="theme-color" content="#0e0d0b" />
+    <meta property="og:type" content="website" />
     <meta property="og:title" content={titel} />
     <meta property="og:description" content={beskrivning} />
+    {bildUrl && <meta property="og:image" content={bildUrl} />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{titel}</title>
   </head>
   <body>
+    <header class="huvud">
+      <a class="marke" href="/">Leo</a>
+      <nav aria-label="Huvudmeny">
+        <a href="/#samlingen">Samlingen</a>
+      </nav>
+    </header>
     <slot />
+    <footer class="fot">
+      <Ringar />
+      <p>© Leo {ar}</p>
+    </footer>
   </body>
 </html>
 
 <style is:global>
   :root {
-    color-scheme: light dark;
-    --bakgrund: #f6f3ee;
-    --text: #1f1c18;
-    --dampad: #6b645b;
+    color-scheme: dark;
+    --svart: #0e0d0b;
+    --yta: #17150f;
+    --elfenben: #ece4d4;
+    --dampad: #a39985;
+    --massing: #b8955a;
+    --massing-ljus: #d4b27a;
+    --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bakgrund: #16140f;
-      --text: #ece6dc;
-      --dampad: #a39b8f;
-    }
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  html {
+    scroll-behavior: smooth;
   }
   body {
     margin: 0;
-    background: var(--bakgrund);
-    color: var(--text);
-    font-family: Georgia, 'Times New Roman', serif;
+    background: var(--svart);
+    color: var(--elfenben);
+    font-family: var(--serif);
+    font-size: 1.2rem;
     line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a {
+    color: inherit;
+  }
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+  .versaler {
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  :focus-visible {
+    outline: 1px solid var(--massing-ljus);
+    outline-offset: 4px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    * {
+      transition: none !important;
+    }
+  }
+</style>
+
+<style>
+  .huvud {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 1.5rem clamp(1rem, 4vw, 3rem);
+    border-bottom: 1px solid rgb(184 149 90 / 0.25);
+  }
+  .marke {
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.5em;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--massing-ljus);
+  }
+  nav a {
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--dampad);
+    padding: 0.5rem 0;
+  }
+  nav a:hover {
+    color: var(--elfenben);
+  }
+  .fot {
+    padding: 4rem 1rem 3rem;
+    text-align: center;
+    color: var(--dampad);
+    font-size: 0.95rem;
+  }
+  .fot p {
+    margin: 1.25rem 0 0;
+    letter-spacing: 0.1em;
   }
 </style>
