@@ -1,8 +1,10 @@
 name: deploy
 
 # Bygger webbplatsen på varje PR och på main.
-#   PR   → site-build (grind i merge-pr.sh) + förhandsvisning på egen länk, postad på PR:en (NF-05, T-03).
+#   PR   → site-build (grind i merge-pr.sh) + förhandsvisning, postad på PR:en (NF-05, T-03):
+#          stage – fast adress, alltid senaste pushade ändringen – och pr-<n> för just den PR:en.
 #   main → site-build + publicering till produktion (F-02).
+# Fasta adresser: stage https://stage-leo.niklasstolpe.workers.dev · prod https://leo.niklasstolpe.workers.dev
 #
 # Kräver repo-secrets (Admin, B-07):
 #   CLOUDFLARE_API_TOKEN   – mallen "Edit Cloudflare Workers" i Cloudflare → My Profile → API Tokens
@@ -78,19 +80,26 @@ jobs:
             gh pr comment "$PR" --edit-last --create-if-none --body "**Förhandsvisning:** inte uppsatt än – Admin behöver lägga in Cloudflare-nycklarna (se \`docs/process.md\`, manuella steg)."
             exit 0
           fi
+          # Två alias för samma innehåll: pr-<n> (just den här ändringen) och stage – en fast adress
+          # som alltid visar den senast pushade ändringen, så att Leo kan spara den i mobilen (T-03).
           npx wrangler versions upload --preview-alias "pr-$PR" --message "PR #$PR" | tee upload.log
           url="$(grep -oE "https://pr-$PR-leo\.[a-z0-9.-]+\.workers\.dev" upload.log | head -1)"
           [ -n "$url" ] || { echo "Hittade ingen förhandsvisningslänk i wrangler-utskriften" >&2; exit 1; }
+          npx wrangler versions upload --preview-alias stage --message "stage = PR #$PR" | tee stage.log
+          stage="$(grep -oE "https://stage-leo\.[a-z0-9.-]+\.workers\.dev" stage.log | head -1)"
+          [ -n "$stage" ] || { echo "Hittade ingen stage-länk i wrangler-utskriften" >&2; exit 1; }
           sha="$(git rev-parse --short HEAD)"
           gh pr comment "$PR" --edit-last --create-if-none --body "$(cat <<EOF
           ## 👀 Förhandsvisning
 
-          **$url**
+          **$stage**
 
-          Öppna länken i mobilen och titta. (Version \`$sha\`.)
+          Öppna länken i mobilen och titta – det är samma adress varje gång. (Version \`$sha\`.)
 
           - Ser det bra ut? Svara med en kommentar som börjar med **godkänt** – då publiceras det.
           - Vill du ändra något? Skriv **@claude** och beskriv vad, gärna med en bild.
+
+          <sub>Stage visar alltid den senaste ändringen. Är flera ändringar på gång samtidigt finns just den här på $url</sub>
           EOF
           )"
 

@@ -20,10 +20,15 @@ Du behöver aldrig röra kod. Du beskriver, tittar och säger ja. Claude bygger.
 
 ### Titta och svara
 
-Efter några minuter kommer en kommentar med en **länk**. Öppna den i mobilen – där ser du sidan som den skulle bli, innan någon annan ser den.
+Spara två adresser i mobilen, en gång för alla:
+
+- **Förhandsvisning:** https://stage-leo.niklasstolpe.workers.dev – här ser du ändringen innan någon annan gör det.
+- **Den riktiga sidan:** https://leo.niklasstolpe.workers.dev
+
+Efter några minuter kommer en kommentar som säger att ändringen är klar att titta på. Öppna förhandsvisningen.
 
 - **Ser det bra ut?** Skriv en kommentar som börjar med **godkänt**. Då publiceras det.
-- **Vill du ändra något?** Skriv **@claude** och vad som ska ändras, till exempel *"@claude gör bilden större och texten lugnare"*. Du får en ny länk.
+- **Vill du ändra något?** Skriv **@claude** och vad som ska ändras, till exempel *"@claude gör bilden större och texten lugnare"*. Förhandsvisningen uppdateras på samma adress.
 
 Det går inte att ha sönder något. Inget syns på webbplatsen förrän du skrivit *godkänt*.
 

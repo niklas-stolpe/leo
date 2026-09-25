@@ -14,7 +14,7 @@ säkerhet – täcks av grindar och granskning.
 | **Leo** | Skriver önskemål och nya käppar (issue-mallar med `@claude` förifyllt). Tittar på förhandsvisningen. Svarar `godkänt` eller `@claude ändra …`. | GitHub, gärna mobilappen |
 | **Admin** | Beslutar (B-rader), sköter konton och hemligheter, följer boardet. Står i Leos ställe tills Leo har konto (B-09). | – |
 | **`claude.yml`** | Claude bygger vid `@claude` – från issue till PR, eller ändringar på en PR. | GitHub Actions |
-| **`deploy.yml`** | `site-build` (typkontroll + bygge) på varje PR och main. Förhandsvisning per PR med länk i en kommentar. Publicering från main. | GitHub Actions |
+| **`deploy.yml`** | `site-build` (typkontroll + bygge) på varje PR och main. Förhandsvisning per PR på fasta adressen stage (senaste pushade ändringen) och på `pr-<n>`, länk i en kommentar. Publicering från main. | GitHub Actions |
 | **`requirements-gate`** | Kravgrinden som röd/grön bock på PR:en. | GitHub Actions, varje PR |
 | **Claude Code Review** | Granskar det Leo inte ser. Kommenterar, rättar inget. | GitHub Actions, varje PR |
 | **`publish.yml`** | Leo skriver `godkänt` → kör `merge-pr.sh` → merge → `deploy.yml` publicerar. | GitHub Actions |
