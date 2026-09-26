@@ -23,11 +23,11 @@ Ingen behöver minnas en procedur – den körs av script och workflows.
 ```
 Beställare: issue "Önskemål" (@claude förifyllt)       board → In progress
 Claude: branch, bygger, öppnar PR (Closes #n)          board → In review
-deploy.yml: bygge + stage-länk som kommentar på PR:en
+Cloudflare Workers Builds: bygger branchen → stage visar ändringen på fast adress
 Claude Code Review: granskar → fynd fixas (session eller "@claude åtgärda granskningsfynden")
 Beställare: tittar på stage → "@claude ändra …" (ny version på samma adress) eller "godkänt"
 publish.yml → merge-pr.sh: alla grindar → merge → board Done, issue stängt, roadmap avbockad
-main: deploy.yml publicerar till prod
+main: Cloudflare Workers Builds publicerar till prod
 ```
 
 ## Byggstenarna
@@ -41,10 +41,10 @@ main: deploy.yml publicerar till prod
 | `scripts/lib.sh` | Delade inställningar: repo, board-id:n, statusar, vem som får godkänna (`LEO_LOGINS`), vad som syns (`VISIBLE_PATH`) | **Alla id:n** – se steg 2 nedan |
 | `scripts/requirements-check.sh` | Kravgrinden: `Uppfyller:`-rad, ID:n finns och är `Klar` med verifiering, `Säkerhet:`-rad när Admins yta rörs | `SEC_PATH` |
 | `scripts/leo-approval.sh` | Beställarens `godkänt` måste finnas **efter** senaste committen om PR:en rör det som syns | Inget (läser `lib.sh`) |
-| `scripts/merge-pr.sh` | Enda sättet att merga: kravgrind, godkännande, CI, granskningstrådar → squash-merge → board, issues, roadmap, beroenden | CI-jobbens namn om de ändras |
+| `scripts/merge-pr.sh` | Enda sättet att merga: kravgrind, godkännande, Cloudflare-bygget, granskningstrådar → squash-merge → board, issues, roadmap, beroenden | – (läser `BUILD_CHECK`) |
 | `scripts/issue-start.sh`, `pr-open.sh` | Session: branch + board In progress; PR → In review + kravgrind | – |
-| `scripts/deploy-local.sh` | Reservväg: publicera prod/stage från datorn när Actions inte kör | Adresser i kommentaren |
-| `.github/workflows/deploy.yml` | `site-build` på varje PR och main; förhandsvisning (stage + `pr-<n>`) med länk som PR-kommentar; prod från main. Sätter `PUBLIC_MILJO` | Worker-namn/adresser i grep-mönstren |
+| `scripts/deploy-local.sh` | Reservväg: publicera prod/stage från datorn när Workers Builds inte kör; första publiceringen | Adresser i kommentaren |
+| Cloudflare Workers Builds (inte en fil) | Typkontroll + bygge vid varje push; andra brancher → stage, main → prod. Check-run `Workers Builds: <worker>` som `merge-pr.sh` kräver. Drar inga GitHub-minuter | Inställningarna i 3b, `BUILD_CHECK` i `lib.sh` |
 | `.github/workflows/claude.yml` | `@claude` i issue eller PR → Claude bygger | Förinstallation (`npm ci` i rätt katalog) |
 | `.github/workflows/claude-code-review.yml` | Granskning av varje PR, `allowed_bots: "claude"` så Claudes egna PR:er granskas | Granskningsprompten (vad som är viktigt i projektet) |
 | `.github/workflows/publish.yml` | Kommentar som börjar med `godkänt` → `merge-pr.sh`. Kör alltid main:s version av scripten | – |
@@ -52,7 +52,7 @@ main: deploy.yml publicerar till prod
 | `.github/workflows/requirements-gate.yml` | Kravgrinden som bock på PR:en | – |
 | `.github/workflows/requirements-audit.yml` | Nattlig kravagent → ett återanvänt issue `kravavvikelser` | Promptens projektnamn |
 | `.github/ISSUE_TEMPLATE/*.md` | Mallar med `@claude` förifyllt – beställaren fyller bara i text och bilder | Mallarnas innehåll |
-| `site/src/lib/miljo.ts`, `site/astro.config.mjs` | Stage eller prod från `PUBLIC_MILJO`: ikon, appnamn, noindex, adress för delningsbilder | Adresser |
+| `site/src/lib/miljo.ts`, `site/astro.config.mjs` | Stage eller prod från `PUBLIC_MILJO` (sätts i Workers Builds deploy command): ikon, appnamn, noindex, adress för delningsbilder | Adresser |
 
 ## Sätta upp ett nytt projekt
 
@@ -71,7 +71,7 @@ Byt boardets statusar till `Backlog · Ready · In progress · In review · Done
 ### 2. Kopiera och byt ut
 
 Kopiera filerna i tabellen ovan. I `scripts/lib.sh`: `REPO`, `PROJECT_OWNER`, `PROJECT_NUMBER`,
-`PROJECT_ID`, `STATUS_FIELD_ID`, option-id:na i `status_option_id`, `LEO_LOGINS` (Admins login tills
+`PROJECT_ID`, `STATUS_FIELD_ID`, option-id:na i `status_option_id`, `BUILD_CHECK`, `LEO_LOGINS` (Admins login tills
 beställaren har konto), `VISIBLE_PATH`. Skapa etiketterna `önskemål`, `admin`, `kravavvikelser`,
 `status:blocked`, `status:ready` (+ projektets egna). Glöm inte `git update-index --chmod=+x scripts/*.sh`
 på Windows.
@@ -121,7 +121,7 @@ check på commiten i GitHub; `merge-pr.sh` kräver att den är grön.
 3. **Provkör hela kedjan** innan beställaren börjar:
    - [ ] Önskemål-issue → Claude svarar och öppnar PR (Claude-nyckeln fungerar)
    - [ ] Kortet flyttar sig själv till In progress och In review (processnyckeln fungerar)
-   - [ ] Stage-länken kommer som kommentar och visar ändringen (Cloudflare fungerar)
+   - [ ] Checken `Workers Builds: <worker>` blir grön och stage visar ändringen (Cloudflare fungerar)
    - [ ] Granskningen postar PASS/FYND (Claude-appen + `allowed_bots`)
    - [ ] `godkänt` → mergad, kort Done, issue stängt, prod uppdaterad
 4. Spara stage och prod på mobilens hemskärm – ikonerna skiljer dem åt.
@@ -135,21 +135,25 @@ check på commiten i GitHub; `merge-pr.sh` kräver att den är grön.
 - **Nya krav blir rader direkt**, i samma PR som bygger dem. PR:en flippar raden till `Klar`.
 - **Personer på bild** (utom beställaren) visas bara med samtycke – fråga Admin.
 
-## När GitHub Actions inte kör
+## GitHub Actions-minuterna
 
 Organisationen har 2000 Actions-minuter i månaden på GitHub Free, delade mellan **alla** privata repon.
-En PR kostar ungefär 10–15 minuter (granskningen ~4 min per push). När minuterna är slut startar
-inga jobb, och jobben faller utan steg och utan logg – orsaken står bara i check-runens annotations:
-`gh api repos/<repo>/check-runs/<id>/annotations`.
+Bygge och publicering ligger därför hos Cloudflare (3b). Det som fortfarande kör i Actions är Claude
+(`@claude`, granskningen, kravagenten), `publish.yml`, `board.yml` och `requirements-gate` – en PR
+kostar ungefär 5–10 minuter, mest granskningen (~4 min per push).
 
-Reservvägar:
+När minuterna är slut startar inga Actions-jobb; de faller utan steg och utan logg, och orsaken står
+bara i check-runens annotations: `gh api repos/<repo>/check-runs/<id>/annotations`.
 
-| Vad | Hur |
+| Vad | Fungerar ändå? |
 |---|---|
-| Publicera | `npx wrangler login` en gång i `site/`, sedan `scripts/deploy-local.sh prod` (från ren main) eller `scripts/deploy-local.sh stage` (aktuell branch) |
-| Bygga och granska | Claude i session kör `npm run check`/`build` och granskar diffen lokalt |
-| Merga | `merge-pr.sh` väntar på CI-jobb som aldrig startar – vänta till nästa månad, eller besluta (Admin) om undantag |
-| Långsiktigt | Cloudflare Workers Builds bygger och publicerar på Cloudflares sida (sparar GitHub-minuter); göra repot publikt (obegränsade minuter); utgiftsgräns |
+| Bygge, stage, prod | Ja – Cloudflare |
+| Merga | Ja – `merge-pr.sh` i session kräver bara Cloudflare-bygget, kravgrinden (lokalt) och godkännandet |
+| `godkänt` publicerar av sig själv | Nej – `publish.yml` är Actions. Claude i session kör `merge-pr.sh` |
+| `@claude` och granskning | Nej – Claude i session bygger och granskar diffen lokalt |
+| Om Cloudflare inte bygger | `npx wrangler login` en gång i `site/`, sedan `scripts/deploy-local.sh prod` (ren main) eller `stage` (aktuell branch) |
+
+Mer utrymme: göra repot publikt (obegränsade minuter) eller en utgiftsgräns – båda Admins beslut.
 
 ## Fallgropar vi gått i
 
@@ -166,7 +170,9 @@ Reservvägar:
 | Staplad PR krockar efter squash-merge | Grenen innehåller de gamla commitsen | Lägg PR:ens egen diff ovanpå main (`git diff <bas> <gren>` + `git apply --3way`) |
 | `astro check`: `Cannot find name 'process'` | `// @ts-check` i `astro.config.mjs` utan Node-typer | Ta bort `@ts-check` där |
 | Delningsbild pekar på example.com | `site` saknas i `astro.config.mjs` | `site` från `PUBLIC_MILJO` |
-| Jobb faller utan steg och logg | Actions-minuterna slut | Se "När GitHub Actions inte kör" |
+| Jobb faller utan steg och logg | Actions-minuterna slut | Se "GitHub Actions-minuterna" |
+| Workers Builds föreslår fel repo | Cloudflares GitHub-app hade bara tillgång till ett annat repo | Lägg till repot i appens installation (org → Settings → GitHub Apps) |
+| Workers Builds föreslår ett annat projekts API-nyckel | Förvalt är senast skapade nyckeln | Create new token per projekt |
 
 ## Flytta till beställarens egna konton
 

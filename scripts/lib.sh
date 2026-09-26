@@ -20,6 +20,9 @@ LEO_LOGINS="nstolpeflir"
 # Ändringar här kräver Leos godkännande – allt som syns på webbplatsen.
 VISIBLE_PATH='^site/'
 
+# Byggets check-run på commiten – Cloudflare Workers Builds (docs/processmall.md, 3b).
+BUILD_CHECK="Workers Builds: leo"
+
 # Status → option-id. gh project field-list 1 --owner niklas-stolpe --format json
 status_option_id() {
   case "$1" in

@@ -14,10 +14,10 @@ säkerhet – täcks av grindar och granskning.
 | **Leo** | Skriver önskemål och nya käppar (issue-mallar med `@claude` förifyllt). Tittar på förhandsvisningen. Svarar `godkänt` eller `@claude ändra …`. | GitHub, gärna mobilappen |
 | **Admin** | Beslutar (B-rader), sköter konton och hemligheter, följer boardet. Står i Leos ställe tills Leo har konto (B-09). | – |
 | **`claude.yml`** | Claude bygger vid `@claude` – från issue till PR, eller ändringar på en PR. | GitHub Actions |
-| **`deploy.yml`** | `site-build` (typkontroll + bygge) på varje PR och main. Förhandsvisning per PR på fasta adressen stage (senaste pushade ändringen) och på `pr-<n>`, länk i en kommentar. Publicering från main. | GitHub Actions |
+| **Cloudflare Workers Builds** | Typkontroll + bygge vid varje push. Andra brancher → stage (https://stage-leo.niklasstolpe.workers.dev, senaste pushade ändringen), main → prod (https://leo.niklasstolpe.workers.dev). Check-run `Workers Builds: leo` på commiten. Inställningar: `docs/processmall.md` 3b. | Cloudflare – drar inga GitHub-minuter |
 | **`requirements-gate`** | Kravgrinden som röd/grön bock på PR:en. | GitHub Actions, varje PR |
 | **Claude Code Review** | Granskar det Leo inte ser. Kommenterar, rättar inget. | GitHub Actions, varje PR |
-| **`publish.yml`** | Leo skriver `godkänt` → kör `merge-pr.sh` → merge → `deploy.yml` publicerar. | GitHub Actions |
+| **`publish.yml`** | Leo skriver `godkänt` → kör `merge-pr.sh` → merge → Cloudflare publicerar. | GitHub Actions |
 | **`board.yml`** | Nytt issue → Backlog, `@claude` → In progress, PR → In review. | GitHub Actions |
 | **Kravagenten** | Nattlig, bara om något mergats. Drift mellan kod och krav → ett issue `kravavvikelser`. | GitHub Actions, 05:00 |
 | **Claude i session** | Större ändringar, process, felsökning. Kör samma script. | Admins dator |
@@ -30,11 +30,11 @@ Branch protection finns inte på privata repon i GitHub Free – därför sitter
 ```
 Leo: nytt issue "Önskemål" (mallen har @claude)          board → In progress   (board.yml)
 Claude: branch, bygger, gh pr create "Closes #n …"       board → In review     (board.yml)
-deploy.yml: site-build + förhandsvisning → kommentar med länk på PR:en
+Cloudflare: bygger branchen → stage visar ändringen (check Workers Builds: leo)
 Claude Code Review: granskar → fynd? "@claude åtgärda granskningsfynden" (Admin eller Leo)
 Leo: tittar i mobilen → "@claude gör bilden större"  … ny förhandsvisning …
 Leo: "godkänt"  → publish.yml → merge-pr.sh (grindar, merge, board Done, issue stängt)
-main: deploy.yml publicerar
+main: Cloudflare publicerar till prod
 ```
 
 I session: `scripts/issue-start.sh <n> <område> <slug>` → bygg → `gh pr create` → `scripts/pr-open.sh <pr>`
@@ -48,7 +48,7 @@ I session: `scripts/issue-start.sh <n> <område> <slug>` → bygg → `gh pr cre
 2. **Leos godkännande** (`leo-approval.sh`): rör PR:en `site/` krävs en kommentar som börjar med
    `godkänt`/`godkänd` från ett konto i `LEO_LOGINS` (`scripts/lib.sh`), skriven **efter** senaste committen.
    Ändras något efter godkännandet måste Leo godkänna igen – han godkänner det han såg.
-3. **CI:** `site-build` och `requirements-gate` gröna.
+3. **Bygget:** Cloudflares check `Workers Builds: leo` grön (`BUILD_CHECK` i `lib.sh`). Actions-kravgrinden räknas inte – steg 1 kör samma script.
 4. **Granskning:** inga olösta trådar, ingen granskning pågår.
 
 ## Kravdokumentet
@@ -95,7 +95,7 @@ i skarven gjorde den ogiltig (401). Rätt nyckel: 108 tecken, `sk-ant-oat01-…A
 2. **Secret `CLAUDE_CODE_OAUTH_TOKEN`** – `claude setup-token`. Giltig 1 år – **går ut ~2027-09-25**.
 3. **Secrets `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID`** – Cloudflare → My Profile → API Tokens → mallen "Edit Cloudflare Workers", nyckeln heter "Leo", begränsad till Admins konto. Account ID står i adressfältet i Cloudflare-dashboarden. Samma konto som Eaves.
 4. **Secret `PROCESS_TOKEN`** – classic token "leo-process" från Admins konto med scope `repo`, `workflow`, `project`, `read:org` (utan `read:org`: "unknown owner type" från `gh project`). **Går ut 2027-03-26** – förnya under github.com/settings/tokens → leo-process → Regenerate, och byt secreten.
-5. Kör `deploy` en gång för hand (Actions → deploy → Run workflow) så att Workern skapas – förhandsvisningarna kräver att den finns. Produktion: https://leo.niklasstolpe.workers.dev
+5. Första publiceringen: `scripts/deploy-local.sh prod` (efter `npx wrangler login` i `site/`) så att Workern finns. Koppla sedan Workers Builds (`docs/processmall.md` 3b – gjort 2026-09-26, nyckel `leo-token`). Produktion: https://leo.niklasstolpe.workers.dev
 
 Utgången nyckel syns som: Claude svarar inte på `@claude` (Claude-nyckeln), boardet står still och "godkänt"
 publicerar inte (processnyckeln), eller ingen förhandsvisningslänk (Cloudflare).

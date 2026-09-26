@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Publicera från den här datorn i stället för GitHub Actions – samma bygge som deploy.yml.
-# Reservväg när Actions inte kör (t.ex. när månadens minuter är slut), se docs/processmall.md.
+# Publicera från den här datorn – samma bygge som Cloudflare Workers Builds gör vid push.
+# Reservväg när Workers Builds inte kör, se docs/processmall.md.
 #   scripts/deploy-local.sh prod     main → https://leo.niklasstolpe.workers.dev
 #   scripts/deploy-local.sh stage    aktuell branch → https://stage-leo.niklasstolpe.workers.dev
 # Kräver: `npx wrangler login` en gång (i site/). Prod publiceras bara från en ren main som är
