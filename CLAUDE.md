@@ -7,15 +7,15 @@ Krav: `docs/requirements.md` · Process: `docs/process.md` · Leos guide: `READM
 
 1. **`docs/requirements.md` är sanningen** för vad sidan ska göra och om det är klart. Läs den vid start. `B-`-raderna är låsta beslut – relitigera inte utan att fråga Admin.
 2. **Nya krav = ny rad, direkt.** Ett önskemål från Leo som är nytt beteende blir en F-rad i samma PR som bygger det. Skriv kravet så att Leo förstår det.
-3. **En PR som levererar ett krav flippar dess status till `Klar`** och skriver `Uppfyller: F-xx` i PR-texten. Inget krav (ny käpp, docs, process): `Uppfyller: – <skäl>`. Rör PR:en Admins yta (`.github/`, `scripts/`, `site/wrangler.jsonc`, `site/package*.json`): rad `Säkerhet:`. Verifiering `leo` får sättas i PR:en – merge-grinden kräver Leos `godkänt`.
-4. **Merga bara via `scripts/merge-pr.sh`** – eller låt Leos `godkänt` göra det (`publish.yml` kör samma script). Aldrig `gh pr merge`, aldrig GitHub-knappen.
-5. **Leo godkänner allt som syns (B-06).** Ändringar i `site/` publiceras inte utan hans `godkänt` efter senaste committen.
+3. **En PR som levererar ett krav flippar dess status till `Klar`** och skriver `Uppfyller: F-xx` i PR-texten. Inget krav (ny käpp, docs, process): `Uppfyller: – <skäl>`. Rör PR:en Admins yta (`.github/`, `scripts/`, `site/wrangler.jsonc`, `site/package*.json`): rad `Säkerhet:`. Verifiering `leo` betyder att Admin eller Leo har tittat på versionen.
+4. **Merga bara via `scripts/merge-pr.sh`.** Aldrig `gh pr merge`, aldrig GitHub-knappen. En merge publicerar inte – den blir en ny version på versionssidan.
+5. **Prod ändras bara när Admin eller Leo väljer en version (B-06).** Claude publicerar aldrig på eget initiativ – bara när någon av dem uttryckligen säger "publicera version N" (chatt, issue, knappen på versionssidan).
 6. **En granskning är inte klar förrän fynden är fixade.** Fixa, pusha, svara i tråden, resolve:a.
 7. **Gratis (B-01), ingen kassa (B-04).** Inga betaltjänster, inga nya konton utan Admin.
 
 ## Två sätt att prata – välj efter mottagare
 
-- **Till Leo** (issues och PR-kommentarer där han skrivit): enkel svenska, inga tekniska ord alls – inte "PR", "branch", "build", "deploy", "commit". Säg vad du gjort, vad han ska titta på, och att han svarar **godkänt** eller skriver **@claude** och vad som ska ändras. Kort och vänligt.
+- **Till Leo** (issues och PR-kommentarer där han skrivit): enkel svenska, inga tekniska ord alls – inte "PR", "branch", "build", "deploy", "commit". Säg vad du gjort, att det finns som en ny version på versionssidan (https://leo-versioner.niklasstolpe.workers.dev), och att han trycker **Publicera på prod** när han vill ha den – eller skriver **@claude** och vad som ska ändras. Kort och vänligt.
 - **Till Admin:** sammanfattning först, krav-ID och nummer följs av klartext (`F-13 (fråga om en käpp)`), tekniktermer på engelska. Se `docs/process.md` "Så rapporterar Claude".
 
 ## När du kör i GitHub (@claude)
@@ -24,7 +24,7 @@ Krav: `docs/requirements.md` · Process: `docs/process.md` · Leos guide: `READM
 1. Läs issuet och bilderna. Är det oklart vad Leo vill – fråga i en kommentar i stället för att gissa, med högst två konkreta alternativ.
 2. Skapa branch `site/<issue>-<kort-namn>` (käpp: `kappa/<issue>-<namn>`) från `main`.
 3. Bygg. Kör `npm run check` och `npm run build` i `site/` – båda ska gå igenom.
-4. Levererar ändringen ett krav: sätt raden till `Klar` med verifiering `leo` redan i PR:en (nytt krav: lägg till raden först, + ändringslogg). Det är sant först när Leo skrivit `godkänt` – och det är precis vad merge-grinden kräver, så inget publiceras annars.
+4. Levererar ändringen ett krav: sätt raden till `Klar` med verifiering `claude` när du själv har kontrollerat det i webbläsaren mot förhandsvisningen (nytt krav: lägg till raden först, + ändringslogg). `leo` sätts först när Admin eller Leo har tittat.
 5. Öppna PR med `gh pr create`. Titel `<område> #<issue>: <vad>`. Text:
    ```
    Closes #<issue>
@@ -36,7 +36,8 @@ Krav: `docs/requirements.md` · Process: `docs/process.md` · Leos guide: `READM
    Säkerhet: … (bara om Admins yta rörs)
    ```
 6. Kör `bash scripts/pr-preview.sh <pr>` – postar ändringens egen förhandsvisningslänk på PR:en (stage visar bara den senast pushade ändringen).
-7. Kommentera i issuet till Leo: vad du gjort och att han om ett par minuter kan titta på https://stage-leo.niklasstolpe.workers.dev (Cloudflare bygger branchen dit).
+7. Kör `bash scripts/merge-pr.sh <pr>` när kravgrinden, bygget och granskningen är klara – det blir en ny version.
+8. Kommentera i issuet till Leo: vad du gjort och att den nya versionen finns på versionssidan (https://leo-versioner.niklasstolpe.workers.dev), med knappen **Publicera på prod** när han vill ha den.
 
 **Ny käpp:** ny mapp `site/src/content/kappar/nr-<NN>/` med nästa lediga nummer, bilderna bredvid `index.md`. Frontmatter enligt `site/src/content.config.ts`: `nummer` (styr ordningen, visas som Nº XXIV), `bilder`, `alt` (beskriv käppen för den som inte ser den), `bildtexter` (en beskrivning per extra bild), och bara det Leo faktiskt skrivit: `titel`, `ar`, `material`, `status`. Berättelsen skrivs som text under frontmattern. Hitta aldrig på fakta.
 
@@ -44,7 +45,9 @@ Krav: `docs/requirements.md` · Process: `docs/process.md` · Leos guide: `READM
 
 **Från en PR-kommentar:** ändra på PR:ens branch, kör check + build, pusha. Cloudflare bygger om stage automatiskt.
 
-**"Publicera version N på prod" (F-41):** kör `bash scripts/publicera-version.sh N <issue>` – prod byts direkt till version N och en PR ställer tillbaka `site/` till taggen `vN`. Den PR:en behöver inget nytt godkännande (grinden ser att innehållet är en godkänd version); Admin eller Claude i session mergar med `scripts/merge-pr.sh`. Svara Leo: "Den riktiga sidan visar nu version N." Versionerna finns på https://leo-versioner.niklasstolpe.workers.dev.
+**"Publicera version N på prod" (F-41, B-06):** bara när Admin eller Leo uttryckligen ber om det. Kör `bash scripts/publicera-version.sh N <issue>` – prod byts direkt till version N (sekunder), versionssidan uppdateras och issuet stängs. `publicera.yml` gör samma sak av sig själv när Admin/Leo skapar issuet "Publicera version N på prod".
+
+**"Börja om från version N":** `bash scripts/borja-om-fran.sh N <issue>` – en PR ställer `site/` tillbaka till `vN` så att nästa ändring bygger därifrån. Rör inte prod.
 
 ## Fakta som behövs i kod
 

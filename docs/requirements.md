@@ -4,7 +4,7 @@
 (granskaren kontrollerar). Referera ID:n i issues och PR-texter (`Uppfyller: F-10`).
 Prio = milstolpe; allt är `v1` tills Admin säger till.
 Status: `Backlog` · `Pågår` · `Klar` · `Utgått` (kvar, överstruket, med orsak).
-Verifiering: `leo` (Leo har godkänt i förhandsvisningen) · `bygg` (CI bygger och kontrollerar) ·
+Verifiering: `leo` (Leo eller Admin har tittat på versionen) · `claude` (Claude har kontrollerat i webbläsaren mot förhandsvisningen) · `bygg` (CI bygger och kontrollerar) ·
 `lighthouse` (mätt med Lighthouse på förhandsvisningen) · `admin` (Admin har kontrollerat) · `–` (ej verifierad).
 
 Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller känna. Tekniken står i
@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-09-26 | #33 (Admin): B-06 ändrad – versioner fritt, prod bara när en version väljs. Merge → ny Cloudflare-version (`wrangler versions upload`, inte deploy) + tagg/release; prod byts med `publicera-version.sh` eller `publicera.yml` (issue "Publicera version N på prod", knappen på versionssidan). `leo-approval.sh` och `publish.yml` borttagna; `borja-om-fran.sh` för att fortsätta utveckla från en äldre version. T-04, F-02. |
 | 2026-09-26 | #23 (Admin): versioner – varje publicering av något synligt blir en version (tagg + release), versionssida https://leo-versioner.niklasstolpe.workers.dev, "publicera version N på prod" direkt (scripts/publicera-version.sh). Historiken inlagd som version 1–3. Tre adresser: prod, demo (stage), versioner. F-40 Klar, F-41 Pågår, F-42 + Q-08 nya. |
 | 2026-09-26 | #21 (Admin): bildtexten på startsidan "Leo och en vägg av käppar" → "Leo bland sina verk" (F-01). |
 | 2026-09-26 | #19 (Admin): bygge, stage och prod flyttade från GitHub Actions till Cloudflare Workers Builds (Actions-minuterna tog slut 2026-09-25); `merge-pr.sh` kräver Cloudflare-checken; `deploy.yml` borttagen; reservväg `scripts/deploy-local.sh`; återanvändbar `docs/processmall.md`. B-03, T-03, NF-05. |
@@ -32,7 +33,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | T-08 | **Version** | En publicering till prod av något som syns: "Version 3 – Leo bland sina verk", med datum, vad som ändrades och en egen länk som visar den precis som den var. Tagg `vN` + GitHub Release. |
 | T-09 | **Versionssidan** | https://leo-versioner.niklasstolpe.workers.dev – alla versioner, vilken som är på prod nu. |
 | T-07 | **Prod** | Den publicerade sidan, https://leo.niklasstolpe.workers.dev (tills egen domän, Q-02). |
-| T-04 | **Godkänt** | Leo skriver `godkänt` som kommentar på PR:en efter att ha tittat på förhandsvisningen. Då publiceras ändringen. |
+| T-04 | **Publicera** | Att välja en version för den riktiga sidan: "publicera version N på prod". Det är godkännandet (B-06). |
 | T-05 | **Käpp-mappen** | `site/src/content/kappar/<namn>/` – en mapp per käpp med `index.md` (text) och bilderna. |
 | T-06 | **Önskemål** | Ett issue där Leo beskriver vad han vill ändra, med ord och bilder. Claude bygger det. |
 
@@ -55,7 +56,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | B-03 | **Cloudflare Workers med statiska filer** som webbhotell, samma konto som Eaves. Bygge och publicering med Cloudflare Workers Builds (Admin 2026-09-26) – inte GitHub Actions. | Admin 2026-09-25 |
 | B-04 | **Ingen webbshop i v1.** Köparna vill träffa Leo – sidan leder till kontakt och möte, inte till kassa. | Admin 2026-09-25 |
 | B-05 | **Käpparna är filer i repot** (en mapp per käpp, T-05), inget CMS. Leo skickar bilder och text, Claude lägger upp. | Admin 2026-09-25 |
-| B-06 | **Leo godkänner allt som syns.** Ingen ändring i `site/` publiceras utan Leos `godkänt` (T-04) på förhandsvisningen. `scripts/merge-pr.sh` kontrollerar. | Admin 2026-09-25 |
+| B-06 | **Prod ändras bara när Admin eller Leo väljer en version.** Allt som byggs får mergas och bli en ny version (versionssidan) utan godkännande; "publicera version N på prod" – i chatt, med knappen på versionssidan eller i ett issue – *är* godkännandet (`scripts/publicera-version.sh`, `publicera.yml`). En merge publicerar aldrig. | Admin 2026-09-26 (ersätter: ingen ändring i site/ utan Leos godkänt) |
 | B-07 | **Admin äger det riskabla:** säkerhet, konton, hemligheter, domän, pengar, `.github/` och `scripts/`. Leo kan inte råka ha sönder något. | Admin 2026-09-25 |
 | B-08 | **Webbplatsen är navet.** Instagram och Facebook länkar hit; ingen Facebook-app. | Admin 2026-09-25 |
 | B-09 | **Konton startar hos Admin** – Claude-prenumerationen och GitHub (Admin godkänner i Leos ställe) – och flyttas till Leo när han har egna. | Admin 2026-09-25 |
@@ -67,7 +68,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | ID | Krav | Klart när | Prio | Status | Verif. | Källa |
 |---|---|---|---|---|---|---|
 | F-01 | Startsidan presenterar Leo och käpparna så att besökaren förstår direkt att det är konst som används. | Leo har godkänt startsidan i förhandsvisningen. | v1 | Klar | leo | Admin 2026-09-25 |
-| F-02 | Sidan finns på en publik adress och uppdateras automatiskt när en ändring godkänts. | Godkänd ändring syns på produktionsadressen utan manuella steg. | v1 | Backlog | – | Admin 2026-09-25 |
+| F-02 | Sidan finns på en publik adress och visar den version Admin eller Leo har valt. | Vald version syns på produktionsadressen inom en minut, utan manuella steg utöver valet. | v1 | Backlog | – | Admin 2026-09-25 |
 | F-03 | Längst ned på sidan finns en diskret sidfot med "© Leo" och årtalet, i samma dämpade färg som övrig text. | Sidfoten syns, är liten och lugn. Leo har godkänt förhandsvisningen. | v1 | Klar | leo | Leo (issue #11) 2026-09-25 |
 
 ### Käpparna
