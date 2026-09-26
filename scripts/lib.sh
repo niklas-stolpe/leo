@@ -22,6 +22,7 @@ VISIBLE_PATH='^site/'
 
 # Byggets check-run på commiten – Cloudflare Workers Builds (docs/processmall.md, 3b).
 BUILD_CHECK="Workers Builds: leo"
+BUILD_APP="cloudflare-workers-and-pages"   # bara Cloudflares GitHub-app räknas, inte en check med samma namn
 
 # Status → option-id. gh project field-list 1 --owner niklas-stolpe --format json
 status_option_id() {

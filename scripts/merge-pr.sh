@@ -26,7 +26,7 @@ log "3/4 bygget ($BUILD_CHECK)"
 # är slut. Kravgrinden i Actions (requirements-gate) räknas inte här: steg 1 körde samma script.
 for i in $(seq 1 60); do
   byggt="$(gh api "repos/$REPO/commits/$sha/check-runs" \
-    --jq ".check_runs[] | select(.name==\"$BUILD_CHECK\") | \"\(.status)|\(.conclusion // \"\")\"" | head -1)"
+    --jq ".check_runs[] | select(.name==\"$BUILD_CHECK\" and .app.slug==\"$BUILD_APP\") | \"\(.status)|\(.conclusion // \"\")\"" | head -1)"
   case "$byggt" in completed\|*) break ;; esac
   [ "$i" -eq 60 ] && fail "$BUILD_CHECK blev inte klar inom 10 min (${byggt:-ingen check-run – är Workers Builds kopplat?})"
   sleep 10
