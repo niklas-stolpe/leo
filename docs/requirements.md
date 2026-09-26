@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-09-26 | #21 (Admin): bildtexten på startsidan "Leo och en vägg av käppar" → "Leo bland sina verk" (F-01). |
 | 2026-09-26 | #19 (Admin): bygge, stage och prod flyttade från GitHub Actions till Cloudflare Workers Builds (Actions-minuterna tog slut 2026-09-25); `merge-pr.sh` kräver Cloudflare-checken; `deploy.yml` borttagen; reservväg `scripts/deploy-local.sh`; återanvändbar `docs/processmall.md`. B-03, T-03, NF-05. |
 | 2026-09-25 | #17 (Admin): hemskärmsikoner – mörk prod-ikon med käpp i mässing, ljus stage-ikon med STAGE-etikett; manifest, apple-touch-icon, noindex på stage. F-31, nytt F-32. |
 | 2026-09-25 | Admin (chatt): fast förhandsvisningsadress "stage" + fast prod-adress, i stället för en ny länk per ändring (T-03, T-07, NF-05). |
