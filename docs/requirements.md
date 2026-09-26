@@ -14,11 +14,8 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
-<<<<<<< HEAD
 | 2026-09-26 | #25: F-15 käppen i helbild (dialog med största bildstorleken ≤ 2000 px) och bläddring med svep/piltangenter. |
-=======
 | 2026-09-26 | #33 (Admin): B-06 ändrad – versioner fritt, prod bara när en version väljs. Merge → ny Cloudflare-version (`wrangler versions upload`, inte deploy) + tagg/release; prod byts med `publicera-version.sh` eller `publicera.yml` (issue "Publicera version N på prod", knappen på versionssidan). `leo-approval.sh` och `publish.yml` borttagna; `borja-om-fran.sh` för att fortsätta utveckla från en äldre version. T-04, F-02. |
->>>>>>> origin/main
 | 2026-09-26 | #23 (Admin): versioner – varje publicering av något synligt blir en version (tagg + release), versionssida https://leo-versioner.niklasstolpe.workers.dev, "publicera version N på prod" direkt (scripts/publicera-version.sh). Historiken inlagd som version 1–3. Tre adresser: prod, demo (stage), versioner. F-40 Klar, F-41 Pågår, F-42 + Q-08 nya. |
 | 2026-09-26 | #21 (Admin): bildtexten på startsidan "Leo och en vägg av käppar" → "Leo bland sina verk" (F-01). |
 | 2026-09-26 | #19 (Admin): bygge, stage och prod flyttade från GitHub Actions till Cloudflare Workers Builds (Actions-minuterna tog slut 2026-09-25); `merge-pr.sh` kräver Cloudflare-checken; `deploy.yml` borttagen; reservväg `scripts/deploy-local.sh`; återanvändbar `docs/processmall.md`. B-03, T-03, NF-05. |
