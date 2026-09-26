@@ -48,7 +48,10 @@ I session: `scripts/issue-start.sh <n> <område> <slug>` → bygg → `gh pr cre
    (`.github/`, `scripts/`, `site/wrangler.jsonc`, `site/package*.json`) krävs `Säkerhet:`.
 2. **Leos godkännande** (`leo-approval.sh`): rör PR:en `site/` krävs en kommentar som börjar med
    `godkänt`/`godkänd` från ett konto i `LEO_LOGINS` (`scripts/lib.sh`), skriven **efter** senaste committen.
-   Ändras något efter godkännandet måste Leo godkänna igen – han godkänner det han såg.
+   Godkännandet gäller *ändringen*, inte en viss commit: commits efter godkännandet som inte ändrar själva
+   ändringen av `site/` (t.ex. en uppdatering mot main som bara rör kravdokumentet) behåller det – jämförs
+   med `git patch-id`. Ändras det som syns måste Leo godkänna igen – han godkänner det han såg.
+   `site/` identiskt med en tagg `vN` räknas som godkänt (återpublicering av en version).
 3. **Bygget:** Cloudflares check `Workers Builds: leo` grön (`BUILD_CHECK` i `lib.sh`). Actions-kravgrinden räknas inte – steg 1 kör samma script.
 4. **Granskning:** inga olösta trådar, ingen granskning pågår.
 
