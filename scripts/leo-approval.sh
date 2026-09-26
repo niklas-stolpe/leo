@@ -11,6 +11,16 @@ if ! pr_visible "$pr"; then
   exit 0
 fi
 
+# Tillbaka till en version Leo redan godkänt (F-41, publicera-version.sh): site/ på PR:ens senaste
+# commit är exakt samma träd som en tagg vN – då är det redan sett och godkänt en gång.
+git fetch -q --tags origin
+git fetch -q origin "refs/pull/$pr/head"
+samma="$(release_med_trad "$(site_tree FETCH_HEAD)")"
+if [ -n "$samma" ]; then
+  ok "PR #$pr ställer site/ exakt tillbaka till $samma – redan godkänd, inget nytt godkännande behövs"
+  exit 0
+fi
+
 last_commit="$(gh pr view "$pr" --repo "$REPO" --json commits --jq '.commits[-1].committedDate')"
 logins_json="$(printf '%s' "$LEO_LOGINS" | tr ' ' '\n' | sed 's/.*/"&"/' | paste -sd, -)"
 # Första raden i kommentaren ska börja med godkänt/godkänd/godkänner (versaler spelar ingen roll).

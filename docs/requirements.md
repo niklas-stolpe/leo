@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-09-26 | #23 (Admin): versioner – varje publicering av något synligt blir en version (tagg + release), versionssida https://leo-versioner.niklasstolpe.workers.dev, "publicera version N på prod" direkt (scripts/publicera-version.sh). Historiken inlagd som version 1–3. Tre adresser: prod, demo (stage), versioner. F-40 Klar, F-41 Pågår, F-42 + Q-08 nya. |
 | 2026-09-26 | #21 (Admin): bildtexten på startsidan "Leo och en vägg av käppar" → "Leo bland sina verk" (F-01). |
 | 2026-09-26 | #19 (Admin): bygge, stage och prod flyttade från GitHub Actions till Cloudflare Workers Builds (Actions-minuterna tog slut 2026-09-25); `merge-pr.sh` kräver Cloudflare-checken; `deploy.yml` borttagen; reservväg `scripts/deploy-local.sh`; återanvändbar `docs/processmall.md`. B-03, T-03, NF-05. |
 | 2026-09-25 | #17 (Admin): hemskärmsikoner – mörk prod-ikon med käpp i mässing, ljus stage-ikon med STAGE-etikett; manifest, apple-touch-icon, noindex på stage. F-31, nytt F-32. |
@@ -28,6 +29,8 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | T-01 | **Leo** | Konstnären. Beställare och konstnärlig ledare – bestämmer hur sidan ska se ut och kännas. |
 | T-02 | **Admin** | Niklas. Beslutar om säkerhet, konton, domän, pengar och låsta beslut (B-rader). |
 | T-03 | **Förhandsvisning (stage)** | Fast adress https://stage-leo.niklasstolpe.workers.dev som alltid visar den senaste ändringen innan den publiceras. Byggs av Cloudflare Workers Builds vid varje push till en branch. |
+| T-08 | **Version** | En publicering till prod av något som syns: "Version 3 – Leo bland sina verk", med datum, vad som ändrades och en egen länk som visar den precis som den var. Tagg `vN` + GitHub Release. |
+| T-09 | **Versionssidan** | https://leo-versioner.niklasstolpe.workers.dev – alla versioner, vilken som är på prod nu. |
 | T-07 | **Prod** | Den publicerade sidan, https://leo.niklasstolpe.workers.dev (tills egen domän, Q-02). |
 | T-04 | **Godkänt** | Leo skriver `godkänt` som kommentar på PR:en efter att ha tittat på förhandsvisningen. Då publiceras ändringen. |
 | T-05 | **Käpp-mappen** | `site/src/content/kappar/<namn>/` – en mapp per käpp med `index.md` (text) och bilderna. |
@@ -94,6 +97,14 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | F-31 | Sidan går att installera som app på mobilen (PWA). Låg prio – bonus, inte huvudsak. | "Lägg till på hemskärmen" ger ikon och namn. | v1 | Klar | leo | Admin 2026-09-25 |
 | F-32 | Stage och prod går att skilja åt på hemskärmen: prod har mörk ikon med käpp i mässing och heter "Leo", stage har ljus ikon med röd STAGE-etikett och heter "Leo stage". Stage syns inte på Google. | Båda installerade på Leos/Admins mobil med rätt ikon och namn. | v1 | Klar | leo | Admin (chatt, #17) 2026-09-25 |
 
+### Versioner
+
+| ID | Krav | Klart när | Prio | Status | Verif. | Källa |
+|---|---|---|---|---|---|---|
+| F-40 | Leo kan se alla versioner på en egen sida, titta på var och en precis som den var, och se vilken som är på prod nu. | Versionssidan visar version 1–3 med fungerande Titta-länkar och märkningen "På prod nu". | v1 | Klar | admin | Admin (chatt, #23) 2026-09-26 |
+| F-41 | Leo kan säga "publicera version N på prod" – prod visar version N direkt, utan omväg via stage och utan nytt godkännande. Inget försvinner; senare versioner kan publiceras igen. | En äldre version har publicerats på prod och sedan en nyare igen. | v1 | Pågår | – | Admin (chatt, #23) 2026-09-26 |
+| F-42 | Stage fungerar som demo som andra kan granska och lämna förslag på. | Förslagsvägen för granskare utan GitHub-konto är bestämd och byggd (öppen fråga Q-08). | v1 | Backlog | – | Admin (chatt, #23) 2026-09-26 |
+
 ## Icke-funktionella krav
 
 | ID | Krav | Mått | Prio | Status | Verif. | Källa |
@@ -129,4 +140,5 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | Q-04 | Vad heter varumärket – "Leo", fullt namn, eller något annat? |
 | Q-05 | Har Jan Guillou sagt ja till att visas på sidan (bilderna 02–04 i albumet)? Krävs för F-23. |
 | Q-06 | Vem är personen i verkstaden (bild 15 i albumet), och får bilden visas? |
+| Q-08 | Hur lämnar granskare av demon förslag – mejl till Admin, mejl till Leo, formulär eller GitHub? (F-42) |
 | Q-07 | Namn, år, material och status för käpparna Nº I–XXIII – vill Leo fylla i dem? |

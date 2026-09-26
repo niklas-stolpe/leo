@@ -6,7 +6,8 @@
 # Villkor:  kravgrinden · Cloudflare-bygget grönt · granskningen klar och alla trådar lösta ·
 #           Leos godkännande efter senaste ändringen om PR:en rör site/ (B-06).
 # Efter:    squash-merge + radera branch · board Done (PR + Closes-issues) · stäng issues ·
-#           bocka av i roadmap #1 · lås upp issues som väntade (Beror på) · synka main lokalt.
+#           bocka av i roadmap #1 · lås upp issues som väntade (Beror på) · synka main lokalt ·
+#           ny version (tagg + release + versionssidan) om det som syns ändrades (F-40).
 #           Pushen till main publicerar webbplatsen (Cloudflare Workers Builds).
 source "$(dirname "$0")/lib.sh"
 pr="${1:?pr}"
@@ -46,8 +47,9 @@ log "merge"
 issues="$(pr_closes "$pr")"
 title="$(pr_field "$pr" .title)"
 # Via API i stället för `gh pr merge` – fungerar likadant lokalt och i Actions (ingen lokal branch att städa).
-gh api -X PUT "repos/$REPO/pulls/$pr/merge" -f merge_method=squash -f sha="$sha" \
-  -f commit_title="$title (#$pr)" >/dev/null
+synligt=0; pr_visible "$pr" && synligt=1
+merge_sha="$(gh api -X PUT "repos/$REPO/pulls/$pr/merge" -f merge_method=squash -f sha="$sha" \
+  -f commit_title="$title (#$pr)" --jq .sha)"
 gh api -X DELETE "repos/$REPO/git/refs/heads/$head" >/dev/null 2>&1 || true
 ok "PR #$pr mergad"
 board_set "$pr" Done
@@ -83,4 +85,9 @@ if [ -z "${CI:-}" ]; then
   git branch -D "$head" -q 2>/dev/null || true
   ok "main synkad lokalt"
 fi
-ok "PR #$pr klar – publiceringen startar av sig själv (Cloudflare Workers Builds)"
+# Ändrades det som syns blir publiceringen en version (F-40) – väntar in Cloudflares prod-bygge.
+if [ "$synligt" = 1 ]; then
+  log "version"
+  "$here/version-release.sh" "$merge_sha" "$pr" || warn "versionen skapades inte – kör scripts/version-release.sh $merge_sha $pr"
+fi
+ok "PR #$pr klar – Cloudflare publicerar main till prod"
