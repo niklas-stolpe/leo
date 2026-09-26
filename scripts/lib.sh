@@ -24,6 +24,39 @@ VISIBLE_PATH='^site/'
 BUILD_CHECK="Workers Builds: leo"
 BUILD_APP="cloudflare-workers-and-pages"   # bara Cloudflares GitHub-app räknas, inte en check med samma namn
 
+# Versioner (F-40, F-41). En version = en publicering till prod av något som syns, taggad vN och
+# sparad som GitHub Release. Cloudflare-versionens id står i releasens text och ger en egen länk.
+PROD_URL="https://leo.niklasstolpe.workers.dev"
+STAGE_URL="https://stage-leo.niklasstolpe.workers.dev"
+VERSIONER_URL="https://leo-versioner.niklasstolpe.workers.dev"
+version_url() { printf 'https://%s-leo.niklasstolpe.workers.dev' "${1:0:8}"; }   # <cloudflare-version-id>
+
+# site/-trädet (git tree-id) för en ref – två versioner med samma träd ser likadana ut.
+site_tree() { git rev-parse "$1:site"; }
+
+# release_med_trad <tree-id> – taggen (vN) vars site/-träd är exakt detta, annars tomt.
+release_med_trad() {
+  local t
+  for t in $(git tag -l 'v[0-9]*' --sort=-v:refname); do
+    [ "$(site_tree "$t")" = "$1" ] && { echo "$t"; return; }
+  done
+}
+
+# cloudflare_version_for <commit-sha> – Version ID ur Cloudflares bygge av commiten (väntar in det).
+cloudflare_version_for() {
+  local sha="$1" rad i
+  for i in $(seq 1 60); do
+    rad="$(gh api "repos/$REPO/commits/$sha/check-runs" \
+      --jq ".check_runs[] | select(.name==\"$BUILD_CHECK\" and .app.slug==\"$BUILD_APP\") | \"\(.status)|\(.conclusion // \"\")\"" | head -1)"
+    case "$rad" in completed\|*) break ;; esac
+    sleep 10
+  done
+  [ "$rad" = "completed|success" ] || { warn "Cloudflare-bygget av $sha: ${rad:-saknas}"; return 1; }
+  gh api "repos/$REPO/commits/$sha/check-runs" \
+    --jq ".check_runs[] | select(.name==\"$BUILD_CHECK\" and .app.slug==\"$BUILD_APP\") | .output.summary" \
+    | grep -oE 'Version ID: [0-9a-f-]{36}' | head -1 | sed 's/Version ID: //'
+}
+
 # Status → option-id. gh project field-list 1 --owner niklas-stolpe --format json
 status_option_id() {
   case "$1" in

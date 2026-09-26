@@ -61,8 +61,12 @@ jobs:
 
       - name: Claude
         uses: anthropics/claude-code-action@v1
+        env:
+          # "publicera version N på prod" (scripts/publicera-version.sh) byter prod-version hos Cloudflare.
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           claude_args: |
-            --allowed-tools "Edit,Write,Read,Glob,Grep,Bash(npm run check:*),Bash(npm run build:*),Bash(npm run check),Bash(npm run build),Bash(git:*),Bash(gh pr create:*),Bash(gh pr view:*),Bash(gh pr edit:*),Bash(gh pr comment:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh issue edit:*),Bash(ls:*),Bash(mkdir:*),Bash(cp:*),Bash(mv:*),Bash(curl:*),Bash(file:*)"
+            --allowed-tools "Edit,Write,Read,Glob,Grep,Bash(npm run check:*),Bash(npm run build:*),Bash(npm run check),Bash(npm run build),Bash(git:*),Bash(gh pr create:*),Bash(gh pr view:*),Bash(gh pr edit:*),Bash(gh pr comment:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh issue edit:*),Bash(ls:*),Bash(mkdir:*),Bash(cp:*),Bash(mv:*),Bash(curl:*),Bash(file:*),Bash(bash scripts/publicera-version.sh:*)"
             --append-system-prompt "Du kör i GitHub för projektet Leo. Följ CLAUDE.md, särskilt avsnittet 'När du kör i GitHub'. Den som skriver är oftast Leo – konstnär, ingen teknisk bakgrund. Svara honom på enkel svenska utan tekniska ord."

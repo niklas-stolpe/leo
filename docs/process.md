@@ -18,6 +18,7 @@ säkerhet – täcks av grindar och granskning.
 | **`requirements-gate`** | Kravgrinden som röd/grön bock på PR:en. | GitHub Actions, varje PR |
 | **Claude Code Review** | Granskar det Leo inte ser. Kommenterar, rättar inget. | GitHub Actions, varje PR |
 | **`publish.yml`** | Leo skriver `godkänt` → kör `merge-pr.sh` → merge → Cloudflare publicerar. | GitHub Actions |
+| **Versioner** | `merge-pr.sh` → `version-release.sh`: varje synlig publicering blir Version N (tagg + release). Versionssidan https://leo-versioner.niklasstolpe.workers.dev. `publicera-version.sh N` lägger en äldre version på prod direkt. Se `docs/processmall.md`, Versioner. | Session / Actions + Cloudflare |
 | **`board.yml`** | Nytt issue → Backlog, `@claude` → In progress, PR → In review. | GitHub Actions |
 | **Kravagenten** | Nattlig, bara om något mergats. Drift mellan kod och krav → ett issue `kravavvikelser`. | GitHub Actions, 05:00 |
 | **Claude i session** | Större ändringar, process, felsökning. Kör samma script. | Admins dator |

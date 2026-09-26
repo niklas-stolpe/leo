@@ -1,0 +1,13 @@
+// Versionssidan (F-40): https://leo-versioner.niklasstolpe.workers.dev
+// Byggs och publiceras av scripts/versioner.sh (från merge-pr.sh och publicera-version.sh) –
+// inte av Workers Builds, eftersom innehållet kommer från GitHub Releases, inte från koden.
+{
+  "$schema": "../site/node_modules/wrangler/config-schema.json",
+  "name": "leo-versioner",
+  "compatibility_date": "2026-09-26",
+  "assets": {
+    "directory": "./dist"
+  },
+  "workers_dev": true,
+  "preview_urls": false
+}

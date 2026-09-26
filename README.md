@@ -32,6 +32,16 @@ Claude skriver i ditt önskemål när ändringen är klar att titta på. Öppna 
 
 Det går inte att ha sönder något. Inget syns på webbplatsen förrän du skrivit *godkänt*.
 
+### Alla versioner
+
+Varje gång något publiceras blir det en ny version. Alla finns här – spara den också i mobilen:
+
+- **Versioner:** https://leo-versioner.niklasstolpe.workers.dev
+
+Tryck **Titta** för att se en version precis som den var. Vill du att den riktiga sidan ska visa en äldre version, tryck **Publicera på prod** vid den (eller skriv *"@claude publicera version 3 på prod"* i ett önskemål). Det går direkt – versionen är ju redan godkänd. Inget försvinner; du kan alltid gå fram igen.
+
+**Demon** (förhandsvisningen) kan du visa för andra, så att de kan komma med förslag.
+
 ---
 
 För Admin och Claude: regler i [CLAUDE.md](CLAUDE.md), processen i [docs/process.md](docs/process.md), kraven i [docs/requirements.md](docs/requirements.md).

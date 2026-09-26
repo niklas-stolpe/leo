@@ -43,6 +43,9 @@ main: Cloudflare Workers Builds publicerar till prod
 | `scripts/leo-approval.sh` | Beställarens `godkänt` måste finnas **efter** senaste committen om PR:en rör det som syns | Inget (läser `lib.sh`) |
 | `scripts/merge-pr.sh` | Enda sättet att merga: kravgrind, godkännande, Cloudflare-bygget, granskningstrådar → squash-merge → board, issues, roadmap, beroenden | – (läser `BUILD_CHECK`) |
 | `scripts/issue-start.sh`, `pr-open.sh` | Session: branch + board In progress; PR → In review + kravgrind | – |
+| `scripts/version-release.sh` | Efter merge av något synligt: väntar in Cloudflares prod-bygge, taggar `vN` och skapar GitHub Release "Version N – <namn>" med Cloudflare-versionens id. Samma innehåll som en tidigare version → ingen ny version | – |
+| `scripts/versioner.sh`, `versioner/` | Bygger versionssidan från GitHub Releases och publicerar den som en egen Worker | Adresser i `generera.mjs` och `wrangler.jsonc` |
+| `scripts/publicera-version.sh N` | Lägger version N på prod direkt (Cloudflare `versions deploy`, ombygge från taggen om versionen är borta) och öppnar en PR som ställer tillbaka `site/` till `vN` – den behöver inget nytt godkännande | – |
 | `scripts/deploy-local.sh` | Reservväg: publicera prod/stage från datorn när Workers Builds inte kör; första publiceringen | Adresser i kommentaren |
 | Cloudflare Workers Builds (inte en fil) | Typkontroll + bygge vid varje push; andra brancher → stage, main → prod. Check-run `Workers Builds: <worker>` som `merge-pr.sh` kräver. Drar inga GitHub-minuter | Inställningarna i 3b, `BUILD_CHECK` i `lib.sh` |
 | `.github/workflows/claude.yml` | `@claude` i issue eller PR → Claude bygger | Förinstallation (`npm ci` i rätt katalog) |
@@ -125,6 +128,22 @@ check på commiten i GitHub; `merge-pr.sh` kräver att den är grön.
    - [ ] Granskningen postar PASS/FYND (Claude-appen + `allowed_bots`)
    - [ ] `godkänt` → mergad, kort Done, issue stängt, prod uppdaterad
 4. Spara stage och prod på mobilens hemskärm – ikonerna skiljer dem åt.
+
+## Versioner
+
+Tre adresser: **prod** (den riktiga sidan), **demo** (stage – senaste förslaget, att visa för andra)
+och **versionssidan** (alla versioner). Varje merge som ändrar det som syns blir en version via
+`merge-pr.sh` → `version-release.sh`. Versionens id hos Cloudflare ger en egen länk som visar den
+precis som den var (Cloudflare sätter `noindex` på sådana länkar).
+
+- **Titta:** länken på versionssidan.
+- **Publicera en äldre version:** `scripts/publicera-version.sh N` (eller `@claude publicera version N på prod`).
+  Prod byts direkt; PR:en som ställer tillbaka `site/` mergas med `merge-pr.sh` utan nytt godkännande
+  eftersom `leo-approval.sh` ser att `site/` är identiskt med taggen `vN`.
+- **Historik bakåt:** tagga gamla merge-commits, bygg dem (`git worktree`) och `wrangler versions upload`
+  för att få en länk, skapa releasen med samma format (`Publicerad:` och `Cloudflare-version:`-rader).
+- Versionssidan kräver wrangler-inloggning där `merge-pr.sh` körs (session: `npx wrangler login`;
+  Actions: `CLOUDFLARE_API_TOKEN`/`_ACCOUNT_ID`).
 
 ## Vardagen
 

@@ -41,7 +41,9 @@ Krav: `docs/requirements.md` · Process: `docs/process.md` · Leos guide: `READM
 
 **Personer på bild:** Leo själv går bra. Andra personer, särskilt kända (F-23), visas bara när Admin bekräftat samtycke – fråga i stället för att lägga in.
 
-**Från en PR-kommentar:** ändra på PR:ens branch, kör check + build, pusha. En ny förhandsvisning postas automatiskt.
+**Från en PR-kommentar:** ändra på PR:ens branch, kör check + build, pusha. Cloudflare bygger om stage automatiskt.
+
+**"Publicera version N på prod" (F-41):** kör `bash scripts/publicera-version.sh N <issue>` – prod byts direkt till version N och en PR ställer tillbaka `site/` till taggen `vN`. Den PR:en behöver inget nytt godkännande (grinden ser att innehållet är en godkänd version); Admin eller Claude i session mergar med `scripts/merge-pr.sh`. Svara Leo: "Den riktiga sidan visar nu version N." Versionerna finns på https://leo-versioner.niklasstolpe.workers.dev.
 
 ## Fakta som behövs i kod
 
