@@ -35,7 +35,8 @@ Krav: `docs/requirements.md` · Process: `docs/process.md` · Leos guide: `READM
    Uppfyller: F-xx  |  – <skäl>
    Säkerhet: … (bara om Admins yta rörs)
    ```
-6. Kommentera i issuet till Leo: vad du gjort och att han om ett par minuter kan titta på https://stage-leo.niklasstolpe.workers.dev (Cloudflare bygger branchen dit).
+6. Kör `bash scripts/pr-preview.sh <pr>` – postar ändringens egen förhandsvisningslänk på PR:en (stage visar bara den senast pushade ändringen).
+7. Kommentera i issuet till Leo: vad du gjort och att han om ett par minuter kan titta på https://stage-leo.niklasstolpe.workers.dev (Cloudflare bygger branchen dit).
 
 **Ny käpp:** ny mapp `site/src/content/kappar/nr-<NN>/` med nästa lediga nummer, bilderna bredvid `index.md`. Frontmatter enligt `site/src/content.config.ts`: `nummer` (styr ordningen, visas som Nº XXIV), `bilder`, `alt` (beskriv käppen för den som inte ser den), `bildtexter` (en beskrivning per extra bild), och bara det Leo faktiskt skrivit: `titel`, `ar`, `material`, `status`. Berättelsen skrivs som text under frontmattern. Hitta aldrig på fakta.
 

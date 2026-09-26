@@ -42,7 +42,8 @@ main: Cloudflare Workers Builds publicerar till prod
 | `scripts/requirements-check.sh` | Kravgrinden: `Uppfyller:`-rad, ID:n finns och är `Klar` med verifiering, `Säkerhet:`-rad när Admins yta rörs | `SEC_PATH` |
 | `scripts/leo-approval.sh` | Beställarens `godkänt` måste finnas **efter** senaste committen om PR:en rör det som syns | Inget (läser `lib.sh`) |
 | `scripts/merge-pr.sh` | Enda sättet att merga: kravgrind, godkännande, Cloudflare-bygget, granskningstrådar → squash-merge → board, issues, roadmap, beroenden | – (läser `BUILD_CHECK`) |
-| `scripts/issue-start.sh`, `pr-open.sh` | Session: branch + board In progress; PR → In review + kravgrind | – |
+| `scripts/issue-start.sh`, `pr-open.sh` | Session: branch + board In progress; PR → In review + kravgrind + förhandsvisningslänk | – |
+| `scripts/pr-preview.sh` | Väntar in Cloudflares bygge av PR:en och postar dess egen länk (`Preview URL` ur checken) – stage visar bara senaste pushen | – |
 | `scripts/version-release.sh` | Efter merge av något synligt: väntar in Cloudflares prod-bygge, taggar `vN` och skapar GitHub Release "Version N – <namn>" med Cloudflare-versionens id. Samma innehåll som en tidigare version → ingen ny version | – |
 | `scripts/versioner.sh`, `versioner/` | Bygger versionssidan från GitHub Releases och publicerar den som en egen Worker | Adresser i `generera.mjs` och `wrangler.jsonc` |
 | `scripts/publicera-version.sh N` | Lägger version N på prod direkt (Cloudflare `versions deploy`, ombygge från taggen om versionen är borta) och öppnar en PR som ställer tillbaka `site/` till `vN` – den behöver inget nytt godkännande | – |
