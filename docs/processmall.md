@@ -88,7 +88,31 @@ på Windows.
 | `CLOUDFLARE_API_TOKEN` | Cloudflare → My Profile → API Tokens → Create Token → **Use template "Edit Cloudflare Workers"**, begränsa till eget konto |
 | `CLOUDFLARE_ACCOUNT_ID` | Den långa hex-strängen i adressfältet i Cloudflare-dashboarden |
 | `PROCESS_TOKEN` | Classic token från Admins konto med scope **`repo`, `workflow`, `project`, `read:org`**. Sätt utgångsdatum och skriv det i `process.md` |
-| Första publiceringen | Actions → deploy → Run workflow (förhandsvisningarna kräver att Workern finns) |
+| Första publiceringen | `scripts/deploy-local.sh prod` efter `npx wrangler login` i `site/` (förhandsvisningarna kräver att Workern finns) |
+| Cloudflare Workers Builds | Se nästa avsnitt |
+
+### 3b. Cloudflare bygger och publicerar (Workers Builds)
+
+Bygge, stage och prod körs hos Cloudflare i stället för på GitHubs Actions-minuter.
+
+1. GitHub → organisationens Settings → GitHub Apps → **Cloudflare Workers and Pages** → Configure →
+   lägg till repot under *Only select repositories*.
+2. Cloudflare → Compute (Workers) → Workern → Settings → Build → **Connect**:
+
+| Fält | Värde |
+|---|---|
+| Repository | repot (inte ett annat som råkar stå förvalt) |
+| Production branch | `main` |
+| Build command | `npm ci && npm run check` |
+| Deploy command | `PUBLIC_MILJO=prod npm run build && npx wrangler deploy` |
+| Preview/Version command | `npm run build && npx wrangler versions upload --preview-alias stage` |
+| Enable Preview builds | på |
+| Advanced → Path | `/site` |
+| Advanced → API token | Create new token (egen, t.ex. `<namn>-token` – inte ett annat projekts) |
+| Build caching | på |
+
+Push till main → prod. Push till annan branch → stage. Cloudflare rapporterar bygget som en
+check på commiten i GitHub; `merge-pr.sh` kräver att den är grön.
 
 ### 4. Starta
 
