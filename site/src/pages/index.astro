@@ -151,6 +151,34 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
     display: block;
     text-decoration: none;
   }
+  /* Mjuk entré (#29): varje käpp tonar fram när den kommer in i bild. Ren CSS (scroll-driven
+     animation) – ingen rörelse vid "minska rörelse", och webbläsare utan stöd visar allt direkt. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .galleri li {
+        animation: tona-fram linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 60%;
+      }
+      .avdelare {
+        animation: vidga linear both;
+        animation-timeline: view();
+        animation-range: entry 10% cover 35%;
+      }
+    }
+  }
+  @keyframes tona-fram {
+    from {
+      opacity: 0;
+      transform: translateY(1.75rem);
+    }
+  }
+  @keyframes vidga {
+    from {
+      opacity: 0;
+      transform: scaleX(0.4);
+    }
+  }
   .galleri img {
     width: 100%;
     aspect-ratio: 4 / 3;

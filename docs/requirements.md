@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-09-26 | #29: F-16 mjuk entré – käpparna tonar fram vid scroll (CSS scroll-driven animation), ornamentet vidgas. Ingen JavaScript. |
 | 2026-09-26 | #23 (Admin): versioner – varje publicering av något synligt blir en version (tagg + release), versionssida https://leo-versioner.niklasstolpe.workers.dev, "publicera version N på prod" direkt (scripts/publicera-version.sh). Historiken inlagd som version 1–3. Tre adresser: prod, demo (stage), versioner. F-40 Klar, F-41 Pågår, F-42 + Q-08 nya. |
 | 2026-09-26 | #21 (Admin): bildtexten på startsidan "Leo och en vägg av käppar" → "Leo bland sina verk" (F-01). |
 | 2026-09-26 | #19 (Admin): bygge, stage och prod flyttade från GitHub Actions till Cloudflare Workers Builds (Actions-minuterna tog slut 2026-09-25); `merge-pr.sh` kräver Cloudflare-checken; `deploy.yml` borttagen; reservväg `scripts/deploy-local.sh`; återanvändbar `docs/processmall.md`. B-03, T-03, NF-05. |
@@ -75,6 +76,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | ID | Krav | Klart när | Prio | Status | Verif. | Källa |
 |---|---|---|---|---|---|---|
 | F-10 | Galleri med alla käppar, stora bilder, lugn presentation. | Galleriet visar alla käpp-mappar (T-05); Leo har godkänt utseendet. | v1 | Klar | leo | Admin 2026-09-25 |
+| F-16 | Käpparna i samlingen tonar stillsamt fram när de kommer in i bild. Ingen rörelse för den som valt minskad rörelse; webbläsare utan stöd visar allt direkt. | Framtoning syns vid scroll; med "minska rörelse" visas allt direkt. | v1 | Klar | leo | Admin (chatt, #29) 2026-09-26 |
 | F-11 | Varje käpp har en egen sida med egen adress som går att länka till från ett Instagram-inlägg. | `/kappar/<namn>` finns för varje käpp. | v1 | Klar | leo | Admin 2026-09-25 |
 | F-12 | Varje käpp visar status: tillgänglig, såld eller beställningsverk. Sålda käppar ligger kvar i galleriet. | Status syns i galleri och på käppens sida. | v1 | Backlog | – | Admin 2026-09-25 |
 | F-13 | Besökaren kan fråga om en käpp eller be om ett möte. Frågan kommer som mejl till Leo. Gratis tjänst (B-01). | Ett testmeddelande från förhandsvisningen når Leos mejl. | v1 | Backlog | – | Admin 2026-09-25 |
