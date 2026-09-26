@@ -1,16 +1,16 @@
 name: publish
 
 # Leo skriver "godkänt" på en PR → scripts/merge-pr.sh kör alla grindar och mergar.
-# Pushen till main startar deploy.yml som publicerar webbplatsen. Ingen människa behöver
+# Pushen till main får Cloudflare Workers Builds att publicera webbplatsen. Ingen människa behöver
 # köra något efter Leos godkännande.
 #
 # Säkerhet: workflowen och scripten körs från main (issue_comment kör alltid main:s version),
 # aldrig från PR:ens branch. Vem som får godkänna står i scripts/lib.sh (LEO_LOGINS) –
 # leo-approval.sh vägrar alla andra.
 #
-# Kräver repo-secret PROCESS_TOKEN (Admin, B-07): classic token med scope `repo` + `project`
-# från Admins konto. Behövs för boardet (GITHUB_TOKEN når inte organisationsprojekt) och för att
-# mergen ska starta deploy.yml (merge med GITHUB_TOKEN startar inga workflows).
+# Kräver repo-secret PROCESS_TOKEN (Admin, B-07): classic token med scope `repo`, `workflow`, `project`, `read:org`
+# från Admins konto. Behövs för boardet (GITHUB_TOKEN når inte organisationsprojekt) och för
+# att merga via API med Admins rättigheter.
 
 on:
   issue_comment:

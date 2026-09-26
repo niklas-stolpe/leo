@@ -25,7 +25,7 @@ Spara två adresser i mobilen, en gång för alla:
 - **Förhandsvisning:** https://stage-leo.niklasstolpe.workers.dev – här ser du ändringen innan någon annan gör det.
 - **Den riktiga sidan:** https://leo.niklasstolpe.workers.dev
 
-Efter några minuter kommer en kommentar som säger att ändringen är klar att titta på. Öppna förhandsvisningen.
+Claude skriver i ditt önskemål när ändringen är klar att titta på. Öppna förhandsvisningen – den visar alltid det senaste.
 
 - **Ser det bra ut?** Skriv en kommentar som börjar med **godkänt**. Då publiceras det.
 - **Vill du ändra något?** Skriv **@claude** och vad som ska ändras, till exempel *"@claude gör bilden större och texten lugnare"*. Förhandsvisningen uppdateras på samma adress.

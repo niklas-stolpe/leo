@@ -3,7 +3,7 @@ name: Claude
 # Claude bygger när någon skriver @claude – i ett nytt issue (mallarna "Önskemål" och "Ny käpp"
 # har @claude förifyllt), i en issue-kommentar eller på en PR.
 #   Issue → Claude läser önskemålet, bygger på en egen branch och öppnar en PR. Förhandsvisningen
-#           postas av deploy.yml; Leo svarar "godkänt" eller "@claude ändra …".
+#           byggs av Cloudflare på stage-adressen; Leo svarar "godkänt" eller "@claude ändra …".
 #   PR    → Claude ändrar på PR:ens branch (t.ex. "@claude gör bilderna större", "@claude åtgärda granskningsfynden").
 # Arbetssättet står i CLAUDE.md, avsnittet "När du kör i GitHub".
 #
