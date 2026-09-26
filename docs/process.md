@@ -3,22 +3,23 @@
 Förklaringen för Admin. Reglerna står i `CLAUDE.md`, Leos version i `README.md`. Handlingarna är
 script i `scripts/` och workflows i `.github/workflows/`. Ingen ska behöva minnas en procedur – den körs.
 
-Bygger på Eaves-processen, med en skillnad: **Leo läser ingen kod.** Han bedömer hur det ser ut på
-en förhandsvisning och svarar `godkänt`. Allt han inte ser – buggar, hastighet, tillgänglighet,
+Bygger på Eaves-processen, med en skillnad: **Leo läser ingen kod.** Allt Claude bygger blir en
+version på versionssidan; Leo (eller Admin) tittar och väljer vilken version den riktiga sidan ska
+visa – det valet är godkännandet (B-06). Allt han inte ser – buggar, hastighet, tillgänglighet,
 säkerhet – täcks av grindar och granskning.
 
 ## Vem gör vad
 
 | Aktör | Jobb | Var |
 |---|---|---|
-| **Leo** | Skriver önskemål och nya käppar (issue-mallar med `@claude` förifyllt). Tittar på förhandsvisningen. Svarar `godkänt` eller `@claude ändra …`. | GitHub, gärna mobilappen |
+| **Leo** | Skriver önskemål och nya käppar (issue-mallar med `@claude` förifyllt). Tittar på versionerna. Väljer "Publicera på prod" eller skriver `@claude ändra …`. | GitHub, gärna mobilappen |
 | **Admin** | Beslutar (B-rader), sköter konton och hemligheter, följer boardet. Står i Leos ställe tills Leo har konto (B-09). | – |
 | **`claude.yml`** | Claude bygger vid `@claude` – från issue till PR, eller ändringar på en PR. | GitHub Actions |
-| **Cloudflare Workers Builds** | Typkontroll + bygge vid varje push. Andra brancher → stage (https://stage-leo.niklasstolpe.workers.dev, senaste pushade ändringen), main → prod (https://leo.niklasstolpe.workers.dev). Check-run `Workers Builds: leo` på commiten. Inställningar: `docs/processmall.md` 3b. | Cloudflare – drar inga GitHub-minuter |
+| **Cloudflare Workers Builds** | Typkontroll + bygge vid varje push. Andra brancher → stage (https://stage-leo.niklasstolpe.workers.dev, senaste pushade ändringen), main → ny Cloudflare-version (`wrangler versions upload`) – **inte** prod. Check-run `Workers Builds: leo` på commiten. Inställningar: `docs/processmall.md` 3b. | Cloudflare – drar inga GitHub-minuter |
 | **`requirements-gate`** | Kravgrinden som röd/grön bock på PR:en. | GitHub Actions, varje PR |
 | **Claude Code Review** | Granskar det Leo inte ser. Kommenterar, rättar inget. | GitHub Actions, varje PR |
-| **`publish.yml`** | Leo skriver `godkänt` → kör `merge-pr.sh` → merge → Cloudflare publicerar. | GitHub Actions |
-| **Versioner** | `merge-pr.sh` → `version-release.sh`: varje synlig publicering blir Version N (tagg + release). Versionssidan https://leo-versioner.niklasstolpe.workers.dev. `publicera-version.sh N` lägger en äldre version på prod direkt. Se `docs/processmall.md`, Versioner. | Session / Actions + Cloudflare |
+| **`publicera.yml`** | Issue "Publicera version N på prod" (knappen på versionssidan) eller kommentaren "publicera version N" från ett konto i `LEO_LOGINS` → `publicera-version.sh N`. | GitHub Actions |
+| **Versioner** | `merge-pr.sh` → `version-release.sh`: varje synlig merge blir Version N (tagg + release). Versionssidan https://leo-versioner.niklasstolpe.workers.dev. `publicera-version.sh N` lägger version N på prod; `borja-om-fran.sh N` fortsätter utvecklingen från version N. Se `docs/processmall.md`, Versioner. | Session / Actions + Cloudflare |
 | **`board.yml`** | Nytt issue → Backlog, `@claude` → In progress, PR → In review. | GitHub Actions |
 | **Kravagenten** | Nattlig, bara om något mergats. Drift mellan kod och krav → ett issue `kravavvikelser`. | GitHub Actions, 05:00 |
 | **Claude i session** | Större ändringar, process, felsökning. Kör samma script. | Admins dator |
@@ -33,27 +34,21 @@ Leo: nytt issue "Önskemål" (mallen har @claude)          board → In progress
 Claude: branch, bygger, gh pr create "Closes #n …"       board → In review     (board.yml)
 Cloudflare: bygger branchen → stage visar ändringen (check Workers Builds: leo)
 Claude Code Review: granskar → fynd? "@claude åtgärda granskningsfynden" (Admin eller Leo)
-Leo: tittar i mobilen → "@claude gör bilden större"  … ny förhandsvisning …
-Leo: "godkänt"  → publish.yml → merge-pr.sh (grindar, merge, board Done, issue stängt)
-main: Cloudflare publicerar till prod
+Claude: merge-pr.sh (grindar, merge, board Done)  → Version N på versionssidan (prod orörd)
+Leo: Titta → "@claude gör bilden större" (ny version) … eller Publicera på prod
+publicera.yml → publicera-version.sh N → prod visar version N
 ```
 
 I session: `scripts/issue-start.sh <n> <område> <slug>` → bygg → `gh pr create` → `scripts/pr-open.sh <pr>`
-→ vänta på Leos `godkänt` → antingen gör `publish.yml` resten, eller `scripts/merge-pr.sh <pr>`.
+→ `scripts/merge-pr.sh <pr>` (ny version) → när Admin/Leo väljer: `scripts/publicera-version.sh N`.
 
 ## Grindarna i `merge-pr.sh`
 
 1. **Kravgrinden** (`requirements-check.sh`, deterministisk): `Uppfyller:`-raden finns; angivna ID:n finns
    och är `Klar` med verifiering; inget i dokumentet är `Klar` utan verifiering; rör PR:en Admins yta
    (`.github/`, `scripts/`, `site/wrangler.jsonc`, `site/package*.json`) krävs `Säkerhet:`.
-2. **Leos godkännande** (`leo-approval.sh`): rör PR:en `site/` krävs en kommentar som börjar med
-   `godkänt`/`godkänd` från ett konto i `LEO_LOGINS` (`scripts/lib.sh`), skriven **efter** senaste committen.
-   Godkännandet gäller *ändringen*, inte en viss commit: commits efter godkännandet som inte ändrar själva
-   ändringen av `site/` (t.ex. en uppdatering mot main som bara rör kravdokumentet) behåller det – jämförs
-   med `git patch-id`. Ändras det som syns måste Leo godkänna igen – han godkänner det han såg.
-   `site/` identiskt med en tagg `vN` räknas som godkänt (återpublicering av en version).
-3. **Bygget:** Cloudflares check `Workers Builds: leo` grön (`BUILD_CHECK` i `lib.sh`). Actions-kravgrinden räknas inte – steg 1 kör samma script.
-4. **Granskning:** inga olösta trådar, ingen granskning pågår.
+2. **Bygget:** Cloudflares check `Workers Builds: leo` grön (`BUILD_CHECK` i `lib.sh`). Actions-kravgrinden räknas inte – steg 1 kör samma script.
+3. **Granskning:** inga olösta trådar, ingen granskning pågår.
 
 ## Kravdokumentet
 
@@ -101,5 +96,5 @@ i skarven gjorde den ogiltig (401). Rätt nyckel: 108 tecken, `sk-ant-oat01-…A
 4. **Secret `PROCESS_TOKEN`** – classic token "leo-process" från Admins konto med scope `repo`, `workflow`, `project`, `read:org` (utan `read:org`: "unknown owner type" från `gh project`). **Går ut 2027-03-26** – förnya under github.com/settings/tokens → leo-process → Regenerate, och byt secreten.
 5. Första publiceringen: `scripts/deploy-local.sh prod` (efter `npx wrangler login` i `site/`) så att Workern finns. Koppla sedan Workers Builds (`docs/processmall.md` 3b – gjort 2026-09-26, nyckel `leo-token`). Produktion: https://leo.niklasstolpe.workers.dev
 
-Utgången nyckel syns som: Claude svarar inte på `@claude` (Claude-nyckeln), boardet står still och "godkänt"
-publicerar inte (processnyckeln), eller ingen förhandsvisningslänk (Cloudflare).
+Utgången nyckel syns som: Claude svarar inte på `@claude` (Claude-nyckeln), boardet står still och "Publicera på prod"
+gör inget (processnyckeln), eller ingen förhandsvisningslänk (Cloudflare).

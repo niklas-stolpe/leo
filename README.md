@@ -4,7 +4,7 @@ Webbplatsen för Leos käppar – konst som används.
 
 ## Leo – så här gör du
 
-Du behöver aldrig röra kod. Du beskriver, tittar och säger ja. Claude bygger.
+Du behöver aldrig röra kod. Du beskriver, tittar och väljer. Claude bygger.
 
 ### Vill du ändra något på sidan?
 
@@ -18,29 +18,21 @@ Du behöver aldrig röra kod. Du beskriver, tittar och säger ja. Claude bygger.
 2. Fyll i namn, berättelsen och status (tillgänglig, såld eller beställningsverk). Dra in bilderna – stora originalbilder går bra.
 3. Tryck **Submit**.
 
-### Titta och svara
+### Titta och välj
 
-Spara två adresser i mobilen, en gång för alla:
+Spara tre adresser i mobilen, en gång för alla:
 
-- **Förhandsvisning:** https://stage-leo.niklasstolpe.workers.dev – här ser du ändringen innan någon annan gör det.
-- **Den riktiga sidan:** https://leo.niklasstolpe.workers.dev
+- **Versioner:** https://leo-versioner.niklasstolpe.workers.dev – allt Claude har gjort, version för version.
+- **Den riktiga sidan:** https://leo.niklasstolpe.workers.dev – det besökarna ser.
+- **Demo:** https://stage-leo.niklasstolpe.workers.dev – det allra senaste, att visa för andra så att de kan komma med förslag.
 
-Claude skriver i ditt önskemål när ändringen är klar att titta på. Öppna förhandsvisningen – den visar alltid det senaste.
+När Claude är klar med ditt önskemål dyker det upp som en ny version på versionssidan.
 
-- **Ser det bra ut?** Skriv en kommentar som börjar med **godkänt**. Då publiceras det.
-- **Vill du ändra något?** Skriv **@claude** och vad som ska ändras, till exempel *"@claude gör bilden större och texten lugnare"*. Förhandsvisningen uppdateras på samma adress.
+- **Tryck Titta** för att se versionen precis som den är.
+- **Tycker du om den?** Tryck **Publicera på prod** och sedan **Submit**. Inom en minut visar den riktiga sidan den versionen.
+- **Vill du ändra något?** Skriv **@claude** och vad som ska ändras i ditt önskemål, till exempel *"@claude gör bilden större och texten lugnare"*. Det blir en ny version.
 
-Det går inte att ha sönder något. Inget syns på webbplatsen förrän du skrivit *godkänt*.
-
-### Alla versioner
-
-Varje gång något publiceras blir det en ny version. Alla finns här – spara den också i mobilen:
-
-- **Versioner:** https://leo-versioner.niklasstolpe.workers.dev
-
-Tryck **Titta** för att se en version precis som den var. Vill du att den riktiga sidan ska visa en äldre version, tryck **Publicera på prod** vid den (eller skriv *"@claude publicera version 3 på prod"* i ett önskemål). Det går direkt – versionen är ju redan godkänd. Inget försvinner; du kan alltid gå fram igen.
-
-**Demon** (förhandsvisningen) kan du visa för andra, så att de kan komma med förslag.
+Det går inte att ha sönder något. Den riktiga sidan ändras bara när du trycker *Publicera på prod*. Alla versioner finns kvar – du kan alltid gå tillbaka till en äldre, eller fram igen.
 
 ---
 
