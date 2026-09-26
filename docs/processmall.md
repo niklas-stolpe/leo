@@ -190,6 +190,8 @@ Mer utrymme: göra repot publikt (obegränsade minuter) eller en utgiftsgräns �
 | Staplad PR krockar efter squash-merge | Grenen innehåller de gamla commitsen | Lägg PR:ens egen diff ovanpå main (`git diff <bas> <gren>` + `git apply --3way`) |
 | `astro check`: `Cannot find name 'process'` | `// @ts-check` i `astro.config.mjs` utan Node-typer | Ta bort `@ts-check` där |
 | Delningsbild pekar på example.com | `site` saknas i `astro.config.mjs` | `site` från `PUBLIC_MILJO` |
+| Script avbryts tyst utan felmeddelande | En hjälpfunktion vars sista kommando är ett falskt `[ … ]` returnerar felstatus; med `set -e` avbryter `x="$(funktion)"` hela scriptet | Avsluta sådana funktioner med `return 0` |
+| Godkännandet försvinner efter uppdatering mot main | Godkännandet var knutet till senaste commit | Knyt det till ändringen: `git diff $(git merge-base main X) X -- site | git patch-id` |
 | Jobb faller utan steg och logg | Actions-minuterna slut | Se "GitHub Actions-minuterna" |
 | Workers Builds föreslår fel repo | Cloudflares GitHub-app hade bara tillgång till ett annat repo | Lägg till repot i appens installation (org → Settings → GitHub Apps) |
 | Workers Builds föreslår ett annat projekts API-nyckel | Förvalt är senast skapade nyckeln | Create new token per projekt |
