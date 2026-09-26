@@ -14,6 +14,8 @@ interface Props {
 const { titel, beskrivning = 'Käppar av Leo – konst som används.', delningsbild } = Astro.props;
 const ar = new Date().getFullYear();
 const bildUrl = delningsbild ? new URL(delningsbild, Astro.url).href : undefined;
+// Kanonisk adress (NF-04): samma sida kan nås på flera adresser (versionslänkar, stage) – den här räknas.
+const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
 ---
 
 <html lang="sv">
@@ -27,6 +29,8 @@ const bildUrl = delningsbild ? new URL(delningsbild, Astro.url).href : undefined
     <meta property="og:title" content={titel} />
     <meta property="og:description" content={beskrivning} />
     {bildUrl && <meta property="og:image" content={bildUrl} />}
+    <link rel="canonical" href={kanonisk} />
+    <meta property="og:url" content={kanonisk} />
     <link rel="icon" type="image/svg+xml" href={favicon} />
     <link rel="apple-touch-icon" href={ikon(180)} />
     <link rel="manifest" href="/manifest.webmanifest" />
