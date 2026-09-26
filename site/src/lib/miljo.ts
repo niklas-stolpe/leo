@@ -1,4 +1,4 @@
-// Stage eller prod (F-32). deploy.yml sätter PUBLIC_MILJO=prod bara när main byggs för publicering;
+// Stage eller prod (F-32). PUBLIC_MILJO=prod sätts bara när main publiceras (Workers Builds deploy command);
 // allt annat – förhandsvisningar och lokal utveckling – räknas som stage, så att prod-ikonen aldrig
 // hamnar på något annat än den riktiga sidan.
 export const arProd = import.meta.env.PUBLIC_MILJO === 'prod';

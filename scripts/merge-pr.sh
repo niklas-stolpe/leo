@@ -3,11 +3,11 @@
 #   scripts/merge-pr.sh <pr>
 # Körs av Admin/Claude på dev-datorn, och av .github/workflows/publish.yml när Leo skriver "godkänt".
 #
-# Villkor:  kravgrinden · site-build grön · granskningen klar och alla trådar lösta ·
+# Villkor:  kravgrinden · Cloudflare-bygget grönt · granskningen klar och alla trådar lösta ·
 #           Leos godkännande efter senaste ändringen om PR:en rör site/ (B-06).
 # Efter:    squash-merge + radera branch · board Done (PR + Closes-issues) · stäng issues ·
 #           bocka av i roadmap #1 · lås upp issues som väntade (Beror på) · synka main lokalt.
-#           Pushen till main publicerar webbplatsen (deploy.yml).
+#           Pushen till main publicerar webbplatsen (Cloudflare Workers Builds).
 source "$(dirname "$0")/lib.sh"
 pr="${1:?pr}"
 here="$(dirname "$0")"
@@ -21,19 +21,18 @@ log "1/4 kravgrinden"
 log "2/4 Leos godkännande"
 "$here/leo-approval.sh" "$pr"
 
-log "3/4 CI"
-# Vänta in check-runs på head-SHA:n. Granskningen räknas inte som CI – den kommenterar.
+log "3/4 bygget ($BUILD_CHECK)"
+# Bygget körs av Cloudflare Workers Builds, inte GitHub Actions – fungerar även när Actions-minuterna
+# är slut. Kravgrinden i Actions (requirements-gate) räknas inte här: steg 1 körde samma script.
 for i in $(seq 1 60); do
-  runs="$(gh api "repos/$REPO/commits/$sha/check-runs" --jq '.check_runs[] | "\(.name)|\(.status)|\(.conclusion // "")"')"
-  sb="$(printf '%s\n' "$runs" | grep -E '^site-build\|' | head -1 || true)"
-  rg="$(printf '%s\n' "$runs" | grep -E '^requirements-gate\|' | head -1 || true)"
-  if [ -n "$sb" ] && [ -n "$rg" ] && ! printf '%s\n%s\n' "$sb" "$rg" | grep -qE '\|(queued|in_progress)\|'; then break; fi
-  [ "$i" -eq 60 ] && fail "CI blev inte klar inom 10 min: $runs"
+  byggt="$(gh api "repos/$REPO/commits/$sha/check-runs" \
+    --jq ".check_runs[] | select(.name==\"$BUILD_CHECK\" and .app.slug==\"$BUILD_APP\") | \"\(.status)|\(.conclusion // \"\")\"" | head -1)"
+  case "$byggt" in completed\|*) break ;; esac
+  [ "$i" -eq 60 ] && fail "$BUILD_CHECK blev inte klar inom 10 min (${byggt:-ingen check-run – är Workers Builds kopplat?})"
   sleep 10
 done
-printf '%s\n' "$sb" | grep -qE '\|success$' || fail "site-build: $sb"
-printf '%s\n' "$rg" | grep -qE '\|success$' || fail "requirements-gate (Actions): $rg"
-ok "site-build, requirements-gate gröna"
+[ "$byggt" = "completed|success" ] || fail "$BUILD_CHECK: $byggt – se bygget i Cloudflare-dashboarden"
+ok "$BUILD_CHECK grönt (stage visar ändringen)"
 
 log "4/4 granskningstrådar"
 unresolved="$(gh api graphql -f query="{repository(owner:\"$OWNER\",name:\"${REPO#*/}\"){pullRequest(number:$pr){reviewThreads(first:100){nodes{isResolved}}}}}" \
@@ -84,4 +83,4 @@ if [ -z "${CI:-}" ]; then
   git branch -D "$head" -q 2>/dev/null || true
   ok "main synkad lokalt"
 fi
-ok "PR #$pr klar – publiceringen startar av sig själv (deploy.yml)"
+ok "PR #$pr klar – publiceringen startar av sig själv (Cloudflare Workers Builds)"

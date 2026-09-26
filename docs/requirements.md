@@ -15,6 +15,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | Datum | Ändring |
 |---|---|
 | 2026-09-26 | #21 (Admin): bildtexten på startsidan "Leo och en vägg av käppar" → "Leo bland sina verk" (F-01). |
+| 2026-09-26 | #19 (Admin): bygge, stage och prod flyttade från GitHub Actions till Cloudflare Workers Builds (Actions-minuterna tog slut 2026-09-25); `merge-pr.sh` kräver Cloudflare-checken; `deploy.yml` borttagen; reservväg `scripts/deploy-local.sh`; återanvändbar `docs/processmall.md`. B-03, T-03, NF-05. |
 | 2026-09-25 | #17 (Admin): hemskärmsikoner – mörk prod-ikon med käpp i mässing, ljus stage-ikon med STAGE-etikett; manifest, apple-touch-icon, noindex på stage. F-31, nytt F-32. |
 | 2026-09-25 | Admin (chatt): fast förhandsvisningsadress "stage" + fast prod-adress, i stället för en ny länk per ändring (T-03, T-07, NF-05). |
 | 2026-09-25 | #5/#6: startsida och galleri i mörk, klassisk stil (Cormorant Garamond, mässing, ornament efter käpparnas ringar). 23 käppar ur Admins album, numrerade med romerska siffror – titel, år, material och status tomma tills Leo fyller i (F-12 kvar). F-01, F-03 (sidfot från #11/#13, nu i layouten), F-10, F-11 Klar; NF-03 (största bild 91 kB) Klar; NF-06 Pågår (ingen horisontell scroll vid 360 px i webbläsaren – mäts med Lighthouse i #9). Bilder på Jan Guillou hålls utanför tills samtycke (F-23, Q-05). |
@@ -26,7 +27,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 |---|---|---|
 | T-01 | **Leo** | Konstnären. Beställare och konstnärlig ledare – bestämmer hur sidan ska se ut och kännas. |
 | T-02 | **Admin** | Niklas. Beslutar om säkerhet, konton, domän, pengar och låsta beslut (B-rader). |
-| T-03 | **Förhandsvisning (stage)** | Fast adress https://stage-leo.niklasstolpe.workers.dev som alltid visar den senaste ändringen innan den publiceras. Varje ändring har dessutom en egen länk (`pr-<nummer>-leo…workers.dev`). |
+| T-03 | **Förhandsvisning (stage)** | Fast adress https://stage-leo.niklasstolpe.workers.dev som alltid visar den senaste ändringen innan den publiceras. Byggs av Cloudflare Workers Builds vid varje push till en branch. |
 | T-07 | **Prod** | Den publicerade sidan, https://leo.niklasstolpe.workers.dev (tills egen domän, Q-02). |
 | T-04 | **Godkänt** | Leo skriver `godkänt` som kommentar på PR:en efter att ha tittat på förhandsvisningen. Då publiceras ändringen. |
 | T-05 | **Käpp-mappen** | `site/src/content/kappar/<namn>/` – en mapp per käpp med `index.md` (text) och bilderna. |
@@ -48,7 +49,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 |---|---|---|
 | B-01 | **Gratis drift.** Inga löpande kostnader utöver Claude-prenumerationen och ev. domän (~100–200 kr/år). Gratisnivåer hos GitHub och Cloudflare räcker. | Admin 2026-09-25 |
 | B-02 | **Statisk webbplats byggd med Astro.** Ingen databas, ingen egen server. | Admin 2026-09-25 |
-| B-03 | **Cloudflare Workers med statiska filer** som webbhotell, samma konto som Eaves. | Admin 2026-09-25 |
+| B-03 | **Cloudflare Workers med statiska filer** som webbhotell, samma konto som Eaves. Bygge och publicering med Cloudflare Workers Builds (Admin 2026-09-26) – inte GitHub Actions. | Admin 2026-09-25 |
 | B-04 | **Ingen webbshop i v1.** Köparna vill träffa Leo – sidan leder till kontakt och möte, inte till kassa. | Admin 2026-09-25 |
 | B-05 | **Käpparna är filer i repot** (en mapp per käpp, T-05), inget CMS. Leo skickar bilder och text, Claude lägger upp. | Admin 2026-09-25 |
 | B-06 | **Leo godkänner allt som syns.** Ingen ändring i `site/` publiceras utan Leos `godkänt` (T-04) på förhandsvisningen. `scripts/merge-pr.sh` kontrollerar. | Admin 2026-09-25 |
@@ -101,7 +102,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | NF-02 | Tillgänglig. | Lighthouse Accessibility ≥ 90; alla käppbilder har alt-text. | v1 | Backlog | – | Admin 2026-09-25 |
 | NF-03 | Bilderna optimeras automatiskt – Leo kan skicka stora originalbilder. | Bilder i käpp-mappar byggs till moderna format och flera storlekar; ingen bild > 400 kB till besökaren. | v1 | Klar | bygg | Admin 2026-09-25 |
 | NF-04 | Hittas på Google. | Lighthouse SEO ≥ 90; sitemap finns. | v1 | Backlog | – | Admin 2026-09-25 |
-| NF-05 | Varje ändring får en förhandsvisning (T-03) på stage – samma adress varje gång, så att Leo kan spara den i mobilen – plus en egen länk, postade på PR:en. | Stage visar ändringen inom 5 minuter efter push. | v1 | Backlog | – | Admin 2026-09-25 |
+| NF-05 | Varje ändring får en förhandsvisning (T-03) på stage – samma adress varje gång, så att Leo kan spara den i mobilen. | Stage visar ändringen inom 5 minuter efter push (Cloudflare-checken `Workers Builds: leo` grön). | v1 | Backlog | – | Admin 2026-09-25 |
 | NF-06 | Fungerar på mobil. | Ingen horisontell scroll vid 360 px bredd. | v1 | Pågår | – | Admin 2026-09-25 |
 
 ## Ej inom scope
