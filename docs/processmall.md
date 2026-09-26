@@ -10,24 +10,24 @@ Processen bygger på Eaves (`niklas-stolpe/eaves`), anpassad för en beställare
 
 ## Idén
 
-**Beställaren tittar och säger ja. Claude bygger. Grindar och granskning täcker det beställaren inte ser.**
+**Claude bygger versioner fritt. Beställaren tittar och väljer vilken version den riktiga sidan visar – valet är godkännandet. Grindar och granskning täcker det beställaren inte ser.**
 Ingen behöver minnas en procedur – den körs av script och workflows.
 
 | Roll | Gör | Gör inte |
 |---|---|---|
-| **Beställare** (här Leo) | Skriver önskemål i issue-mallar, tittar på stage i mobilen, svarar `godkänt` eller `@claude ändra …` | Läser kod, rör konton |
+| **Beställare** (här Leo) | Skriver önskemål i issue-mallar, tittar på versionerna, trycker "Publicera på prod" eller skriver `@claude ändra …` | Läser kod, rör konton |
 | **Admin** (här Niklas) | Beslutar låsta beslut (B-rader), äger konton, nycklar och pengar, följer boardet | Behöver inte köra något i vardagen |
-| **Claude i GitHub** | Bygger från issue till PR, ändrar på PR vid `@claude`, granskar varje PR, nattlig kravkontroll | Mergar aldrig själv |
-| **Claude i session** | Större ändringar, processarbete, felsökning, reservvägar | Går aldrig förbi grindarna |
+| **Claude i GitHub** | Bygger från issue till PR, ändrar på PR vid `@claude`, granskar varje PR, nattlig kravkontroll | Publicerar aldrig på prod själv |
+| **Claude i session** | Större ändringar, processarbete, felsökning, reservvägar | Går aldrig förbi grindarna; publicerar bara på uttrycklig begäran |
 
 ```
 Beställare: issue "Önskemål" (@claude förifyllt)       board → In progress
 Claude: branch, bygger, öppnar PR (Closes #n)          board → In review
 Cloudflare Workers Builds: bygger branchen → stage visar ändringen på fast adress
 Claude Code Review: granskar → fynd fixas (session eller "@claude åtgärda granskningsfynden")
-Beställare: tittar på stage → "@claude ändra …" (ny version på samma adress) eller "godkänt"
-publish.yml → merge-pr.sh: alla grindar → merge → board Done, issue stängt, roadmap avbockad
-main: Cloudflare Workers Builds publicerar till prod
+Claude: merge-pr.sh – alla grindar → merge → board Done → Version N på versionssidan (prod orörd)
+Beställare: Titta på versionssidan → "@claude ändra …" (ny version) eller "Publicera på prod"
+publicera.yml → publicera-version.sh N → prod visar version N (sekunder)
 ```
 
 ## Byggstenarna
@@ -40,9 +40,10 @@ main: Cloudflare Workers Builds publicerar till prod
 | `README.md` | Guide till beställaren på enkel svenska | Namn, adresser |
 | `scripts/lib.sh` | Delade inställningar: repo, board-id:n, statusar, vem som får godkänna (`LEO_LOGINS`), vad som syns (`VISIBLE_PATH`) | **Alla id:n** – se steg 2 nedan |
 | `scripts/requirements-check.sh` | Kravgrinden: `Uppfyller:`-rad, ID:n finns och är `Klar` med verifiering, `Säkerhet:`-rad när Admins yta rörs | `SEC_PATH` |
-| `scripts/leo-approval.sh` | Beställarens `godkänt` måste finnas **efter** senaste committen om PR:en rör det som syns | Inget (läser `lib.sh`) |
+| `scripts/borja-om-fran.sh N` | PR som ställer `site/` tillbaka till `vN`, så att fortsatt utveckling utgår från version N. Rör inte prod | – |
 | `scripts/merge-pr.sh` | Enda sättet att merga: kravgrind, godkännande, Cloudflare-bygget, granskningstrådar → squash-merge → board, issues, roadmap, beroenden | – (läser `BUILD_CHECK`) |
-| `scripts/issue-start.sh`, `pr-open.sh` | Session: branch + board In progress; PR → In review + kravgrind | – |
+| `scripts/issue-start.sh`, `pr-open.sh` | Session: branch + board In progress; PR → In review + kravgrind + förhandsvisningslänk | – |
+| `scripts/pr-preview.sh` | Väntar in Cloudflares bygge av PR:en och postar dess egen länk (`Preview URL` ur checken) – stage visar bara senaste pushen | – |
 | `scripts/version-release.sh` | Efter merge av något synligt: väntar in Cloudflares prod-bygge, taggar `vN` och skapar GitHub Release "Version N – <namn>" med Cloudflare-versionens id. Samma innehåll som en tidigare version → ingen ny version | – |
 | `scripts/versioner.sh`, `versioner/` | Bygger versionssidan från GitHub Releases och publicerar den som en egen Worker | Adresser i `generera.mjs` och `wrangler.jsonc` |
 | `scripts/publicera-version.sh N` | Lägger version N på prod direkt (Cloudflare `versions deploy`, ombygge från taggen om versionen är borta) och öppnar en PR som ställer tillbaka `site/` till `vN` – den behöver inget nytt godkännande | – |
@@ -50,7 +51,7 @@ main: Cloudflare Workers Builds publicerar till prod
 | Cloudflare Workers Builds (inte en fil) | Typkontroll + bygge vid varje push; andra brancher → stage, main → prod. Check-run `Workers Builds: <worker>` som `merge-pr.sh` kräver. Drar inga GitHub-minuter | Inställningarna i 3b, `BUILD_CHECK` i `lib.sh` |
 | `.github/workflows/claude.yml` | `@claude` i issue eller PR → Claude bygger | Förinstallation (`npm ci` i rätt katalog) |
 | `.github/workflows/claude-code-review.yml` | Granskning av varje PR, `allowed_bots: "claude"` så Claudes egna PR:er granskas | Granskningsprompten (vad som är viktigt i projektet) |
-| `.github/workflows/publish.yml` | Kommentar som börjar med `godkänt` → `merge-pr.sh`. Kör alltid main:s version av scripten | – |
+| `.github/workflows/publicera.yml` | Issue "Publicera version N på prod" (knappen på versionssidan) eller kommentaren "publicera version N" från ett konto i `LEO_LOGINS` → `publicera-version.sh N`. Ingen Claude, ~1 min | – |
 | `.github/workflows/board.yml` | Nytt issue → Backlog, `@claude` → In progress, PR → In review | – |
 | `.github/workflows/requirements-gate.yml` | Kravgrinden som bock på PR:en | – |
 | `.github/workflows/requirements-audit.yml` | Nattlig kravagent → ett återanvänt issue `kravavvikelser` | Promptens projektnamn |
@@ -107,14 +108,14 @@ Bygge, stage och prod körs hos Cloudflare i stället för på GitHubs Actions-m
 | Repository | repot (inte ett annat som råkar stå förvalt) |
 | Production branch | `main` |
 | Build command | `npm ci && npm run check` |
-| Deploy command | `PUBLIC_MILJO=prod npm run build && npx wrangler deploy` |
+| Deploy command | `PUBLIC_MILJO=prod npm run build && npx wrangler versions upload --message "main"` – laddar upp en version, publicerar **inte** (B-06) |
 | Preview/Version command | `npm run build && npx wrangler versions upload --preview-alias stage` |
 | Enable Preview builds | på |
 | Advanced → Path | `/site` |
 | Advanced → API token | Create new token (egen, t.ex. `<namn>-token` – inte ett annat projekts) |
 | Build caching | på |
 
-Push till main → prod. Push till annan branch → stage. Cloudflare rapporterar bygget som en
+Push till main → ny version (inte prod). Push till annan branch → stage. Prod byts med `publicera-version.sh`. Cloudflare rapporterar bygget som en
 check på commiten i GitHub; `merge-pr.sh` kräver att den är grön.
 
 ### 4. Starta
@@ -126,28 +127,34 @@ check på commiten i GitHub; `merge-pr.sh` kräver att den är grön.
    - [ ] Kortet flyttar sig själv till In progress och In review (processnyckeln fungerar)
    - [ ] Checken `Workers Builds: <worker>` blir grön och stage visar ändringen (Cloudflare fungerar)
    - [ ] Granskningen postar PASS/FYND (Claude-appen + `allowed_bots`)
-   - [ ] `godkänt` → mergad, kort Done, issue stängt, prod uppdaterad
+   - [ ] `merge-pr.sh` → mergad, kort Done, issue stängt, ny version på versionssidan, prod orörd
+   - [ ] "Publicera på prod" på versionssidan → prod visar versionen, märkt "På prod nu"
 4. Spara stage och prod på mobilens hemskärm – ikonerna skiljer dem åt.
 
 ## Versioner
 
-Tre adresser: **prod** (den riktiga sidan), **demo** (stage – senaste förslaget, att visa för andra)
-och **versionssidan** (alla versioner). Varje merge som ändrar det som syns blir en version via
-`merge-pr.sh` → `version-release.sh`. Versionens id hos Cloudflare ger en egen länk som visar den
-precis som den var (Cloudflare sätter `noindex` på sådana länkar).
+Tre adresser: **prod** (den riktiga sidan – visar den version som valts), **demo** (stage – senaste
+pushen, att visa för andra) och **versionssidan** (alla versioner, med "På prod nu" och "Senaste").
 
-- **Titta:** länken på versionssidan.
-- **Publicera en äldre version:** `scripts/publicera-version.sh N` (eller `@claude publicera version N på prod`).
-  Prod byts direkt; PR:en som ställer tillbaka `site/` mergas med `merge-pr.sh` utan nytt godkännande
-  eftersom `leo-approval.sh` ser att `site/` är identiskt med taggen `vN`.
+**Versioner skapas fritt; prod ändras bara när någon väljer en version.** En merge till main laddar upp en
+ny Cloudflare-version (Workers Builds deploy command `… && npx wrangler versions upload`, *inte*
+`wrangler deploy`) och `merge-pr.sh` → `version-release.sh` gör den till Version N (tagg + release).
+Beställaren behöver aldrig godkänna en PR – hen väljer bland färdiga versioner. Det gör också att Claude
+aldrig behöver godkänna sitt eget arbete (auto mode stoppar det, med rätta).
+
+- **Titta:** länken på versionssidan (Cloudflare-versionens egen adress, `noindex`).
+- **Publicera:** knappen "Publicera på prod" → issue → `publicera.yml` → `publicera-version.sh N`
+  (`wrangler versions deploy <id>@100`, sekunder; byggs om från taggen om versionen är borta).
+  I session: `scripts/publicera-version.sh N` – bara på uttrycklig begäran.
+- **Börja om från version N:** `scripts/borja-om-fran.sh N` – PR som ställer `site/` tillbaka till `vN`.
 - **Historik bakåt:** tagga gamla merge-commits, bygg dem (`git worktree`) och `wrangler versions upload`
   för att få en länk, skapa releasen med samma format (`Publicerad:` och `Cloudflare-version:`-rader).
-- Versionssidan kräver wrangler-inloggning där `merge-pr.sh` körs (session: `npx wrangler login`;
+- Versionssidan kräver wrangler-inloggning där scripten körs (session: `npx wrangler login`;
   Actions: `CLOUDFLARE_API_TOKEN`/`_ACCOUNT_ID`).
 
 ## Vardagen
 
-- **Beställaren:** issue-mall → titta på stage → `godkänt` eller `@claude …`. Inget annat.
+- **Beställaren:** issue-mall → titta på versionssidan → "Publicera på prod" eller `@claude …`. Inget annat.
 - **Granskningsfynd fixas alltid**, även nice-to-have om de är billiga – svara i tråden och resolve:a.
   `merge-pr.sh` vägrar med olösta trådar.
 - **Ny commit efter godkännande = nytt godkännande.** Beställaren godkänner det hen såg.
@@ -158,7 +165,7 @@ precis som den var (Cloudflare sätter `noindex` på sådana länkar).
 
 Organisationen har 2000 Actions-minuter i månaden på GitHub Free, delade mellan **alla** privata repon.
 Bygge och publicering ligger därför hos Cloudflare (3b). Det som fortfarande kör i Actions är Claude
-(`@claude`, granskningen, kravagenten), `publish.yml`, `board.yml` och `requirements-gate` – en PR
+(`@claude`, granskningen, kravagenten), `publicera.yml`, `board.yml` och `requirements-gate` – en PR
 kostar ungefär 5–10 minuter, mest granskningen (~4 min per push).
 
 När minuterna är slut startar inga Actions-jobb; de faller utan steg och utan logg, och orsaken står
@@ -168,7 +175,7 @@ bara i check-runens annotations: `gh api repos/<repo>/check-runs/<id>/annotation
 |---|---|
 | Bygge, stage, prod | Ja – Cloudflare |
 | Merga | Ja – `merge-pr.sh` i session kräver bara Cloudflare-bygget, kravgrinden (lokalt) och godkännandet |
-| `godkänt` publicerar av sig själv | Nej – `publish.yml` är Actions. Claude i session kör `merge-pr.sh` |
+| "Publicera på prod" går av sig själv | Nej – `publicera.yml` är Actions. Claude i session kör `publicera-version.sh N` på begäran |
 | `@claude` och granskning | Nej – Claude i session bygger och granskar diffen lokalt |
 | Om Cloudflare inte bygger | `npx wrangler login` en gång i `site/`, sedan `scripts/deploy-local.sh prod` (ren main) eller `stage` (aktuell branch) |
 
@@ -189,8 +196,11 @@ Mer utrymme: göra repot publikt (obegränsade minuter) eller en utgiftsgräns �
 | Staplad PR krockar efter squash-merge | Grenen innehåller de gamla commitsen | Lägg PR:ens egen diff ovanpå main (`git diff <bas> <gren>` + `git apply --3way`) |
 | `astro check`: `Cannot find name 'process'` | `// @ts-check` i `astro.config.mjs` utan Node-typer | Ta bort `@ts-check` där |
 | Delningsbild pekar på example.com | `site` saknas i `astro.config.mjs` | `site` från `PUBLIC_MILJO` |
+| Script avbryts tyst utan felmeddelande | En hjälpfunktion vars sista kommando är ett falskt `[ … ]` returnerar felstatus; med `set -e` avbryter `x="$(funktion)"` hela scriptet | Avsluta sådana funktioner med `return 0` |
+| Godkännandet försvinner efter uppdatering mot main | Godkännandet var knutet till senaste commit | Knyt det till ändringen: `git diff $(git merge-base main X) X -- site | git patch-id` |
 | Jobb faller utan steg och logg | Actions-minuterna slut | Se "GitHub Actions-minuterna" |
 | Workers Builds föreslår fel repo | Cloudflares GitHub-app hade bara tillgång till ett annat repo | Lägg till repot i appens installation (org → Settings → GitHub Apps) |
+| Claude nekas att skriva "godkänt" åt Admin | Auto mode-spärren [Self-Approval] | Flytta godkännandet till valet av version (B-06): versioner fritt, prod bara vid val |
 | Workers Builds föreslår ett annat projekts API-nyckel | Förvalt är senast skapade nyckeln | Create new token per projekt |
 
 ## Flytta till beställarens egna konton
