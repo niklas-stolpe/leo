@@ -38,8 +38,9 @@ site_tree() { git rev-parse "$1:site"; }
 release_med_trad() {
   local t
   for t in $(git tag -l 'v[0-9]*' --sort=-v:refname); do
-    [ "$(site_tree "$t")" = "$1" ] && { echo "$t"; return; }
+    [ "$(site_tree "$t")" = "$1" ] && { echo "$t"; return 0; }
   done
+  return 0   # ingen träff är inget fel – annars avbryter set -e anroparen tyst
 }
 
 # cloudflare_version_for <commit-sha> – Version ID ur Cloudflares bygge av commiten (väntar in det).

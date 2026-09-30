@@ -42,7 +42,7 @@ else
     status="$(printf '%s' "$row" | awk -F'|' '{ for (i=2;i<=NF;i++) gsub(/^ +| +$/,"",$i); print $6 }')"
     verif="$(printf '%s' "$row" | awk -F'|' '{ for (i=2;i<=NF;i++) gsub(/^ +| +$/,"",$i); print $7 }')"
     [ "$status" = "Klar" ] || fail "$id har status '$status' i PR:ens version – ska vara 'Klar' i den PR som levererar (eller ta bort ID:t ur Uppfyller:)"
-    [ "$verif" != "–" ] && [ -n "$verif" ] || fail "$id är 'Klar' men verifiering är '–'. Ej verifierad = inte klar. Ange leo/bygg/lighthouse/admin."
+    [ "$verif" != "–" ] && [ -n "$verif" ] || fail "$id är 'Klar' men verifiering är '–'. Ej verifierad = inte klar. Ange leo/claude/bygg/lighthouse/admin."
     ok "$id: Klar, verifierad ($verif)"
   done
 fi

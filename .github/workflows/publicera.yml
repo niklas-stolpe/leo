@@ -1,0 +1,70 @@
+name: publicera
+
+# Publicera en vald version på prod (F-41, B-06). Startar när Admin eller Leo skapar ett issue
+# "Publicera version N på prod" – t.ex. med knappen på versionssidan – eller skriver
+# "publicera version N" som kommentar på ett issue. Kör scripts/publicera-version.sh, inget annat.
+#
+# Säkerhet: workflowen och scripten körs alltid från main. Bara konton i LEO_LOGINS (scripts/lib.sh)
+# får publicera – alla andra stoppas i första steget. Versionen måste finnas som tagg vN.
+# Kräver secrets CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID och PROCESS_TOKEN (board, issue).
+
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+
+concurrency:
+  group: publicera-prod
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publicera:
+    if: >
+      github.event.sender.type != 'Bot' &&
+      !github.event.issue.pull_request &&
+      (
+        (github.event_name == 'issues' && startsWith(github.event.issue.title, 'Publicera version')) ||
+        (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, 'publicera version'))
+      )
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PROCESS_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      AVSANDARE: ${{ github.event.sender.login }}
+      TEXT: ${{ github.event_name == 'issues' && github.event.issue.title || github.event.comment.body }}
+      ISSUE: ${{ github.event.issue.number }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Vem och vilken version
+        id: val
+        run: |
+          source scripts/lib.sh
+          printf '%s\n' $LEO_LOGINS | grep -qx "$AVSANDARE" || fail "$AVSANDARE får inte publicera på prod (LEO_LOGINS)"
+          n="$(printf '%s' "$TEXT" | grep -oiE 'version [0-9]+' | head -1 | grep -oE '[0-9]+')"
+          [ -n "$n" ] || fail "hittade inget versionsnummer i: $TEXT"
+          echo "n=$n" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Publicera
+        run: |
+          (cd site && npm ci --silent)
+          bash scripts/publicera-version.sh "${{ steps.val.outputs.n }}" "$ISSUE"
+
+      - name: Berätta varför det inte gick
+        if: failure()
+        run: |
+          gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body "⏸️ Det gick inte att publicera – ingenting har ändrats på den riktiga sidan. Admin eller Claude tittar på det. ([körningen]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID))"

@@ -24,6 +24,11 @@ const { Content } = await render(kappa);
 const titel = rubrik(kappa);
 const harBerattelse = (kappa.body ?? '').trim().length > 0;
 const delningsbild = await getImage({ src: kappa.data.bilder[0], width: 1200, format: 'jpg' });
+// Helbild (#25): största rimliga storlek, aldrig större än originalet.
+const helbilder = await Promise.all(
+  kappa.data.bilder.map((b) => getImage({ src: b, width: Math.min(b.width, 2000), format: 'webp' })),
+);
+const altFor = (i: number) => (i === 0 ? kappa.data.alt : (kappa.data.bildtexter[i - 1] ?? `${titel}, bild ${i + 1}`));
 const fakta = [
   kappa.data.ar && String(kappa.data.ar),
   kappa.data.material.length > 0 && kappa.data.material.join(', '),
@@ -38,13 +43,15 @@ const fakta = [
       <figure class="ram">
         {
           kappa.data.bilder.map((bild, i) => (
-            <Image
-              src={bild}
-              alt={i === 0 ? kappa.data.alt : (kappa.data.bildtexter[i - 1] ?? `${titel}, bild ${i + 1}`)}
-              widths={[540, 900, 1400]}
-              sizes="(min-width: 64rem) 60rem, 100vw"
-              loading={i === 0 ? 'eager' : 'lazy'}
-            />
+            <button type="button" class="forstora" data-stor={helbilder[i].src} data-alt={altFor(i)} aria-label="Visa bilden i helbild">
+              <Image
+                src={bild}
+                alt={altFor(i)}
+                widths={[540, 900, 1400]}
+                sizes="(min-width: 64rem) 60rem, 100vw"
+                loading={i === 0 ? 'eager' : 'lazy'}
+              />
+            </button>
           ))
         }
       </figure>
@@ -63,14 +70,111 @@ const fakta = [
         )
       }
     </article>
-    <nav class="bladdra" aria-label="Fler käppar">
+    <nav class="bladdra" aria-label="Fler käppar" data-forra={forra && `/kappar/${forra.id}/`} data-nasta={nasta && `/kappar/${nasta.id}/`}>
       {forra ? <a href={`/kappar/${forra.id}/`}>← {rubrik(forra)}</a> : <span />}
       {nasta ? <a href={`/kappar/${nasta.id}/`}>{rubrik(nasta)} →</a> : <span />}
     </nav>
+    <p class="tips">Tryck på bilden för helbild · svep åt sidan för nästa käpp</p>
   </main>
+  <dialog class="helbild" aria-label="Bilden i helbild">
+    <img alt="" />
+    <button type="button" class="stang versaler" aria-label="Stäng helbilden">Stäng</button>
+  </dialog>
 </Bas>
 
+<script>
+  // Helbild och bläddring (#25). Utan JavaScript fungerar sidan som förut – det här är bara extra.
+  const dialog = document.querySelector<HTMLDialogElement>('dialog.helbild')!;
+  const storBild = dialog.querySelector('img')!;
+  const nav = document.querySelector<HTMLElement>('nav.bladdra')!;
+  const ga = (riktning: 'forra' | 'nasta') => {
+    const dit = nav.dataset[riktning];
+    if (dit) location.href = dit;
+  };
+
+  document.querySelectorAll<HTMLButtonElement>('button.forstora').forEach((knapp) =>
+    knapp.addEventListener('click', () => {
+      storBild.src = knapp.dataset.stor!;
+      storBild.alt = knapp.dataset.alt ?? '';
+      dialog.showModal();
+    }),
+  );
+  // Klick var som helst i helbilden stänger den; Esc stänger av sig själv.
+  dialog.addEventListener('click', () => dialog.close());
+
+  document.addEventListener('keydown', (e) => {
+    if (dialog.open || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.key === 'ArrowLeft') ga('forra');
+    if (e.key === 'ArrowRight') ga('nasta');
+  });
+
+  // Svep åt sidan (mobil): tydligt vågrätt drag, inte en scroll.
+  let start: { x: number; y: number } | null = null;
+  document.addEventListener('touchstart', (e) => {
+    if (dialog.open || e.touches.length !== 1) return (start = null);
+    start = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }, { passive: true });
+  document.addEventListener('touchend', (e) => {
+    if (!start) return;
+    const dx = e.changedTouches[0].clientX - start.x;
+    const dy = e.changedTouches[0].clientY - start.y;
+    start = null;
+    if (Math.abs(dx) > 70 && Math.abs(dy) < 50) ga(dx > 0 ? 'forra' : 'nasta');
+  }, { passive: true });
+</script>
+
 <style>
+  .forstora {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+  }
+  .helbild {
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: clamp(0.5rem, 3vw, 2rem);
+    border: 0;
+    background: rgb(14 13 11 / 0.97);
+    cursor: zoom-out;
+  }
+  .helbild[open] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .helbild::backdrop {
+    background: rgb(14 13 11 / 0.9);
+  }
+  .helbild img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  .stang {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    min-height: 44px;
+    padding: 0 1rem;
+    background: none;
+    color: var(--elfenben);
+    border: 1px solid var(--massing);
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .tips {
+    text-align: center;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--dampad);
+    margin: 1.5rem 0 0;
+  }
   main {
     max-width: 64rem;
     margin: 0 auto;

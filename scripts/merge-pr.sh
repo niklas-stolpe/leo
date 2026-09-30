@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 # ENDA sättet en PR mergas. Vägrar om något villkor inte håller; gör sedan alla efter-steg.
 #   scripts/merge-pr.sh <pr>
-# Körs av Admin/Claude på dev-datorn, och av .github/workflows/publish.yml när Leo skriver "godkänt".
+# Körs av Admin/Claude i session (eller Claude i GitHub). En merge publicerar INTE: main blir en ny
+# version på versionssidan, och prod byts bara när Admin/Leo väljer en version (B-06,
+# scripts/publicera-version.sh).
 #
-# Villkor:  kravgrinden · Cloudflare-bygget grönt · granskningen klar och alla trådar lösta ·
-#           Leos godkännande efter senaste ändringen om PR:en rör site/ (B-06).
+# Villkor:  kravgrinden · Cloudflare-bygget grönt · granskningen klar och alla trådar lösta.
 # Efter:    squash-merge + radera branch · board Done (PR + Closes-issues) · stäng issues ·
 #           bocka av i roadmap #1 · lås upp issues som väntade (Beror på) · synka main lokalt ·
 #           ny version (tagg + release + versionssidan) om det som syns ändrades (F-40).
-#           Pushen till main publicerar webbplatsen (Cloudflare Workers Builds).
+#           Pushen till main laddar upp en ny Cloudflare-version (Workers Builds) – prod orörd.
 source "$(dirname "$0")/lib.sh"
 pr="${1:?pr}"
 here="$(dirname "$0")"
@@ -16,13 +17,10 @@ here="$(dirname "$0")"
 state="$(pr_field "$pr" .state)"; [ "$state" = "OPEN" ] || fail "PR #$pr är $state"
 head="$(pr_field "$pr" .headRefName)"; sha="$(pr_field "$pr" .headRefOid)"
 
-log "1/4 kravgrinden"
+log "1/3 kravgrinden"
 "$here/requirements-check.sh" "$pr"
 
-log "2/4 Leos godkännande"
-"$here/leo-approval.sh" "$pr"
-
-log "3/4 bygget ($BUILD_CHECK)"
+log "2/3 bygget ($BUILD_CHECK)"
 # Bygget körs av Cloudflare Workers Builds, inte GitHub Actions – fungerar även när Actions-minuterna
 # är slut. Kravgrinden i Actions (requirements-gate) räknas inte här: steg 1 körde samma script.
 for i in $(seq 1 60); do
@@ -35,7 +33,7 @@ done
 [ "$byggt" = "completed|success" ] || fail "$BUILD_CHECK: $byggt – se bygget i Cloudflare-dashboarden"
 ok "$BUILD_CHECK grönt (stage visar ändringen)"
 
-log "4/4 granskningstrådar"
+log "3/3 granskningstrådar"
 unresolved="$(gh api graphql -f query="{repository(owner:\"$OWNER\",name:\"${REPO#*/}\"){pullRequest(number:$pr){reviewThreads(first:100){nodes{isResolved}}}}}" \
   --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved==false)] | length')"
 [ "$unresolved" = "0" ] || fail "$unresolved olöst(a) granskningstråd(ar) – åtgärda och resolve:a först (eller skriv '@claude åtgärda granskningsfynden' på PR:en)"
@@ -90,4 +88,4 @@ if [ "$synligt" = 1 ]; then
   log "version"
   "$here/version-release.sh" "$merge_sha" "$pr" || warn "versionen skapades inte – kör scripts/version-release.sh $merge_sha $pr"
 fi
-ok "PR #$pr klar – Cloudflare publicerar main till prod"
+ok "PR #$pr klar – prod är orörd; publicera en version med scripts/publicera-version.sh <N>"
