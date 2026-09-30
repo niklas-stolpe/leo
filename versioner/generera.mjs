@@ -3,7 +3,10 @@
 // Ingen byggkedja: en statisk HTML-fil + typsnitten, publicerad som Workern leo-versioner.
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync } from 'node:fs';
 
-const [releasesFil, prodId = '', fontKatalog] = process.argv.slice(2);
+// demoMeddelande: meddelandet på den senaste versionen med aliaset stage – "Version N (demo)" när en
+// version har publicerats på demo, annars en vanlig branch-push (då är ingen version märkt).
+const [releasesFil, prodId = '', fontKatalog, demoMeddelande = ''] = process.argv.slice(2);
+const demoNr = Number(demoMeddelande.match(/^Version (\d+) \(demo\)/)?.[1] ?? 0);
 const REPO = 'niklas-stolpe/leo';
 const PROD = 'https://leo.niklasstolpe.workers.dev';
 const STAGE = 'https://stage-leo.niklasstolpe.workers.dev';
@@ -38,17 +41,18 @@ const versioner = JSON.parse(readFileSync(releasesFil, 'utf8'))
       beskrivning,
       cf,
       paProd: cf.includes(prodId),
+      paDemo: Number(r.tag_name.slice(1)) === demoNr,
     };
   })
   .sort((a, b) => b.nr - a.nr);
 
 const paProd = versioner.find((v) => v.paProd);
-const publiceraLank = (nr) =>
+const publiceraLank = (nr, dit) =>
   `https://github.com/${REPO}/issues/new?` +
   new URLSearchParams({
-    title: `Publicera version ${nr} på prod`,
+    title: `Publicera version ${nr} på ${dit}`,
     // Ingen @claude här: workflowen publicera.yml sköter det direkt, utan att Claude behöver köra.
-    body: `Publicera version ${nr} på den riktiga sidan. Tryck Submit – det går av sig självt.`,
+    body: `Publicera version ${nr} på ${dit === 'prod' ? 'den riktiga sidan' : 'demon'}. Tryck Submit – det går av sig självt.`,
     labels: 'önskemål',
   });
 
@@ -65,6 +69,7 @@ const kort = versioner
       <div class="huvud">
         <span class="nr">Version ${v.nr}</span>
         ${v.paProd ? '<span class="markning">På prod nu</span>' : ''}
+        ${v.paDemo ? '<span class="markning demo">På demo nu</span>' : ''}
         ${v.nr === versioner[0].nr && !v.paProd ? '<span class="markning ny">Senaste</span>' : ''}
       </div>
       <h2>${esc(v.namn)}</h2>
@@ -72,7 +77,8 @@ const kort = versioner
       <div class="text">${lista(v.beskrivning)}</div>
       <div class="knappar">
         ${v.cf.length ? `<a class="knapp" href="${url(v.cf[0])}">Titta</a>` : ''}
-        ${v.paProd ? '' : `<a class="knapp stilla" href="${publiceraLank(v.nr)}">Publicera på prod</a>`}
+        ${v.paProd ? '' : `<a class="knapp stilla" href="${publiceraLank(v.nr, 'prod')}">Publicera på prod</a>`}
+        ${v.paDemo ? '' : `<a class="knapp stilla" href="${publiceraLank(v.nr, 'demo')}">Publicera på demo</a>`}
       </div>
     </li>`,
   )
@@ -107,6 +113,7 @@ ol { list-style: none; padding: 0; margin: 0; border-left: 1px solid rgb(184 149
 .huvud { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
 .nr { text-transform: uppercase; letter-spacing: 0.25em; font-size: 0.8rem; font-weight: 600; color: var(--massing); }
 .markning { font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 600; background: var(--massing); color: var(--svart); padding: 0.15rem 0.6rem; }
+.markning.demo { background: #8b2e2e; color: var(--elfenben); }
 .markning.ny { background: none; color: var(--massing-ljus); border: 1px solid var(--massing); }
 h2 { font-weight: 400; font-style: italic; font-size: 1.9rem; line-height: 1.15; margin: 0.35rem 0 0.25rem; }
 .datum { color: var(--dampad); margin: 0 0 0.75rem; font-size: 1rem; }

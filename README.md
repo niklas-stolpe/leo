@@ -30,6 +30,7 @@ När Claude är klar med ditt önskemål dyker det upp som en ny version på ver
 
 - **Tryck Titta** för att se versionen precis som den är.
 - **Tycker du om den?** Tryck **Publicera på prod** och sedan **Submit**. Inom en minut visar den riktiga sidan den versionen.
+- **Vill du visa en version för någon?** Tryck **Publicera på demo** – efter ett par minuter ligger den på demo-adressen. (Nästa gång Claude gör en ändring hamnar den på demon i stället.)
 - **Vill du ändra något?** Skriv **@claude** och vad som ska ändras i ditt önskemål, till exempel *"@claude gör bilden större och texten lugnare"*. Det blir en ny version.
 
 Det går inte att ha sönder något. Den riktiga sidan ändras bara när du trycker *Publicera på prod*. Alla versioner finns kvar – du kan alltid gå tillbaka till en äldre, eller fram igen.
