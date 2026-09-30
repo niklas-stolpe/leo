@@ -17,7 +17,7 @@
   },
   "vars": {
     "ACCOUNT_ID": "4785debd7d2639fd0117680002a5b41d",
-    "GOOGLE_CLIENT_ID": "",
+    "GOOGLE_CLIENT_ID": "4424521176-8tniojp6mjsvkl65njngb277r9gsjr37.apps.googleusercontent.com",
     "TILLATNA": "niklasstolpe@gmail.com"
   },
   "workers_dev": true,
