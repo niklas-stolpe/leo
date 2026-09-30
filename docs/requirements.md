@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-09-26 | #27: sitemap.xml (startsidan + alla käppar), robots.txt (prod tillåter och pekar ut sitemapen, stage stänger ute), kanonisk adress och og:url per sida. NF-04 Pågår tills Lighthouse SEO är mätt (#9). |
 | 2026-09-26 | #25: F-15 käppen i helbild (dialog med största bildstorleken ≤ 2000 px) och bläddring med svep/piltangenter. |
 | 2026-09-26 | #33 (Admin): B-06 ändrad – versioner fritt, prod bara när en version väljs. Merge → ny Cloudflare-version (`wrangler versions upload`, inte deploy) + tagg/release; prod byts med `publicera-version.sh` eller `publicera.yml` (issue "Publicera version N på prod", knappen på versionssidan). `leo-approval.sh` och `publish.yml` borttagna; `borja-om-fran.sh` för att fortsätta utveckla från en äldre version. T-04, F-02. |
 | 2026-09-26 | #23 (Admin): versioner – varje publicering av något synligt blir en version (tagg + release), versionssida https://leo-versioner.niklasstolpe.workers.dev, "publicera version N på prod" direkt (scripts/publicera-version.sh). Historiken inlagd som version 1–3. Tre adresser: prod, demo (stage), versioner. F-40 Klar, F-41 Pågår, F-42 + Q-08 nya. |
@@ -115,7 +116,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | NF-01 | Snabb på mobilen. | Lighthouse Performance ≥ 90 (mobil) på startsidan och en käppsida. | v1 | Backlog | – | Admin 2026-09-25 |
 | NF-02 | Tillgänglig. | Lighthouse Accessibility ≥ 90; alla käppbilder har alt-text. | v1 | Backlog | – | Admin 2026-09-25 |
 | NF-03 | Bilderna optimeras automatiskt – Leo kan skicka stora originalbilder. | Bilder i käpp-mappar byggs till moderna format och flera storlekar; ingen bild > 400 kB till besökaren. | v1 | Klar | bygg | Admin 2026-09-25 |
-| NF-04 | Hittas på Google. | Lighthouse SEO ≥ 90; sitemap finns. | v1 | Backlog | – | Admin 2026-09-25 |
+| NF-04 | Hittas på Google. | Lighthouse SEO ≥ 90; sitemap finns. | v1 | Pågår | – | Admin 2026-09-25 |
 | NF-05 | Varje ändring får en förhandsvisning (T-03) på stage – samma adress varje gång, så att Leo kan spara den i mobilen. | Stage visar ändringen inom 5 minuter efter push (Cloudflare-checken `Workers Builds: leo` grön). | v1 | Backlog | – | Admin 2026-09-25 |
 | NF-06 | Fungerar på mobil. | Ingen horisontell scroll vid 360 px bredd. | v1 | Pågår | – | Admin 2026-09-25 |
 
