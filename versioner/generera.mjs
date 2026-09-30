@@ -47,7 +47,8 @@ const publiceraLank = (nr) =>
   `https://github.com/${REPO}/issues/new?` +
   new URLSearchParams({
     title: `Publicera version ${nr} på prod`,
-    body: `@claude publicera version ${nr} på prod`,
+    // Ingen @claude här: workflowen publicera.yml sköter det direkt, utan att Claude behöver köra.
+    body: `Publicera version ${nr} på den riktiga sidan. Tryck Submit – det går av sig självt.`,
     labels: 'önskemål',
   });
 
@@ -64,6 +65,7 @@ const kort = versioner
       <div class="huvud">
         <span class="nr">Version ${v.nr}</span>
         ${v.paProd ? '<span class="markning">På prod nu</span>' : ''}
+        ${v.nr === versioner[0].nr && !v.paProd ? '<span class="markning ny">Senaste</span>' : ''}
       </div>
       <h2>${esc(v.namn)}</h2>
       ${v.publicerad ? `<p class="datum">${esc(datum(v.publicerad))}</p>` : ''}
@@ -105,6 +107,7 @@ ol { list-style: none; padding: 0; margin: 0; border-left: 1px solid rgb(184 149
 .huvud { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
 .nr { text-transform: uppercase; letter-spacing: 0.25em; font-size: 0.8rem; font-weight: 600; color: var(--massing); }
 .markning { font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 600; background: var(--massing); color: var(--svart); padding: 0.15rem 0.6rem; }
+.markning.ny { background: none; color: var(--massing-ljus); border: 1px solid var(--massing); }
 h2 { font-weight: 400; font-style: italic; font-size: 1.9rem; line-height: 1.15; margin: 0.35rem 0 0.25rem; }
 .datum { color: var(--dampad); margin: 0 0 0.75rem; font-size: 1rem; }
 .text p, .text ul { margin: 0 0 0.5rem; }
@@ -128,8 +131,8 @@ code { font-size: 0.9em; }
   </nav>
   <p class="ingress">${
     paProd
-      ? `Just nu visar den riktiga sidan version ${paProd.nr}. Tryck Titta för att se en version precis som den var.`
-      : 'Tryck Titta för att se en version precis som den var.'
+      ? `Just nu visar den riktiga sidan version ${paProd.nr}. Tryck Titta för att se en version precis som den är – och Publicera på prod när du vill att den riktiga sidan ska visa den.`
+      : 'Tryck Titta för att se en version precis som den är – och Publicera på prod när du vill att den riktiga sidan ska visa den.'
   }</p>
   ${versioner.length ? `<ol>${kort}</ol>` : '<p class="tom">Inga versioner än.</p>'}
 </main>
