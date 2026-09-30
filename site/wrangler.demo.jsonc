@@ -1,0 +1,14 @@
+// Demo (F-44, #37): Workern leo-demo visar den version Admin eller Leo har valt för att visa för andra.
+// Versionerna laddas upp i demo-utförande (PUBLIC_MILJO=demo) av scripts/version-release.sh och byts
+// med versionssidan eller scripts/publicera-version.sh N demo. Skrivs aldrig över av branch-pushar.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "leo-demo",
+  "compatibility_date": "2026-09-30",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  },
+  "workers_dev": true,
+  "preview_urls": true
+}

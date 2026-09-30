@@ -4,7 +4,7 @@ import sharp from 'sharp';
 import { copyFile } from 'node:fs/promises';
 
 const ut = new URL('../public/ikoner/', import.meta.url);
-for (const miljo of ['prod', 'stage']) {
+for (const miljo of ['prod', 'demo', 'stage']) {
   const kalla = new URL(`${miljo}.svg`, import.meta.url);
   for (const storlek of [180, 192, 512]) {
     await sharp(kalla.pathname.replace(/^\/([A-Za-z]:)/, '$1'), { density: 300 })

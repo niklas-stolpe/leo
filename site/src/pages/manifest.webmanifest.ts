@@ -1,11 +1,11 @@
 // Gör att sidan kan läggas till på hemskärmen med eget namn och egen ikon (F-31, F-32).
 import type { APIRoute } from 'astro';
-import { appNamn, arProd, ikon, temafarg } from '../lib/miljo';
+import { appNamn, ikon, miljo, temafarg } from '../lib/miljo';
 
 export const GET: APIRoute = () =>
   new Response(
     JSON.stringify({
-      name: arProd ? 'Leo – käppar' : 'Leo – käppar (stage)',
+      name: { prod: 'Leo – käppar', demo: 'Leo – käppar (demo)', stage: 'Leo – käppar (stage)' }[miljo],
       short_name: appNamn,
       start_url: '/',
       display: 'standalone',

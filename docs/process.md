@@ -19,7 +19,7 @@ säkerhet – täcks av grindar och granskning.
 | **`requirements-gate`** | Kravgrinden som röd/grön bock på PR:en. | GitHub Actions, varje PR |
 | **Claude Code Review** | Granskar det Leo inte ser. Kommenterar, rättar inget. | GitHub Actions, varje PR |
 | **`publicera.yml`** | Issue "Publicera version N på prod" (knappen på versionssidan) eller kommentaren "publicera version N" från ett konto i `LEO_LOGINS` → `publicera-version.sh N`. | GitHub Actions |
-| **Versioner** | `merge-pr.sh` → `version-release.sh`: varje synlig merge blir Version N (tagg + release). Versionssidan https://leo-versioner.niklasstolpe.workers.dev. `publicera-version.sh N [demo]` lägger version N på prod (eller demo); `borja-om-fran.sh N` fortsätter utvecklingen från version N. Se `docs/processmall.md`, Versioner. | Session / Actions + Cloudflare |
+| **Versioner** | `merge-pr.sh` → `version-release.sh`: varje synlig merge blir Version N (tagg + release). Versionssidan https://leo-versioner.niklasstolpe.workers.dev. `publicera-version.sh N [demo]` lägger version N på prod (eller demo – Workern `leo-demo`); Admin och Leo gör det själva på versionssidan efter Google-inloggning; `borja-om-fran.sh N` fortsätter utvecklingen från version N. Se `docs/processmall.md`, Versioner. | Session / Actions + Cloudflare |
 | **`board.yml`** | Nytt issue → Backlog, `@claude` → In progress, PR → In review. | GitHub Actions |
 | **Kravagenten** | Nattlig, bara om något mergats. Drift mellan kod och krav → ett issue `kravavvikelser`. | GitHub Actions, 05:00 |
 | **Claude i session** | Större ändringar, process, felsökning. Kör samma script. | Admins dator |

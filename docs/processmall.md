@@ -95,6 +95,20 @@ på Windows.
 | Första publiceringen | `scripts/deploy-local.sh prod` efter `npx wrangler login` i `site/` (förhandsvisningarna kräver att Workern finns) |
 | Cloudflare Workers Builds | Se nästa avsnitt |
 
+### 3c. Inloggning och publicering från versionssidan
+
+Gratis och utan betalkort – Cloudflare Zero Trust kräver kort även på gratisplanen, så inloggningen
+sköts av versionssidans Worker själv (Google OpenID Connect).
+
+1. **Google Cloud Console** → nytt projekt → *OAuth consent screen* (External, appnamn, e-post) →
+   *Publish app* (bara `openid email` – ingen granskning) → *Clients → Create client* (Web application):
+   origin `https://<versionssidan>`, redirect `https://<versionssidan>/auth/callback`.
+2. **Client ID** → `GOOGLE_CLIENT_ID` i `versioner/wrangler.jsonc` (inte hemligt). **Tillåtna adresser** → `TILLATNA`.
+3. **Secrets** på Workern (Cloudflare → Workers → `<namn>-versioner` → Settings → Variables and Secrets → Add → Secret):
+   `GOOGLE_CLIENT_SECRET` (från Google) och `CF_API_TOKEN` (Cloudflare-nyckel med *Account → Workers Scripts → Edit*,
+   begränsad till kontot). `SESSION_SECRET` skapar `scripts/versioner.sh` själv.
+4. Demo-Workern skapas första gången med `wrangler deploy --config site/wrangler.demo.jsonc`.
+
 ### 3b. Cloudflare bygger och publicerar (Workers Builds)
 
 Bygge, stage och prod körs hos Cloudflare i stället för på GitHubs Actions-minuter.
@@ -133,8 +147,9 @@ check på commiten i GitHub; `merge-pr.sh` kräver att den är grön.
 
 ## Versioner
 
-Tre adresser: **prod** (den riktiga sidan – visar den version som valts), **demo** (stage – senaste
-pushen, att visa för andra) och **versionssidan** (alla versioner, med "På prod nu" och "Senaste").
+Fyra adresser: **prod** (den riktiga sidan – visar den version som valts), **demo** (Workern `leo-demo` –
+den version som valts för att visas för andra), **stage** (Claudes arbetsyta, senaste pushen) och
+**versionssidan** (alla versioner, live-märkningar "På prod nu", "På demo nu", "Senaste").
 
 **Versioner skapas fritt; prod ändras bara när någon väljer en version.** En merge till main laddar upp en
 ny Cloudflare-version (Workers Builds deploy command `… && npx wrangler versions upload`, *inte*
@@ -146,7 +161,8 @@ aldrig behöver godkänna sitt eget arbete (auto mode stoppar det, med rätta).
 - **Publicera:** knappen "Publicera på prod" → issue → `publicera.yml` → `publicera-version.sh N`
   (`wrangler versions deploy <id>@100`, sekunder; byggs om från taggen om versionen är borta).
   I session: `scripts/publicera-version.sh N` – bara på uttrycklig begäran.
-- **Publicera på demo:** knappen "Publicera på demo" → issue → `publicera.yml` → `publicera-version.sh N demo` – bygger om `vN` som stage och laddar upp med `--preview-alias stage` (~2 min). Nästa branch-push ersätter den; `pr-open.sh` uppdaterar då versionssidan.
+- **Publicera på demo:** Workern `leo-demo` byts till versionens demo-bygge (`Demo-version:` i releasen, byggt av `demo-version.sh` med `PUBLIC_MILJO=demo` när versionen skapas). Sekunder; skrivs aldrig över av branch-pushar.
+- **Versionssidan är en Worker** (`versioner/src/index.js`): ritar sidan vid varje besök (märkningar live via Cloudflares API), egen Google-inloggning och publicering via Cloudflares API (`POST /workers/scripts/<worker>/deployments`). Vem som publicerade står i deploymentens meddelande hos Cloudflare.
 - **Börja om från version N:** `scripts/borja-om-fran.sh N` – PR som ställer `site/` tillbaka till `vN`.
 - **Historik bakåt:** tagga gamla merge-commits, bygg dem (`git worktree`) och `wrangler versions upload`
   för att få en länk, skapa releasen med samma format (`Publicerad:` och `Cloudflare-version:`-rader).
@@ -201,6 +217,7 @@ Mer utrymme: göra repot publikt (obegränsade minuter) eller en utgiftsgräns �
 | Godkännandet försvinner efter uppdatering mot main | Godkännandet var knutet till senaste commit | Knyt det till ändringen: `git diff $(git merge-base main X) X -- site | git patch-id` |
 | Jobb faller utan steg och logg | Actions-minuterna slut | Se "GitHub Actions-minuterna" |
 | Workers Builds föreslår fel repo | Cloudflares GitHub-app hade bara tillgång till ett annat repo | Lägg till repot i appens installation (org → Settings → GitHub Apps) |
+| Cloudflare Zero Trust kräver betalkort även för Free | Kassan ber om kort/PayPal | Egen Google-inloggning i Workern (3c) |
 | Claude nekas att skriva "godkänt" åt Admin | Auto mode-spärren [Self-Approval] | Flytta godkännandet till valet av version (B-06): versioner fritt, prod bara vid val |
 | Workers Builds föreslår ett annat projekts API-nyckel | Förvalt är senast skapade nyckeln | Create new token per projekt |
 

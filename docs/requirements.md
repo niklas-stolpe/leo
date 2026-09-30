@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-09-30 | #37 (Admin): Google-inloggning på versionssidan (F-45) – versionssidan blir en Worker med egen Google-inloggning (inte Cloudflare Zero Trust, som krävde betalkort), tillåtna adresser, live-märkningar och publicering direkt via Cloudflares API. Egen stabil demo `leo-demo` (F-44) med demo-utförande (PUBLIC_MILJO=demo, "Leo demo", DEMO-ikon); v1–v6 uppladdade dit bakåt. Stage blir Claudes arbetsyta (T-03, T-10). |
 | 2026-09-30 | #35 (Admin): F-43 publicera en version på demo – `publicera-version.sh N demo` bygger om taggen som stage och lägger den på aliaset stage; knappen "Publicera på demo" och märkningen "På demo nu" på versionssidan; `publicera.yml` förstår "på demo". |
 | 2026-09-26 | #29: F-16 mjuk entré – käpparna tonar fram vid scroll (CSS scroll-driven animation), ornamentet vidgas. Ingen JavaScript. |
 | 2026-09-26 | #27: sitemap.xml (startsidan + alla käppar), robots.txt (prod tillåter och pekar ut sitemapen, stage stänger ute), kanonisk adress och og:url per sida. NF-04 Pågår tills Lighthouse SEO är mätt (#9). |
@@ -33,9 +34,10 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 |---|---|---|
 | T-01 | **Leo** | Konstnären. Beställare och konstnärlig ledare – bestämmer hur sidan ska se ut och kännas. |
 | T-02 | **Admin** | Niklas. Beslutar om säkerhet, konton, domän, pengar och låsta beslut (B-rader). |
-| T-03 | **Förhandsvisning (stage)** | Fast adress https://stage-leo.niklasstolpe.workers.dev som alltid visar den senaste ändringen innan den publiceras. Byggs av Cloudflare Workers Builds vid varje push till en branch. |
+| T-03 | **Stage** | Claudes arbetsyta, https://stage-leo.niklasstolpe.workers.dev – visar alltid den senast pushade ändringen. |
 | T-08 | **Version** | En publicering till prod av något som syns: "Version 3 – Leo bland sina verk", med datum, vad som ändrades och en egen länk som visar den precis som den var. Tagg `vN` + GitHub Release. |
 | T-09 | **Versionssidan** | https://leo-versioner.niklasstolpe.workers.dev – alla versioner, vilken som är på prod nu. |
+| T-10 | **Demo** | https://leo-demo.niklasstolpe.workers.dev – den version Admin eller Leo har valt att visa för andra (F-44). |
 | T-07 | **Prod** | Den publicerade sidan, https://leo.niklasstolpe.workers.dev (tills egen domän, Q-02). |
 | T-04 | **Publicera** | Att välja en version för den riktiga sidan: "publicera version N på prod". Det är godkännandet (B-06). |
 | T-05 | **Käpp-mappen** | `site/src/content/kappar/<namn>/` – en mapp per käpp med `index.md` (text) och bilderna. |
@@ -112,6 +114,8 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | F-41 | Leo kan säga "publicera version N på prod" – prod visar version N direkt, utan omväg via stage och utan nytt godkännande. Inget försvinner; senare versioner kan publiceras igen. | En äldre version har publicerats på prod och sedan en nyare igen. | v1 | Pågår | – | Admin (chatt, #23) 2026-09-26 |
 | F-42 | Stage fungerar som demo som andra kan granska och lämna förslag på. | Förslagsvägen för granskare utan GitHub-konto är bestämd och byggd (öppen fråga Q-08). | v1 | Backlog | – | Admin (chatt, #23) 2026-09-26 |
 | F-43 | Admin eller Leo kan publicera en version på demon (stage), med en knapp på versionssidan, för att visa den för andra. Rör inte den riktiga sidan. | Version 6 publicerad på demo; versionssidan märker den "På demo nu". | v1 | Klar | claude | Admin (chatt, #35) 2026-09-30 |
+| F-44 | Demon har en egen stabil adress (https://leo-demo.niklasstolpe.workers.dev) som bara visar den version Admin eller Leo har valt – den skrivs aldrig över av Claudes arbete. Varje version finns i demo-utförande (osynlig för Google, "Leo demo", egen ikon), så att publicera på demo tar sekunder. | Version 5 och 6 publicerade på demo på sekunder; en branch-push ändrar inte demon. | v1 | Klar | claude | Admin (chatt, #37) 2026-09-30 |
+| F-45 | Admin och Leo loggar in med sina Google-konton på versionssidan och publicerar på demo eller den riktiga sidan därifrån. Andra kan titta men inte publicera. Gratis, utan betalkort. | Admin och Leo har loggat in och publicerat; en annan Google-adress nekas. | v1 | Pågår | – | Admin (chatt, #37) 2026-09-30 |
 
 ## Icke-funktionella krav
 
