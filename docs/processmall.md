@@ -146,6 +146,7 @@ aldrig behöver godkänna sitt eget arbete (auto mode stoppar det, med rätta).
 - **Publicera:** knappen "Publicera på prod" → issue → `publicera.yml` → `publicera-version.sh N`
   (`wrangler versions deploy <id>@100`, sekunder; byggs om från taggen om versionen är borta).
   I session: `scripts/publicera-version.sh N` – bara på uttrycklig begäran.
+- **Publicera på demo:** knappen "Publicera på demo" → issue → `publicera.yml` → `publicera-version.sh N demo` – bygger om `vN` som stage och laddar upp med `--preview-alias stage` (~2 min). Nästa branch-push ersätter den; `pr-open.sh` uppdaterar då versionssidan.
 - **Börja om från version N:** `scripts/borja-om-fran.sh N` – PR som ställer `site/` tillbaka till `vN`.
 - **Historik bakåt:** tagga gamla merge-commits, bygg dem (`git worktree`) och `wrangler versions upload`
   för att få en länk, skapa releasen med samma format (`Publicerad:` och `Cloudflare-version:`-rader).

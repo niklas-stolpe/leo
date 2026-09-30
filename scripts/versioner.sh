@@ -17,8 +17,13 @@ let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{
 prod="$(cd "$rot/site" && "$wrangler" deployments status --json 2>/dev/null \
   | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{const v=JSON.parse(d).versions||[];const t=v.sort((a,b)=>b.percentage-a.percentage)[0];process.stdout.write(t?t.version_id:'')})")"
 
+# Vad demo visar: meddelandet på den senaste versionen med aliaset stage ("Version N (demo)" om en
+# version publicerats dit, annars en branch-push).
+demo="$(cd "$rot/site" && "$wrangler" versions list --json 2>/dev/null \
+  | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{const v=JSON.parse(d).filter(x=>x.annotations?.['workers/alias']==='stage').sort((a,b)=>(b.metadata?.created_on??'').localeCompare(a.metadata?.created_on??''))[0];process.stdout.write(v?.annotations?.['workers/message']??'')})")"
+
 rm -rf "$rot/versioner/dist"
-node "$rot/versioner/generera.mjs" "$tmp/releases.json" "$prod" "$rot/site/node_modules/@fontsource/cormorant-garamond/files"
+node "$rot/versioner/generera.mjs" "$tmp/releases.json" "$prod" "$rot/site/node_modules/@fontsource/cormorant-garamond/files" "$demo"
 rm -rf "$tmp"
 
 (cd "$rot/versioner" && "$wrangler" deploy 2>&1 | grep -E 'workers\.dev|ERROR|✘' || true)

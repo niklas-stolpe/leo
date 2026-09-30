@@ -1,8 +1,8 @@
 name: publicera
 
-# Publicera en vald version på prod (F-41, B-06). Startar när Admin eller Leo skapar ett issue
-# "Publicera version N på prod" – t.ex. med knappen på versionssidan – eller skriver
-# "publicera version N" som kommentar på ett issue. Kör scripts/publicera-version.sh, inget annat.
+# Publicera en vald version på prod eller demo (F-41, F-43, B-06). Startar när Admin eller Leo skapar ett
+# issue "Publicera version N på prod" / "… på demo" – t.ex. med knapparna på versionssidan – eller skriver
+# "publicera version N [på demo]" som kommentar på ett issue. Kör scripts/publicera-version.sh, inget annat.
 #
 # Säkerhet: workflowen och scripten körs alltid från main. Bara konton i LEO_LOGINS (scripts/lib.sh)
 # får publicera – alla andra stoppas i första steget. Versionen måste finnas som tagg vN.
@@ -52,6 +52,7 @@ jobs:
           n="$(printf '%s' "$TEXT" | grep -oiE 'version [0-9]+' | head -1 | grep -oE '[0-9]+')"
           [ -n "$n" ] || fail "hittade inget versionsnummer i: $TEXT"
           echo "n=$n" >> "$GITHUB_OUTPUT"
+          if printf '%s' "$TEXT" | grep -qiE 'demo|stage'; then echo "dit=demo" >> "$GITHUB_OUTPUT"; else echo "dit=prod" >> "$GITHUB_OUTPUT"; fi
 
       - uses: actions/setup-node@v7
         with:
@@ -62,9 +63,9 @@ jobs:
       - name: Publicera
         run: |
           (cd site && npm ci --silent)
-          bash scripts/publicera-version.sh "${{ steps.val.outputs.n }}" "$ISSUE"
+          bash scripts/publicera-version.sh "${{ steps.val.outputs.n }}" "${{ steps.val.outputs.dit }}" "$ISSUE"
 
       - name: Berätta varför det inte gick
         if: failure()
         run: |
-          gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body "⏸️ Det gick inte att publicera – ingenting har ändrats på den riktiga sidan. Admin eller Claude tittar på det. ([körningen]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID))"
+          gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body "⏸️ Det gick inte att publicera – ingenting har ändrats. Admin eller Claude tittar på det. ([körningen]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID))"

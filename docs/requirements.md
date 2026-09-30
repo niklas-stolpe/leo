@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-09-30 | #35 (Admin): F-43 publicera en version på demo – `publicera-version.sh N demo` bygger om taggen som stage och lägger den på aliaset stage; knappen "Publicera på demo" och märkningen "På demo nu" på versionssidan; `publicera.yml` förstår "på demo". |
 | 2026-09-26 | #29: F-16 mjuk entré – käpparna tonar fram vid scroll (CSS scroll-driven animation), ornamentet vidgas. Ingen JavaScript. |
 | 2026-09-26 | #27: sitemap.xml (startsidan + alla käppar), robots.txt (prod tillåter och pekar ut sitemapen, stage stänger ute), kanonisk adress och og:url per sida. NF-04 Pågår tills Lighthouse SEO är mätt (#9). |
 | 2026-09-26 | #25: F-15 käppen i helbild (dialog med största bildstorleken ≤ 2000 px) och bläddring med svep/piltangenter. |
@@ -110,6 +111,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | F-40 | Leo kan se alla versioner på en egen sida, titta på var och en precis som den var, och se vilken som är på prod nu. | Versionssidan visar version 1–3 med fungerande Titta-länkar och märkningen "På prod nu". | v1 | Klar | admin | Admin (chatt, #23) 2026-09-26 |
 | F-41 | Leo kan säga "publicera version N på prod" – prod visar version N direkt, utan omväg via stage och utan nytt godkännande. Inget försvinner; senare versioner kan publiceras igen. | En äldre version har publicerats på prod och sedan en nyare igen. | v1 | Pågår | – | Admin (chatt, #23) 2026-09-26 |
 | F-42 | Stage fungerar som demo som andra kan granska och lämna förslag på. | Förslagsvägen för granskare utan GitHub-konto är bestämd och byggd (öppen fråga Q-08). | v1 | Backlog | – | Admin (chatt, #23) 2026-09-26 |
+| F-43 | Admin eller Leo kan publicera en version på demon (stage), med en knapp på versionssidan, för att visa den för andra. Rör inte den riktiga sidan. | Version 6 publicerad på demo; versionssidan märker den "På demo nu". | v1 | Klar | claude | Admin (chatt, #35) 2026-09-30 |
 
 ## Icke-funktionella krav
 
