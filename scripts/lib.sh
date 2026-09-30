@@ -29,6 +29,7 @@ BUILD_APP="cloudflare-workers-and-pages"   # bara Cloudflares GitHub-app räknas
 PROD_URL="https://leo.niklasstolpe.workers.dev"
 STAGE_URL="https://stage-leo.niklasstolpe.workers.dev"
 VERSIONER_URL="https://leo-versioner.niklasstolpe.workers.dev"
+DEMO_URL="https://leo-demo.niklasstolpe.workers.dev"
 version_url() { printf 'https://%s-leo.niklasstolpe.workers.dev' "${1:0:8}"; }   # <cloudflare-version-id>
 
 # site/-trädet (git tree-id) för en ref – två versioner med samma träd ser likadana ut.

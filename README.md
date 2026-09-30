@@ -24,13 +24,15 @@ Spara tre adresser i mobilen, en gång för alla:
 
 - **Versioner:** https://leo-versioner.niklasstolpe.workers.dev – allt Claude har gjort, version för version.
 - **Den riktiga sidan:** https://leo.niklasstolpe.workers.dev – det besökarna ser.
-- **Demo:** https://stage-leo.niklasstolpe.workers.dev – det allra senaste, att visa för andra så att de kan komma med förslag.
+- **Demo:** https://leo-demo.niklasstolpe.workers.dev – den version du vill visa för andra, så att de kan komma med förslag.
+
+På versionssidan trycker du **Logga in med Google** en gång (med ditt Google-konto) – då får du knapparna för att publicera.
 
 När Claude är klar med ditt önskemål dyker det upp som en ny version på versionssidan.
 
 - **Tryck Titta** för att se versionen precis som den är.
-- **Tycker du om den?** Tryck **Publicera på prod** och sedan **Submit**. Inom en minut visar den riktiga sidan den versionen.
-- **Vill du visa en version för någon?** Tryck **Publicera på demo** – efter ett par minuter ligger den på demo-adressen. (Nästa gång Claude gör en ändring hamnar den på demon i stället.)
+- **Tycker du om den?** Tryck **Publicera på prod**. Några sekunder senare visar den riktiga sidan den versionen.
+- **Vill du visa en version för någon?** Tryck **Publicera på demo** – den ligger kvar på demon tills du väljer en annan.
 - **Vill du ändra något?** Skriv **@claude** och vad som ska ändras i ditt önskemål, till exempel *"@claude gör bilden större och texten lugnare"*. Det blir en ny version.
 
 Det går inte att ha sönder något. Den riktiga sidan ändras bara när du trycker *Publicera på prod*. Alla versioner finns kvar – du kan alltid gå tillbaka till en äldre, eller fram igen.

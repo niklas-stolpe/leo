@@ -47,7 +47,7 @@ Krav: `docs/requirements.md` · Process: `docs/process.md` · Leos guide: `READM
 
 **"Publicera version N på prod" (F-41, B-06):** bara när Admin eller Leo uttryckligen ber om det. Kör `bash scripts/publicera-version.sh N <issue>` – prod byts direkt till version N (sekunder), versionssidan uppdateras och issuet stängs. `publicera.yml` gör samma sak av sig själv när Admin/Leo skapar issuet "Publicera version N på prod".
 
-**"Publicera version N på demo" (F-43):** `bash scripts/publicera-version.sh N demo <issue>` – version N byggs om från taggen och läggs på stage (~2 min). Rör inte prod. Nästa branch-push ersätter den.
+**"Publicera version N på demo" (F-43, F-44):** `bash scripts/publicera-version.sh N demo <issue>` – Workern `leo-demo` byts till version N:s demo-bygge (sekunder). Rör inte prod. Admin och Leo gör det själva på versionssidan efter Google-inloggning (F-45).
 
 **"Börja om från version N":** `bash scripts/borja-om-fran.sh N <issue>` – en PR ställer `site/` tillbaka till `vN` så att nästa ändring bygger därifrån. Rör inte prod.
 

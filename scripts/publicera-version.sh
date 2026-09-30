@@ -5,8 +5,8 @@
 #
 # prod: prod byts till exakt Cloudflare-versionen från version N (samma filer, inget nytt bygge, sekunder).
 #       Finns den inte längre byggs den om från taggen vN och publiceras.
-# demo: version N byggs om från taggen vN som stage (stage-ikon, noindex) och läggs på demo-adressen
-#       (aliaset stage). Nästa push till en branch ersätter den – demo visar alltid det senaste.
+# demo: Workern leo-demo byts till version N:s demo-bygge (Demo-version i releasen, sekunder). Finns det
+#       inte byggs det med demo-version.sh. Skrivs aldrig över av branch-pushar (F-44).
 # main rörs inte – vill man fortsätta utveckla från version N: scripts/borja-om-fran.sh N.
 # Kräver wrangler-inloggning (npx wrangler login i site/) eller CLOUDFLARE_API_TOKEN/_ACCOUNT_ID.
 source "$(dirname "$0")/lib.sh"
@@ -36,9 +36,14 @@ bygg_fran_tagg() {
 
 if [ "$miljo" = demo ]; then
   log "demo → $titel"
-  bygg_fran_tagg "PUBLIC_MILJO=stage" versions upload --preview-alias stage --message "Version $n (demo)"
-  ok "demo visar version $n ($STAGE_URL)"
-  adress="$STAGE_URL"; var="Demon"
+  demo="$(gh release view "v$n" --repo "$REPO" --json body --jq .body | grep -oE '^Demo-version: [0-9a-f-]{36}' | head -1 | sed 's/.*: //')"
+  if [ -z "$demo" ] || ! (cd "$rot/site" && "$wrangler" versions deploy "$demo@100" --name leo-demo --yes --message "Version $n" >/dev/null 2>&1); then
+    warn "demo-versionen saknas hos Cloudflare – bygger version $n i demo-utförande"
+    demo="$("$(dirname "$0")/demo-version.sh" "$n")"
+    (cd "$rot/site" && "$wrangler" versions deploy "$demo@100" --name leo-demo --yes --message "Version $n" >/dev/null) || fail "kunde inte publicera på demo"
+  fi
+  ok "demo visar version $n ($DEMO_URL)"
+  adress="$DEMO_URL"; var="Demon"
 else
   log "prod → $titel"
   if [ -n "$cf" ] && (cd "$rot/site" && "$wrangler" versions deploy "$cf@100" --yes --message "Version $n" >/dev/null 2>&1); then

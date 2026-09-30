@@ -28,10 +28,13 @@ else
   # Namnet: PR-titeln utan "område #nr:"-prefixet. Texten: avsnittet "Vad Leo ska titta på".
   titel="$(pr_field "$pr" .title | sed -E 's/^[^:]*#[0-9]+[^:]*: *//')"
   vad="$(pr_field "$pr" .body | awk '/^## Vad Leo ska titta på/{f=1;next} /^## /{f=0} f' | sed '/^[[:space:]]*$/d')"
+  # Samma version i demo-utförande till Workern leo-demo (F-44) – så att "Publicera på demo" går på sekunder.
+  demo="$("$here/demo-version.sh" "$n" "$sha")" || { warn "demo-bygget misslyckades – kör scripts/demo-version.sh $n $sha och lägg till raden i releasen"; demo=""; }
   {
     printf '%s\n\n' "${vad:-(ingen beskrivning)}"
     printf 'Publicerad: %s · #%s\n' "$datum" "$pr"
     printf 'Cloudflare-version: %s\n' "$cf"
+    [ -z "$demo" ] || printf 'Demo-version: %s\n' "$demo"
   } > "${TMPDIR:-/tmp}/rel-$$.md"
   git tag "v$n" "$sha" && git push -q origin "v$n"
   gh release create "v$n" --repo "$REPO" --title "Version $n – $titel" --notes-file "${TMPDIR:-/tmp}/rel-$$.md" >/dev/null

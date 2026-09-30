@@ -9,5 +9,3 @@ board_set "$pr" "In review"
 for n in $(pr_closes "$pr"); do board_set "$n" "In review"; done
 "$(dirname "$0")/requirements-check.sh" "$pr" || { echo; echo "Rätta PR-texten/kravdokumentet – grinden är röd tills dess." >&2; exit 1; }
 "$(dirname "$0")/pr-preview.sh" "$pr" || warn "förhandsvisningslänken kunde inte postas – kör scripts/pr-preview.sh $pr"
-# Branch-pushen har lagt sig på demo – versionssidan ska inte längre påstå att en version är där (F-43).
-"$(dirname "$0")/versioner.sh" >/dev/null 2>&1 || warn "versionssidan kunde inte uppdateras – kör scripts/versioner.sh"
