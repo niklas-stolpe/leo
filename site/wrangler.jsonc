@@ -1,6 +1,6 @@
 // Cloudflare Workers med statiska filer (B-03). Ingen serverkod – bara det Astro bygger till dist/.
-// Byggs och publiceras av Cloudflare Workers Builds (docs/processmall.md, 3b): main → `wrangler deploy`
-// (prod), andra brancher → `wrangler versions upload --preview-alias stage` ⇒ https://stage-leo.<konto>.workers.dev.
+// Byggs av Cloudflare Workers Builds (docs/processmall.md, 3b): main → `wrangler versions upload` (en ny version –
+// prod byts bara med scripts/publicera-version.sh), andra brancher → `--preview-alias stage` ⇒ https://stage-leo.<konto>.workers.dev.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "leo",

@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-09-26 | #25: F-15 käppen i helbild (dialog med största bildstorleken ≤ 2000 px) och bläddring med svep/piltangenter. |
 | 2026-09-26 | #33 (Admin): B-06 ändrad – versioner fritt, prod bara när en version väljs. Merge → ny Cloudflare-version (`wrangler versions upload`, inte deploy) + tagg/release; prod byts med `publicera-version.sh` eller `publicera.yml` (issue "Publicera version N på prod", knappen på versionssidan). `leo-approval.sh` och `publish.yml` borttagna; `borja-om-fran.sh` för att fortsätta utveckla från en äldre version. T-04, F-02. |
 | 2026-09-26 | #23 (Admin): versioner – varje publicering av något synligt blir en version (tagg + release), versionssida https://leo-versioner.niklasstolpe.workers.dev, "publicera version N på prod" direkt (scripts/publicera-version.sh). Historiken inlagd som version 1–3. Tre adresser: prod, demo (stage), versioner. F-40 Klar, F-41 Pågår, F-42 + Q-08 nya. |
 | 2026-09-26 | #21 (Admin): bildtexten på startsidan "Leo och en vägg av käppar" → "Leo bland sina verk" (F-01). |
@@ -80,6 +81,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | F-12 | Varje käpp visar status: tillgänglig, såld eller beställningsverk. Sålda käppar ligger kvar i galleriet. | Status syns i galleri och på käppens sida. | v1 | Backlog | – | Admin 2026-09-25 |
 | F-13 | Besökaren kan fråga om en käpp eller be om ett möte. Frågan kommer som mejl till Leo. Gratis tjänst (B-01). | Ett testmeddelande från förhandsvisningen når Leos mejl. | v1 | Backlog | – | Admin 2026-09-25 |
 | F-14 | Leo lägger upp en ny käpp genom att skicka bilder och text i ett issue (mall "Ny käpp"). Claude skapar käpp-mappen och en förhandsvisning. | En käpp har lagts upp från ett issue utan att Leo rört kod. | v1 | Backlog | – | Admin 2026-09-25 |
+| F-15 | Tryck på käppens bild för att se den i helbild; svep åt sidan (mobil) eller använd piltangenterna (dator) för att gå till föregående eller nästa käpp. | Helbild öppnas och stängs; svep och piltangenter byter käpp; lodrät scroll byter inte. | v1 | Klar | claude | Admin (chatt, #25) 2026-09-26 |
 
 ### Berättelsen
 
