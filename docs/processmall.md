@@ -180,6 +180,12 @@ för testappar (skriptet körs i kontot självt). Bara tillåtna avsändare med 
 - Claude svarar först med vad den förstått och "Ska jag börja?" (CLAUDE.md, *Mejl från Leo*).
 - `mejl-version.yml`: när granskningen är klar → `merge-pr.sh` → ny version → mejl med länken. Prod rörs inte.
 - Kostnad: tokens från Admins prenumeration (styrs av kvoten) och GitHub-minuter (~15–20 per ärende).
+- Säkerhet: mejltext är indata till Claude (prompt injection). Därför: bara äkta avsändare (Gmails översta
+  Authentication-Results-rad, DMARC pass), ingen automatisk merge av ändringar på Admins yta eller CLAUDE.md,
+  merge bara efter lyckad granskning utan blockerande fynd, och bygget i mejl-version körs utan nycklar.
+  Kvar att känna till: Cloudflare Workers Builds bygger varje push med sin egen nyckel – bygget själv är
+  alltså betrott; prod skyddas av att den bara byts när Admin/Leo väljer en version (B-06).
+- Kvoten kontrolleras före och räknas efter en körning; flera samtidiga mejl kan gå något över taket.
 
 ## Vardagen
 

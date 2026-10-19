@@ -21,12 +21,11 @@ permissions:
 
 jobs:
   version:
-    if: github.event.workflow_run.event == 'pull_request'
+    # Bara när granskningen faktiskt gick klart – en misslyckad eller avbruten granskning är ingen granskning.
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.PROCESS_TOKEN }}
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       GREN: ${{ github.event.workflow_run.head_branch }}
     steps:
       - uses: actions/checkout@v7
@@ -47,7 +46,7 @@ jobs:
           gh pr edit "$pr" --repo "$REPO" --add-label mejl >/dev/null
           # Mejltext är indata till Claude. Rör ändringen Admins yta (B-07) mergas den aldrig av sig själv.
           admin="$(gh api --paginate "repos/$REPO/pulls/$pr/files" --jq '.[].filename' \
-            | grep -E '^(\.github/|scripts/|inkorg/|versioner/|site/wrangler|site/package)' || true)"
+            | grep -E '^(\.github/|scripts/|inkorg/|versioner/|CLAUDE\.md|site/wrangler|site/package|site/astro\.config|site/[^/]*\.config\.)' || true)"
           if [ -n "$admin" ]; then
             gh issue comment "$issue" --repo "$REPO" --body "Admin: ändringen #$pr rör Admins yta och mergas inte av sig själv – granska och kör scripts/merge-pr.sh $pr om den är okej:
           \`\`\`
@@ -56,6 +55,16 @@ jobs:
           <!-- till-leo -->
           Hej Leo! Ändringen behöver Niklas titta på innan den blir en ny version. Du får ett mejl när den är klar.
           <!-- /till-leo -->"
+            exit 0
+          fi
+          # Granskningens sammanfattning för PR:ens senaste commit: blockerande fynd → Claude rättar först.
+          sha="$(pr_field "$pr" .headRefOid)"
+          sammanf="$(gh pr view "$pr" --repo "$REPO" --json comments --jq '.comments[].body' | grep -A2 "Granskning – ${sha:0:7}" || true)"
+          block="$(printf '%s' "$sammanf" | grep -oE 'Blockerande: *[0-9]+' | grep -oE '[0-9]+' | tail -1)"
+          if [ "${block:-0}" -gt 0 ]; then
+            forsok="$(gh pr view "$pr" --repo "$REPO" --json comments --jq '[.comments[] | select(.body | startswith("@claude åtgärda granskningsfynden"))] | length')"
+            if [ "$forsok" -lt 2 ]; then gh pr comment "$pr" --repo "$REPO" --body "@claude åtgärda granskningsfynden"
+            else gh issue comment "$issue" --repo "$REPO" --body "Admin: granskningen av #$pr har fortfarande blockerande fynd efter två försök – titta på den."; fi
             exit 0
           fi
           echo "pr=$pr" >> "$GITHUB_OUTPUT"; echo "issue=$issue" >> "$GITHUB_OUTPUT"
@@ -70,8 +79,13 @@ jobs:
       - name: Merga och skapa version
         id: merge
         if: steps.pr.outputs.pr != ''
+        # Cloudflare-nycklarna bara här. Själva bygget av sidan (demo-version.sh) körs utan dem och utan
+        # GH_TOKEN, så att kod i en ändring inte kan läsa dem.
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          (cd site && npm ci --silent)
+          (cd site && env -u CLOUDFLARE_API_TOKEN -u CLOUDFLARE_ACCOUNT_ID -u GH_TOKEN npm ci --silent)
           set -o pipefail
           bash scripts/merge-pr.sh "${{ steps.pr.outputs.pr }}" 2>&1 | tee merge.log
 

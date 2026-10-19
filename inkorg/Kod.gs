@@ -114,17 +114,20 @@ function mappFor(namn) {
 }
 
 /**
- * Gmail har kontrollerat att avsändaren är äkta (DMARC). Bara Gmails egen rad räknas – den som börjar
- * med "mx.google.com;" – och den måste gälla avsändarens domän. En rad som avsändaren själv lagt in i
- * mejlet saknar mx.google.com och ignoreras (annars kunde vem som helst förfalska Leos adress).
+ * Gmail har kontrollerat att avsändaren är äkta (DMARC). Gmail lägger sin Authentication-Results-rad
+ * ÖVERST i huvudet; rader som avsändaren själv lagt in i mejlet hamnar under den. Därför räknas bara
+ * den översta raden – den måste vara Gmails ("mx.google.com;") och säga dmarc=pass för avsändarens
+ * domän. Annars kunde vem som helst förfalska Leos adress.
  */
 function dmarcOk(m, fran) {
   const huvud = m.getRawContent().split(/\r?\n\r?\n/)[0].replace(/\r?\n[ \t]+/g, ' ');
   const doman = fran.split('@')[1].toLowerCase();
-  return huvud
-    .split(/\r?\n/)
-    .filter((rad) => /^Authentication-Results:\s*mx\.google\.com;/i.test(rad))
-    .some((rad) => /dmarc=pass\b/i.test(rad) && rad.toLowerCase().includes('header.from=' + doman));
+  const overst = huvud.split(/\r?\n/).find((rad) => /^Authentication-Results:/i.test(rad)) || '';
+  return (
+    /^Authentication-Results:\s*mx\.google\.com;/i.test(overst) &&
+    /dmarc=pass\b/i.test(overst) &&
+    overst.toLowerCase().includes('header.from=' + doman)
+  );
 }
 
 /** Tar bort citerade tidigare mejl och signaturer, så att bara det nya kommer med. */

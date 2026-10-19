@@ -14,7 +14,8 @@ wt="$(mktemp -d)"
 git worktree add -q --detach "$wt" "$ref"
 trap 'git -C "$rot" worktree remove --force "$wt" 2>/dev/null' EXIT
 cp "$rot/site/wrangler.demo.jsonc" "$wt/site/wrangler.demo.jsonc"
-(cd "$wt/site" && npm ci --silent >&2 && PUBLIC_MILJO=demo npm run build --silent >/dev/null 2>&1) || fail "bygget av $ref i demo-utförande misslyckades"
+# Bygget körs utan nycklar i miljön – koden som byggs ska inte kunna läsa dem.
+(cd "$wt/site" && env -u CLOUDFLARE_API_TOKEN -u CLOUDFLARE_ACCOUNT_ID -u GH_TOKEN -u GITHUB_TOKEN sh -c "npm ci --silent >&2 && PUBLIC_MILJO=demo npm run build --silent >/dev/null 2>&1") || fail "bygget av $ref i demo-utförande misslyckades"
 id="$(cd "$wt/site" && "$wrangler" versions upload --config wrangler.demo.jsonc --message "Version $n" 2>&1 \
   | grep -oE 'Worker Version ID: [0-9a-f-]{36}' | sed 's/.*: //')"
 [ -n "$id" ] || fail "uppladdningen till leo-demo gav inget Version ID"
