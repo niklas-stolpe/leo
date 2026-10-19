@@ -2,6 +2,8 @@
 import '@fontsource/cormorant-garamond/400.css';
 import '@fontsource/cormorant-garamond/400-italic.css';
 import '@fontsource/cormorant-garamond/600.css';
+import '@fontsource/jost/300.css';
+import '@fontsource/jost/400.css';
 import Ringar from '../components/Ringar.astro';
 import { appNamn, arProd, favicon, ikon, temafarg } from '../lib/miljo';
 
@@ -80,11 +82,16 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
     --massing: #b8955a;
     --massing-ljus: #d4b27a;
     --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
-    /* Stilen (#41): rubrikernas typsnitt och tyngd – versionerna byter här. */
-    --rubrik: var(--serif);
-    --rubrik-vikt: 400;
-    --rubrik-stil: italic;
-    --brodtext: var(--serif);
+    --sans: 'Jost', 'Futura', 'Helvetica Neue', Arial, sans-serif;
+    /* Stilen (#41): typsnitt, tyngd och kursiv – versionerna byter här.
+       Modern (version 9): Jost, tunt och rakt, ingen kursiv – i Gillis anda. */
+    --rubrik: var(--sans);
+    --rubrik-vikt: 300;
+    --rubrik-stil: normal;
+    --brodtext: var(--sans);
+    --brodtext-vikt: 300;
+    --kursiv: normal;
+    --versal-vikt: 400;
     /* Samlingens bakgrund och text – den ljusa versionen byter här. */
     --samling-bg: var(--svart);
     --samling-text: var(--elfenben);
@@ -103,7 +110,8 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
     background: var(--svart);
     color: var(--elfenben);
     font-family: var(--brodtext);
-    font-size: 1.2rem;
+    font-weight: var(--brodtext-vikt);
+    font-size: 1.1rem;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
@@ -119,7 +127,7 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
     text-transform: uppercase;
     letter-spacing: 0.3em;
     font-size: 0.8rem;
-    font-weight: 600;
+    font-weight: var(--versal-vikt);
   }
   :focus-visible {
     outline: 1px solid var(--massing-ljus);
@@ -161,7 +169,7 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
     text-transform: uppercase;
     letter-spacing: 0.25em;
     font-size: 0.8rem;
-    font-weight: 600;
+    font-weight: var(--versal-vikt);
     color: var(--dampad);
     min-height: 44px;
     display: flex;
@@ -194,7 +202,7 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
     text-transform: uppercase;
     letter-spacing: 0.5em;
     font-size: 1.1rem;
-    font-weight: 600;
+    font-weight: var(--versal-vikt);
     color: var(--massing-ljus);
   }
   nav a {
@@ -202,7 +210,7 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
     text-transform: uppercase;
     letter-spacing: 0.25em;
     font-size: 0.8rem;
-    font-weight: 600;
+    font-weight: var(--versal-vikt);
     color: var(--dampad);
     display: inline-flex;
     align-items: center;

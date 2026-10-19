@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-10-19 | #43: version att jämföra – modern stil (Jost, tunt och rakt, ingen kursiv) med samma struktur som version 8. Stilen styrs av variablerna i layouten (--rubrik, --brodtext, --kursiv, --versal-vikt). |
 | 2026-10-19 | #41 (Leo via Admin): ny struktur inspirerad av gilliscanes.com – stor bild, Leos hälsning (hans utkast), grupper (krok/skulpterad/T-handtag – Claudes förslag), meny med Om Leo, Beställningsverk, Kontakt (platshållare där Leos text saknas). Käppsidan med miniatyrer och materialdel (F-18); Nº I med Leos text, material och status privat. Leo vill inte att det kallas konst (B-10) – all sådan text borttagen. Pris väntar (Leo). |
 | 2026-09-30 | #37 (Admin): Google-inloggning på versionssidan (F-45) – versionssidan blir en Worker med egen Google-inloggning (inte Cloudflare Zero Trust, som krävde betalkort), tillåtna adresser, live-märkningar och publicering direkt via Cloudflares API. Egen stabil demo `leo-demo` (F-44) med demo-utförande (PUBLIC_MILJO=demo, "Leo demo", DEMO-ikon); v1–v6 uppladdade dit bakåt. Stage blir Claudes arbetsyta (T-03, T-10). |
 | 2026-09-30 | #35 (Admin): F-43 publicera en version på demo – `publicera-version.sh N demo` bygger om taggen som stage och lägger den på aliaset stage; knappen "Publicera på demo" och märkningen "På demo nu" på versionssidan; `publicera.yml` förstår "på demo". |
