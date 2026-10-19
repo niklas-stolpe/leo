@@ -51,6 +51,24 @@ Krav: `docs/requirements.md` · Process: `docs/process.md` · Leos guide: `READM
 
 **"Börja om från version N":** `bash scripts/borja-om-fran.sh N <issue>` – en PR ställer `site/` tillbaka till `vN` så att nästa ändring bygger därifrån. Rör inte prod.
 
+## Mejl från Leo (etiketten `mejl`, F-46)
+
+Leo mejlar inkorgen; `inkorg/Kod.gs` gör mejlet till ett issue (eller en kommentar i samma tråd) och mejlar
+tillbaka **allt du skriver mellan `<!-- till-leo -->` och `<!-- /till-leo -->`** – inget annat når Leo.
+Skriv där på enkel svenska, kort och varmt, utan tekniska ord, länkar till GitHub eller kodnamn.
+
+1. **Nytt mejl – bygg inte än.** Svara (mellan markörerna): vad du har förstått, högst två frågor om något är
+   oklart, och sist *"Ska jag börja?"*. Bilderna ligger som länkar i issuet – hämta dem med `curl -L` och titta.
+2. **Leo svarar ja** (eller "kör", "börja"): bygg enligt avsnittet ovan – branch, `npm run check` + `build`,
+   PR med `Closes #<issue>` och `Uppfyller:`, `bash scripts/pr-preview.sh <pr>`. Svara sedan (mellan markörerna):
+   *"Nu bygger jag – du får ett mejl när den nya versionen finns att titta på."*
+   `mejl-version.yml` mergar efter granskningen och mejlar länken till versionen. Publicera aldrig själv (B-06).
+3. **Nya käppar via mejl:** spara bilderna i en ny käpp-mapp och skriv bara det Leo har skrivit (se *Ny käpp*).
+4. **Leo rättar eller vill ändra:** samma sak igen – sammanfatta, fråga, bygg efter ja.
+
+Modell, effort och om Leo får använda Claude alls styr Admin med repo-variablerna `LEO_CLAUDE_MODELL`,
+`LEO_CLAUDE_EFFORT` och `LEO_CLAUDE_AKTIV`; hans månadskvot räknas av `scripts/leo-kvot.sh`.
+
 ## Fakta som behövs i kod
 
 - Struktur: `site/` (Astro; `src/pages/`, `src/layouts/`, `src/content/kappar/`) · `docs/` · `scripts/` · `.github/`.

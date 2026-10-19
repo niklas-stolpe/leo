@@ -169,6 +169,18 @@ aldrig behöver godkänna sitt eget arbete (auto mode stoppar det, med rätta).
 - Versionssidan kräver wrangler-inloggning där scripten körs (session: `npx wrangler login`;
   Actions: `CLOUDFLARE_API_TOKEN`/`_ACCOUNT_ID`).
 
+## Mejl från beställaren
+
+Beställaren mejlar en egen Gmail-inkorg; ett Google Apps Script i det kontot (`inkorg/Kod.gs`, uppsättning i
+`inkorg/README.md`) gör mejlet till ett issue med etiketten `mejl` och mejlar tillbaka allt som står mellan
+`<!-- till-leo -->` och `<!-- /till-leo -->` i kommentarerna. Gratis, utan betalkort och utan Googles sjudagarsgräns
+för testappar (skriptet körs i kontot självt). Bara tillåtna avsändare med DMARC pass tas emot.
+
+- `claude.yml`: kvotkontroll → Claude med Admins modell/effort → tokens räknas (`scripts/leo-kvot.sh`).
+- Claude svarar först med vad den förstått och "Ska jag börja?" (CLAUDE.md, *Mejl från Leo*).
+- `mejl-version.yml`: när granskningen är klar → `merge-pr.sh` → ny version → mejl med länken. Prod rörs inte.
+- Kostnad: tokens från Admins prenumeration (styrs av kvoten) och GitHub-minuter (~15–20 per ärende).
+
 ## Vardagen
 
 - **Beställaren:** issue-mall → titta på versionssidan → "Publicera på prod" eller `@claude …`. Inget annat.

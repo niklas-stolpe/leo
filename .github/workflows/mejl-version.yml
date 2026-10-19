@@ -1,0 +1,96 @@
+name: mejl-version
+
+# När granskningen av en ändring från ett av Leos mejlärenden är klar (F-46):
+#   grönt bygge + inga olösta granskningstrådar → scripts/merge-pr.sh → ny version → mejl till Leo
+#   ("Klart! Version N – titta här"). Prod rörs inte (B-06) – Leo väljer själv på versionssidan.
+#   olösta trådar → "@claude åtgärda granskningsfynden" (högst två gånger), sedan besked till Admin.
+# Bara PR:er vars issue har etiketten mejl. Kräver PROCESS_TOKEN och Cloudflare-nycklarna
+# (version-release.sh bygger demo-versionen och uppdaterar versionssidan).
+
+on:
+  workflow_run:
+    workflows: ['Claude Code Review']
+    types: [completed]
+
+concurrency:
+  group: mejl-version-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    if: github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PROCESS_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      GREN: ${{ github.event.workflow_run.head_branch }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Hör ändringen till ett mejlärende?
+        id: pr
+        run: |
+          source scripts/lib.sh
+          pr="$(gh pr list --repo "$REPO" --head "$GREN" --state open --json number --jq '.[0].number // empty')"
+          [ -n "$pr" ] || { echo "Ingen öppen PR för $GREN"; exit 0; }
+          issue="$(pr_closes "$pr" | head -1)"
+          [ -n "$issue" ] || { echo "PR #$pr stänger inget issue"; exit 0; }
+          gh issue view "$issue" --repo "$REPO" --json labels --jq '.labels[].name' | grep -qx mejl || { echo "#$issue är inget mejlärende"; exit 0; }
+          echo "pr=$pr" >> "$GITHUB_OUTPUT"; echo "issue=$issue" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v7
+        if: steps.pr.outputs.pr != ''
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Merga och skapa version
+        id: merge
+        if: steps.pr.outputs.pr != ''
+        run: |
+          (cd site && npm ci --silent)
+          set -o pipefail
+          bash scripts/merge-pr.sh "${{ steps.pr.outputs.pr }}" 2>&1 | tee merge.log
+
+      - name: Mejla Leo att versionen finns
+        if: steps.merge.outcome == 'success'
+        run: |
+          source scripts/lib.sh
+          rad="$(grep -oE 'Version [0-9]+ – .*\(https://[^)]+\)' merge.log | sed 's/\x1b\[[0-9;]*m//g' | tail -1)"
+          namn="${rad% (*}"; lank="$(printf '%s' "$rad" | grep -oE 'https://[^)]+')"
+          if [ -z "$rad" ]; then
+            text="Hej Leo! Ändringen är klar. Titta på versionssidan: $VERSIONER_URL"
+          else
+            text="Hej Leo! Nu är det klart – **$namn**.
+
+          Titta här: $lank
+
+          Gillar du den? Logga in på versionssidan och tryck Publicera på prod (eller på demo om du vill visa den för någon först): $VERSIONER_URL
+
+          Vill du ändra något, svara bara på det här mejlet."
+          fi
+          gh issue comment "${{ steps.pr.outputs.issue }}" --repo "$REPO" --body "<!-- till-leo -->
+          $text
+          <!-- /till-leo -->"
+
+      - name: Granskningsfynd eller annat stopp
+        if: failure() && steps.merge.outcome == 'failure'
+        run: |
+          source scripts/lib.sh
+          pr="${{ steps.pr.outputs.pr }}"
+          if grep -q 'olöst(a) granskningstråd' merge.log; then
+            forsok="$(gh pr view "$pr" --repo "$REPO" --json comments --jq '[.comments[] | select(.body | startswith("@claude åtgärda granskningsfynden"))] | length')"
+            if [ "$forsok" -lt 2 ]; then
+              gh pr comment "$pr" --repo "$REPO" --body "@claude åtgärda granskningsfynden"
+              exit 0
+            fi
+          fi
+          gh issue comment "${{ steps.pr.outputs.issue }}" --repo "$REPO" --body "Admin: mejlärendets ändring (#$pr) kunde inte bli en version av sig själv – se [körningen]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
