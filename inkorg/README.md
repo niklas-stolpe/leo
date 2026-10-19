@@ -24,7 +24,9 @@ Kopiera nyckeln – den används i steg 3 och ska inte klistras in någon annans
 
 Kugghjulet **Projektinställningar** → längst ned **Skriptegenskaper** → **Lägg till skriptegenskap**:
 
-- Egenskap: `GITHUB_TOKEN` · Värde: nyckeln från steg 1 → **Spara skriptegenskaper**
+- Egenskap: `GITHUB_TOKEN` · Värde: nyckeln från steg 1
+- Egenskap: `TILLATNA` · Värde: `lowejkoleo@gmail.com=Leo,niklasstolpe@gmail.com=Niklas` (vem som får mejla, med namn)
+- **Spara skriptegenskaper**
 
 ## 4. Starta
 

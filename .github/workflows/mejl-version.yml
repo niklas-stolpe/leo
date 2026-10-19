@@ -43,6 +43,21 @@ jobs:
           issue="$(pr_closes "$pr" | head -1)"
           [ -n "$issue" ] || { echo "PR #$pr stänger inget issue"; exit 0; }
           gh issue view "$issue" --repo "$REPO" --json labels --jq '.labels[].name' | grep -qx mejl || { echo "#$issue är inget mejlärende"; exit 0; }
+          # PR:en ärver etiketten, så att "@claude åtgärda granskningsfynden" också räknas mot Leos kvot.
+          gh pr edit "$pr" --repo "$REPO" --add-label mejl >/dev/null
+          # Mejltext är indata till Claude. Rör ändringen Admins yta (B-07) mergas den aldrig av sig själv.
+          admin="$(gh api --paginate "repos/$REPO/pulls/$pr/files" --jq '.[].filename' \
+            | grep -E '^(\.github/|scripts/|inkorg/|versioner/|site/wrangler|site/package)' || true)"
+          if [ -n "$admin" ]; then
+            gh issue comment "$issue" --repo "$REPO" --body "Admin: ändringen #$pr rör Admins yta och mergas inte av sig själv – granska och kör scripts/merge-pr.sh $pr om den är okej:
+          \`\`\`
+          $admin
+          \`\`\`
+          <!-- till-leo -->
+          Hej Leo! Ändringen behöver Niklas titta på innan den blir en ny version. Du får ett mejl när den är klar.
+          <!-- /till-leo -->"
+            exit 0
+          fi
           echo "pr=$pr" >> "$GITHUB_OUTPUT"; echo "issue=$issue" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-node@v7

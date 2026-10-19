@@ -25,6 +25,11 @@ $2
 
 budget="$(var LEO_TOKEN_BUDGET 0)"; kvot="$(var LEO_KVOT_PROCENT 10)"; varning="$(var LEO_VARNING_PROCENT 8)"
 anvant="$(var "$manad" 0)"
+heltal() { [[ "$1" =~ ^[0-9]+$ ]]; }
+heltal "$budget" || { warn "LEO_TOKEN_BUDGET är inte ett heltal ('$budget') – räknas som 0 (= slut)"; budget=0; }
+heltal "$anvant" || { warn "$manad är inte ett heltal ('$anvant') – räknas från 0"; anvant=0; }
+heltal "$kvot" || kvot=10
+heltal "$varning" || varning=8
 
 case "${1:?status|lagg-till}" in
   status)
@@ -36,6 +41,10 @@ case "${1:?status|lagg-till}" in
     ;;
   lagg-till)
     fil="${2:?execution-fil}"; issue="${3:?issue}"
+    # Körningen kan ha gällt en PR (t.ex. granskningsfynd) – mejlen går via issuet den stänger.
+    if gh pr view "$issue" --repo "$REPO" >/dev/null 2>&1; then
+      stanger="$(pr_closes "$issue" | head -1)"; [ -z "$stanger" ] || issue="$stanger"
+    fi
     [ -f "$fil" ] || { warn "ingen execution-fil ($fil) – inget att räkna"; exit 0; }
     tokens="$(node -e "
       const m = JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'));

@@ -9,17 +9,32 @@
  *  2. Kommentarer på de issuena med text mellan <!-- till-leo --> och <!-- /till-leo --> skickas som
  *     mejlsvar i samma tråd. Allt annat på GitHub (loggar, länkar, teknik) når aldrig Leo.
  *
- * Inställningar: Projektinställningar → Skriptegenskaper → GITHUB_TOKEN (fine-grained token med
- * Issues: Read and write på niklas-stolpe/leo). Uppsättning: inkorg/README.md.
+ * Inställningar: Projektinställningar → Skriptegenskaper (inte i koden – adresserna är personuppgifter):
+ *   GITHUB_TOKEN  fine-grained token med Issues: Read and write på niklas-stolpe/leo
+ *   TILLATNA      vem som får mejla, med namn: lowejkoleo@gmail.com=Leo,niklasstolpe@gmail.com=Niklas
+ * Uppsättning: inkorg/README.md.
  * Koden ändras i repot och klistras in här igen – den här kopian är inte källan.
  */
 
 const REPO = 'niklas-stolpe/leo';
-const TILLATNA = ['lowejkoleo@gmail.com', 'niklasstolpe@gmail.com'];
 const VERSIONSSIDAN = 'https://leo-versioner.niklasstolpe.workers.dev';
 const START = '<!-- till-leo -->';
 const SLUT = '<!-- /till-leo -->';
 const MAX_PER_KORNING = 5;
+
+/** Tillåtna avsändare: normaliserad adress → namn (Skriptegenskapen TILLATNA). */
+function tillatna() {
+  const lista = {};
+  String(PropertiesService.getScriptProperties().getProperty('TILLATNA') || '')
+    .split(',')
+    .map((x) => x.trim())
+    .filter(Boolean)
+    .forEach((x) => {
+      const [adr, namn] = x.split('=');
+      lista[normal(adr)] = (namn || adr).trim();
+    });
+  return lista;
+}
 
 /** Körs av utlösaren var 5:e minut. */
 function korInkorg() {
@@ -46,13 +61,15 @@ function installera() {
 function hamtaNyaMejl() {
   const egenskaper = PropertiesService.getScriptProperties();
   const hanterad = GmailApp.getUserLabelByName('Hanterad') || GmailApp.createLabel('Hanterad');
+  const vilka = tillatna();
   let antal = 0;
   for (const trad of GmailApp.search('in:inbox is:unread', 0, 20)) {
     for (const m of trad.getMessages()) {
       if (!m.isUnread() || antal >= MAX_PER_KORNING) continue;
       antal++;
       const fran = adress(m.getFrom());
-      if (!TILLATNA.map(normal).includes(normal(fran)) || !dmarcOk(m)) {
+      const namn = vilka[normal(fran)];
+      if (!namn || !dmarcOk(m, fran)) {
         m.markRead(); // Okänd eller oäkta avsändare – ignoreras tyst.
         continue;
       }
@@ -67,13 +84,13 @@ function hamtaNyaMejl() {
       const issue = egenskaper.getProperty(nyckel);
       if (issue) {
         github('POST', `/repos/${REPO}/issues/${issue}/comments`, {
-          body: `@claude\n\n**Svar från ${fran} via mejl:**\n\n${text}${bildText}`,
+          body: `@claude\n\n**Svar från ${namn} via mejl:**\n\n${text}${bildText}`,
         });
       } else {
         const ny = github('POST', `/repos/${REPO}/issues`, {
           title: (m.getSubject() || 'Önskemål från Leo').slice(0, 120),
           labels: ['mejl', 'önskemål'],
-          body: `@claude\n\n**Mejl från ${fran}** (${m.getDate().toISOString().slice(0, 10)}):\n\n${text}${bildText}\n\n<!-- mejl-trad: ${trad.getId()} -->`,
+          body: `@claude\n\n**Mejl från ${namn}** (${m.getDate().toISOString().slice(0, 10)}):\n\n${text}${bildText}\n\n<!-- mejl-trad: ${trad.getId()} -->`,
         });
         egenskaper.setProperty(nyckel, String(ny.number));
         egenskaper.setProperty('issue:' + ny.number, trad.getId());
@@ -96,10 +113,18 @@ function mappFor(namn) {
   return finns.hasNext() ? finns.next() : DriveApp.createFolder(namn);
 }
 
-/** Gmail har kontrollerat att avsändaren är äkta (DMARC). Skyddar mot förfalskade avsändare. */
-function dmarcOk(m) {
-  const huvud = m.getRawContent().split(/\r?\n\r?\n/)[0];
-  return /Authentication-Results:[\s\S]*?dmarc=pass/i.test(huvud);
+/**
+ * Gmail har kontrollerat att avsändaren är äkta (DMARC). Bara Gmails egen rad räknas – den som börjar
+ * med "mx.google.com;" – och den måste gälla avsändarens domän. En rad som avsändaren själv lagt in i
+ * mejlet saknar mx.google.com och ignoreras (annars kunde vem som helst förfalska Leos adress).
+ */
+function dmarcOk(m, fran) {
+  const huvud = m.getRawContent().split(/\r?\n\r?\n/)[0].replace(/\r?\n[ \t]+/g, ' ');
+  const doman = fran.split('@')[1].toLowerCase();
+  return huvud
+    .split(/\r?\n/)
+    .filter((rad) => /^Authentication-Results:\s*mx\.google\.com;/i.test(rad))
+    .some((rad) => /dmarc=pass\b/i.test(rad) && rad.toLowerCase().includes('header.from=' + doman));
 }
 
 /** Tar bort citerade tidigare mejl och signaturer, så att bara det nya kommer med. */
@@ -130,7 +155,8 @@ function skickaSvar() {
       const hash = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, text));
       if (egenskaper.getProperty('skickat:' + k.id) === hash) continue;
       // Svara på Leos senaste mejl i tråden – inte på vårt eget.
-      const fran = trad.getMessages().filter((m) => TILLATNA.map(normal).includes(normal(adress(m.getFrom())))).pop();
+      const vilka = tillatna();
+      const fran = trad.getMessages().filter((m) => vilka[normal(adress(m.getFrom()))]).pop();
       if (fran) fran.reply(text + `\n\n—\nAlla versioner: ${VERSIONSSIDAN}`);
       egenskaper.setProperty('skickat:' + k.id, hash);
     }
