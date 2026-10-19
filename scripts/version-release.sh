@@ -36,7 +36,11 @@ else
     printf 'Cloudflare-version: %s\n' "$cf"
     [ -z "$demo" ] || printf 'Demo-version: %s\n' "$demo"
   } > "${TMPDIR:-/tmp}/rel-$$.md"
-  git tag "v$n" "$sha" && git push -q origin "v$n"
+  git tag "v$n" "$sha"
+  if [ "${CI:-}" = true ] && [ -n "${GH_TOKEN:-}" ]; then
+    # I Actions: nyckeln bara för just den här pushen – aldrig i .git/config, som bygget av en ändring kan läsa.
+    git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" push -q origin "v$n"
+  else git push -q origin "v$n"; fi
   gh release create "v$n" --repo "$REPO" --title "Version $n – $titel" --notes-file "${TMPDIR:-/tmp}/rel-$$.md" >/dev/null
   rm -f "${TMPDIR:-/tmp}/rel-$$.md"
   ok "Version $n – $titel ($(version_url "$cf"))"
