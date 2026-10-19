@@ -85,6 +85,9 @@ function hamtaNyaMejl() {
       const nyckel = 'trad:' + trad.getId();
       const issue = egenskaper.getProperty(nyckel);
       if (issue) {
+        // Leo svarar i en tråd vars ärende kan vara stängt sedan länge – bevaka det igen, annars når
+        // Claudes nästa svar aldrig fram.
+        egenskaper.setProperty('issue:' + issue, trad.getId());
         github('POST', `/repos/${REPO}/issues/${issue}/comments`, {
           body: `@claude\n\n**Svar från ${namn} via mejl:**\n\n${text}${bildText}`,
         });

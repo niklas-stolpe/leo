@@ -15,7 +15,14 @@
 source "$(dirname "$0")/lib.sh"
 manad="LEO_TOKENS_$(date -u +%Y_%m)"
 
-var() { gh variable get "$1" --repo "$REPO" 2>/dev/null || printf '%s' "${2:-}"; }
+# var <namn> [standard] – finns variabeln inte (404) används standardvärdet; annat fel avbryter, så att
+# förbrukningen aldrig räknas från 0 och skrivs över bara för att GitHub inte svarade.
+var() {
+  local svar
+  if svar="$(gh api "repos/$REPO/actions/variables/$1" --jq .value 2>&1)"; then printf '%s' "$svar"
+  elif printf '%s' "$svar" | grep -q 'HTTP 404'; then printf '%s' "${2:-}"
+  else fail "kunde inte läsa $1: $svar"; fi
+}
 procent() { awk -v a="$1" -v b="$2" 'BEGIN { if (b <= 0) print 0; else printf "%.2f", a * 100 / b }'; }
 till_leo() {   # kommentar som Apps-scriptet i inkorgen mejlar till Leo (markörerna, se inkorg/Kod.gs)
   gh issue comment "$1" --repo "$REPO" --body "<!-- till-leo -->
