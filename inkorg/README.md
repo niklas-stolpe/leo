@@ -60,7 +60,7 @@ Inkorgen läser det och skriver sist i varje mejl hur mycket Leo har kvar. Ändr
 
 ## Skicka ett nytt mejl till Leo
 
-Skapa ett ärende med etiketten `mejl-ut` (utan "@claude" i texten). Rubriken blir ämnet:
+Skapa ett ärende med etiketten `mejl-ut` (utan "@claude" i texten; etiketten skapas en gång med `gh label create mejl-ut`). Rubriken blir ämnet:
 
 ```
 Till: Leo

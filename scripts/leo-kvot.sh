@@ -52,6 +52,7 @@ anvant: $anv
 tak: $tak"
   if [ -n "$nr" ]; then gh issue edit "$nr" --repo "$REPO" --body "$text" >/dev/null
   else
+    gh label create kvot --repo "$REPO" --color ededed --force >/dev/null
     nr="$(gh issue create --repo "$REPO" --title "Leos tokenkvot (automatisk)" --label kvot --body "$text" | grep -oE '[0-9]+$')"
     gh issue close "$nr" --repo "$REPO" >/dev/null
   fi
