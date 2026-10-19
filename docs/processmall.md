@@ -186,6 +186,9 @@ för testappar (skriptet körs i kontot självt). Bara tillåtna avsändare med 
   Kvar att känna till: Cloudflare Workers Builds bygger varje push med sin egen nyckel – bygget själv är
   alltså betrott; prod skyddas av att den bara byts när Admin/Leo väljer en version (B-06).
 - Kvoten kontrolleras före och räknas efter en körning; flera samtidiga mejl kan gå något över taket.
+- Känd restrisk: granskaren och byggaren är samma Claude-app (claude[bot]), så en manipulerad körning kan i
+  teorin posta en falsk sammanfattning. Det värsta som händer är en dålig *version* – prod byts bara när
+  Admin/Leo väljer (B-06), och Admins yta mergas aldrig automatiskt.
 
 ## Vardagen
 

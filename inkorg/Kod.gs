@@ -163,16 +163,24 @@ function skickaSvar() {
       const text = tillLeo(k.body || '');
       if (!text) continue;
       const hash = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, text));
-      if (egenskaper.getProperty('skickat:' + k.id) === hash) continue;
+      if (egenskaper.getProperty('skickat:' + issue + ':' + k.id) === hash) continue;
       // Svara på Leos senaste mejl i tråden – inte på vårt eget.
       const vilka = tillatna();
       const fran = trad.getMessages().filter((m) => vilka[normal(adress(m.getFrom()))]).pop();
       if (fran) fran.reply(text + `\n\n—\nAlla versioner: ${VERSIONSSIDAN}`);
-      egenskaper.setProperty('skickat:' + k.id, hash);
+      egenskaper.setProperty('skickat:' + issue + ':' + k.id, hash);
     }
     // Stängt sedan länge → sluta bevaka.
     const info = github('GET', `/repos/${REPO}/issues/${issue}`);
-    if (info.state === 'closed' && Date.now() - Date.parse(info.closed_at) > 7 * 864e5) egenskaper.deleteProperty(nyckel);
+    if (info.state === 'closed' && Date.now() - Date.parse(info.closed_at) > 7 * 864e5) {
+      // Sluta bevaka – och städa markeringarna för ärendet, så att skriptets lagring inte växer för evigt.
+      // (Svarar Leo i tråden igen bevakas ärendet på nytt; redan skickade kommentarer kan då skickas en
+      // gång till, vilket är bättre än att nya svar tappas.)
+      egenskaper.deleteProperty(nyckel);
+      Object.keys(egenskaper.getProperties())
+        .filter((k) => k.startsWith('skickat:' + issue + ':'))
+        .forEach((k) => egenskaper.deleteProperty(k));
+    }
   }
 }
 
