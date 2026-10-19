@@ -1,6 +1,6 @@
 # Leos inkorg – uppsättning (Admin)
 
-Leo mejlar en egen Gmail-adress. Ett Google Apps Script i det kontot gör mejlen till issues på GitHub
+Leo mejlar inkorgen **demo.stolpe@gmail.com**. Ett Google Apps Script i det kontot gör mejlen till issues på GitHub
 och mejlar tillbaka Claudes svar. Gratis, inget betalkort, inga GitHub-minuter för själva mejlandet.
 Hur det hänger ihop: `docs/processmall.md`, avsnittet *Mejl från beställaren*.
 

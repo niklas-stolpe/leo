@@ -6,6 +6,10 @@ Webbplatsen för Leos käppar – konsthantverk som används.
 
 Du behöver aldrig röra kod. Du beskriver, tittar och väljer. Claude bygger.
 
+### Mejla Claude
+
+Skicka ett mejl till **demo.stolpe@gmail.com** – skriv vad du vill och lägg gärna till bilder. Claude svarar med vad den har förstått och frågar om den ska börja. När den nya versionen är klar får du ett mejl med en länk.
+
 ### Vill du ändra något på sidan?
 
 1. Gå till **Issues → New issue → Önskemål**.
