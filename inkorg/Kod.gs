@@ -44,6 +44,7 @@ function korInkorg() {
   if (!las.tryLock(10000)) return;
   try {
     hamtaNyaMejl();
+    skickaUtskick();
     skickaSvar();
   } finally {
     las.releaseLock();
@@ -138,8 +139,12 @@ function dmarcOk(m, fran) {
 /** Tar bort citerade tidigare mejl och signaturer, så att bara det nya kommer med. */
 function rensa(text) {
   const rader = [];
-  for (const rad of text.split(/\r?\n/)) {
-    if (/^(Den|On) .+(skrev|wrote):\s*$/.test(rad) || /^-{2,}\s*(Ursprungligt|Original) /i.test(rad)) break;
+  const alla = text.split(/\r?\n/);
+  // "Den mån 19 okt. 2026 kl 23:28 skrev Claude <adress>:" – Gmail bryter ibland raden före adressen.
+  const citatRad = (r) => /^(Den|On) .*\d.*\b(skrev|wrote)\b.*:\s*$/.test(r);
+  for (let i = 0; i < alla.length; i++) {
+    const rad = alla[i];
+    if (citatRad(rad) || citatRad(rad + ' ' + (alla[i + 1] || '')) || /^-{2,}\s*(Ursprungligt|Original) /i.test(rad)) break;
     if (/^>/.test(rad)) continue;
     if (/^Skickat från min /i.test(rad)) continue;
     rader.push(rad);
@@ -167,7 +172,13 @@ function skickaSvar() {
       // Svara på Leos senaste mejl i tråden – inte på vårt eget.
       const vilka = tillatna();
       const fran = trad.getMessages().filter((m) => vilka[normal(adress(m.getFrom()))]).pop();
-      if (fran) fran.reply(text + `\n\n—\nAlla versioner: ${VERSIONSSIDAN}`);
+      if (fran) fran.reply(text + sidfot());
+      else {
+        // Tråden började med ett utskick från oss (mejl-ut) och Leo har inte svarat än – ett svar på vårt
+        // eget mejl skulle gå till oss själva, så skicka till mottagaren med samma ämne.
+        const till = egenskaper.getProperty('till:' + issue);
+        if (till) GmailApp.sendEmail(till, 'Re: ' + trad.getFirstMessageSubject(), text + sidfot());
+      }
       egenskaper.setProperty('skickat:' + issue + ':' + k.id, hash);
     }
     // Stängt sedan länge → sluta bevaka.
@@ -177,11 +188,58 @@ function skickaSvar() {
       // (Svarar Leo i tråden igen bevakas ärendet på nytt; redan skickade kommentarer kan då skickas en
       // gång till, vilket är bättre än att nya svar tappas.)
       egenskaper.deleteProperty(nyckel);
+      egenskaper.deleteProperty('till:' + issue);
       Object.keys(egenskaper.getProperties())
         .filter((k) => k.startsWith('skickat:' + issue + ':'))
         .forEach((k) => egenskaper.deleteProperty(k));
     }
   }
+}
+
+/**
+ * Nya mejl från oss (inte svar): ett öppet ärende med etiketten mejl-ut, med raden "Till: Leo" (namnet
+ * som i TILLATNA), ämnet som rubrik och texten mellan markörerna. Skickas en gång; ärendet får sedan
+ * etiketten mejl i stället, så att Leos svar i tråden hamnar där och går till Claude som vanligt.
+ * Bara ärenden som skapats av AVSANDARE_GITHUB skickas.
+ */
+function skickaUtskick() {
+  const egenskaper = PropertiesService.getScriptProperties();
+  const vilka = tillatna();
+  for (const arende of github('GET', `/repos/${REPO}/issues?labels=mejl-ut&state=open&per_page=20`)) {
+    if (!AVSANDARE_GITHUB.includes(arende.user && arende.user.login)) continue;
+    if (egenskaper.getProperty('utskick:' + arende.number)) continue;
+    const namn = ((arende.body || '').match(/^Till:\s*(.+?)\s*$/m) || [])[1];
+    const till = Object.keys(vilka).find((adr) => namn && vilka[adr].toLowerCase() === namn.toLowerCase());
+    const text = tillLeo(arende.body || '');
+    if (!till || !text) continue;
+    const trad = GmailApp.createDraft(till, arende.title, text + sidfot()).send().getThread();
+    egenskaper.setProperty('utskick:' + arende.number, 'skickat');
+    // Leos svar i tråden kopplas till ärendet, och Claudes svar på det går tillbaka i samma tråd.
+    egenskaper.setProperty('trad:' + trad.getId(), String(arende.number));
+    egenskaper.setProperty('issue:' + arende.number, trad.getId());
+    egenskaper.setProperty('till:' + arende.number, till);
+    github('POST', `/repos/${REPO}/issues/${arende.number}/labels`, { labels: ['mejl'] });
+    github('DELETE', `/repos/${REPO}/issues/${arende.number}/labels/mejl-ut`);
+  }
+}
+
+/** Sist i varje mejl: versionssidan och hur mycket av månadens utrymme för Claude som finns kvar. */
+function sidfot() {
+  let saldo = '';
+  try {
+    const arende = github('GET', `/repos/${REPO}/issues?labels=kvot&state=all&per_page=1`)[0];
+    const falt = (n) => ((arende && arende.body || '').match(new RegExp('^' + n + ':\\s*(\\S+)', 'm')) || [])[1];
+    const tak = Number(falt('tak'));
+    if (tak > 0) {
+      const manad = new Date().toISOString().slice(0, 7);
+      const anvant = falt('manad') === manad ? Number(falt('anvant')) || 0 : 0;
+      const kvar = Math.max(0, tak - anvant);
+      saldo = `\nKvar av ditt utrymme för Claude den här månaden: ${kvar.toLocaleString('sv-SE')} av ${tak.toLocaleString('sv-SE')} tokens (${Math.floor((kvar * 100) / tak)} %)`;
+    }
+  } catch (e) {
+    Logger.log('Kunde inte läsa saldot: ' + e);
+  }
+  return `\n\n—\nAlla versioner: ${VERSIONSSIDAN}${saldo}`;
 }
 
 function tillLeo(body) {

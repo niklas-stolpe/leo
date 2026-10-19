@@ -54,6 +54,25 @@ Repo → Settings → Secrets and variables → Actions → **Variables**:
 | `LEO_VARNING_PROCENT` | `8` | Varningsmejl till Leo |
 | `LEO_TOKENS_ÅÅÅÅ_MM` | skrivs automatiskt | Förbrukat hittills i månaden |
 
+Saldot speglas i ett stängt ärende med etiketten `kvot` (skrivs av `scripts/leo-kvot.sh`, ändra inte för hand).
+Inkorgen läser det och skriver sist i varje mejl hur mycket Leo har kvar. Ändrar du budgeten: kör
+`bash scripts/leo-kvot.sh saldo` så att mejlen visar rätt direkt.
+
+## Skicka ett nytt mejl till Leo
+
+Skapa ett ärende med etiketten `mejl-ut` (utan "@claude" i texten). Rubriken blir ämnet:
+
+```
+Till: Leo
+
+[[till-leo]]
+Hej Leo! …
+[[/till-leo]]
+```
+
+Inkorgen skickar det inom 5 minuter och byter etiketten till `mejl`. Svarar Leo hamnar svaret i ärendet och
+går till Claude som vanligt.
+
 ## När koden ändras
 
 Kopiera in `Kod.gs` igen i script.google.com och spara. Utlösaren behöver inte göras om.

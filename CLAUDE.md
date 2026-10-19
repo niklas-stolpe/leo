@@ -68,7 +68,9 @@ Skriv där på enkel svenska, kort och varmt, utan tekniska ord, länkar till Gi
 4. **Leo rättar eller vill ändra:** samma sak igen – sammanfatta, fråga, bygg efter ja.
 
 Modell, effort och om Leo får använda Claude alls styr Admin med repo-variablerna `LEO_CLAUDE_MODELL`,
-`LEO_CLAUDE_EFFORT` och `LEO_CLAUDE_AKTIV`; hans månadskvot räknas av `scripts/leo-kvot.sh`.
+`LEO_CLAUDE_EFFORT` och `LEO_CLAUDE_AKTIV`; hans månadskvot räknas av `scripts/leo-kvot.sh`. Inkorgen lägger
+själv till versionssidan och Leos saldo sist i varje mejl – skriv inte det. Ett *nytt* mejl till Leo: ärende med
+etiketten `mejl-ut` (F-48, se `inkorg/README.md`).
 
 ## Fakta som behövs i kod
 
