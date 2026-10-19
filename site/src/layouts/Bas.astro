@@ -84,18 +84,20 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
     --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
     --sans: 'Jost', 'Futura', 'Helvetica Neue', Arial, sans-serif;
     /* Stilen (#41): typsnitt, tyngd och kursiv – versionerna byter här.
-       Modern (version 9): Jost, tunt och rakt, ingen kursiv – i Gillis anda. */
-    --rubrik: var(--sans);
-    --rubrik-vikt: 300;
-    --rubrik-stil: normal;
-    --brodtext: var(--sans);
-    --brodtext-vikt: 300;
-    --kursiv: normal;
-    --versal-vikt: 400;
-    /* Samlingens bakgrund och text – den ljusa versionen byter här. */
-    --samling-bg: var(--svart);
-    --samling-text: var(--elfenben);
-    --samling-dampad: var(--dampad);
+       Klassisk (version 8 och 10): Cormorant, kursiva rubriker. Modern (version 9): var(--sans), 300, normal. */
+    --rubrik: var(--serif);
+    --rubrik-vikt: 400;
+    --rubrik-stil: italic;
+    --brodtext: var(--serif);
+    --brodtext-vikt: 400;
+    --kursiv: italic;
+    --versal-vikt: 600;
+    /* Samlingens bakgrund och text. Ljus (version 10): elfenben bakom käpparna – de mörka bilderna
+       lyfter som tavlor på en vägg. Mörk (version 8, 9): var(--svart), var(--elfenben), var(--dampad). */
+    --samling-bg: #f1ebe0;
+    --samling-text: #1f1c18;
+    --samling-dampad: #6b645b;
+    --samling-accent: #7a5a2c;
   }
   *,
   *::before,
@@ -111,7 +113,7 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
     color: var(--elfenben);
     font-family: var(--brodtext);
     font-weight: var(--brodtext-vikt);
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
