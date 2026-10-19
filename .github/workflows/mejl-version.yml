@@ -59,7 +59,9 @@ jobs:
           fi
           # Granskningens sammanfattning för PR:ens senaste commit: blockerande fynd → Claude rättar först.
           sha="$(pr_field "$pr" .headRefOid)"
-          sammanf="$(gh pr view "$pr" --repo "$REPO" --json comments --jq '.comments[].body' | grep -A2 "Granskning – ${sha:0:7}" || true)"
+          # Bara granskarens egna kommentarer (Claude-appen) räknas – inte en falsk sammanfattning från någon annan.
+          sammanf="$(gh api --paginate "repos/$REPO/issues/$pr/comments" --jq '.[] | select(.user.login == "claude[bot]") | .body' \
+            | grep -A2 "Granskning – ${sha:0:7}" || true)"
           if [ -z "$sammanf" ]; then
             # Ingen sammanfattning för senaste commit = ingen granskning. Mergas inte.
             gh issue comment "$issue" --repo "$REPO" --body "Admin: granskningen av #$pr postade ingen sammanfattning för ${sha:0:7} – ändringen mergas inte av sig själv. Titta på den, eller skriv @claude åtgärda granskningsfynden på PR:en."

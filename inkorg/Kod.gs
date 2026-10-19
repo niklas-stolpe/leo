@@ -21,6 +21,8 @@ const VERSIONSSIDAN = 'https://leo-versioner.niklasstolpe.workers.dev';
 const START = '<!-- till-leo -->';
 const SLUT = '<!-- /till-leo -->';
 const MAX_PER_KORNING = 5;
+// GitHub-konton vars kommentarer får mejlas till Leo: Claude-appen, workflows och Admin (PROCESS_TOKEN).
+const AVSANDARE_GITHUB = ['claude[bot]', 'github-actions[bot]', 'nstolpeflir'];
 
 /** Tillåtna avsändare: normaliserad adress → namn (Skriptegenskapen TILLATNA). */
 function tillatna() {
@@ -153,6 +155,8 @@ function skickaSvar() {
     if (!trad) continue;
     const kommentarer = github('GET', `/repos/${REPO}/issues/${issue}/comments?per_page=100`);
     for (const k of kommentarer) {
+      // Bara Claude, processens workflows och Admin får skriva till Leo – inte vem som helst på GitHub.
+      if (!AVSANDARE_GITHUB.includes(k.user && k.user.login)) continue;
       const text = tillLeo(k.body || '');
       if (!text) continue;
       const hash = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, text));
