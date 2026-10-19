@@ -1,10 +1,10 @@
 ---
-// En sida per käpp med egen adress, så att ett Instagram-inlägg kan länka direkt hit (F-11).
+// En sida per käpp med egen adress (F-11). #41: huvudbild med miniatyrer (4–5 bilder från olika håll),
+// material med latinskt namn, mått och status, Leos text, och "Fråga om käppen" (B-04: ingen kassa).
 import { Image, getImage } from 'astro:assets';
 import { render } from 'astro:content';
 import Bas from '../../layouts/Bas.astro';
-import Ringar from '../../components/Ringar.astro';
-import { allaKappar, rubrik, type Kappa } from '../../lib/kappa';
+import { allaKappar, GRUPPER, rubrik, type Kappa } from '../../lib/kappa';
 
 export async function getStaticPaths() {
   const kappar = await allaKappar();
@@ -22,53 +22,86 @@ interface Props {
 const { kappa, forra, nasta } = Astro.props;
 const { Content } = await render(kappa);
 const titel = rubrik(kappa);
-const harBerattelse = (kappa.body ?? '').trim().length > 0;
-const delningsbild = await getImage({ src: kappa.data.bilder[0], width: 1200, format: 'jpg' });
+const d = kappa.data;
+const harText = (kappa.body ?? '').trim().length > 0;
+const delningsbild = await getImage({ src: d.bilder[0], width: 1200, format: 'jpg' });
 // Helbild (#25): största rimliga storlek, aldrig större än originalet.
-const helbilder = await Promise.all(
-  kappa.data.bilder.map((b) => getImage({ src: b, width: Math.min(b.width, 2000), format: 'webp' })),
-);
-const altFor = (i: number) => (i === 0 ? kappa.data.alt : (kappa.data.bildtexter[i - 1] ?? `${titel}, bild ${i + 1}`));
-const fakta = [
-  kappa.data.ar && String(kappa.data.ar),
-  kappa.data.material.length > 0 && kappa.data.material.join(', '),
-  kappa.data.status,
-].filter(Boolean);
+const helbilder = await Promise.all(d.bilder.map((b) => getImage({ src: b, width: Math.min(b.width, 2000), format: 'webp' })));
+const altFor = (i: number) => (i === 0 ? d.alt : (d.bildtexter[i - 1] ?? `${titel}, bild ${i + 1}`));
+const grupp = GRUPPER.find((g) => g.id === d.grupp);
+const STATUS = { tillgänglig: 'Tillgänglig', såld: 'Såld', beställningsverk: 'Beställningsverk', privat: 'Privat – inte till salu' };
 ---
 
-<Bas titel={`${titel} – Leo`} beskrivning={`${titel} ur Leos samling. ${kappa.data.alt}`} delningsbild={delningsbild.src}>
+<Bas titel={`${titel} – Leo`} beskrivning={`${titel} ur Leos samling. ${d.alt}`} delningsbild={delningsbild.src}>
   <main>
-    <p class="tillbaka"><a class="versaler" href="/#samlingen">← Samlingen</a></p>
-    <article>
-      <figure class="ram">
+    <p class="tillbaka"><a class="versaler" href={`/#${d.grupp}`}>← {grupp?.namn ?? 'Samlingen'}</a></p>
+    <article class="kappa">
+      <div class="bilder">
+        <figure class="ram">
+          <button type="button" class="forstora" data-index="0" aria-label="Visa bilden i helbild">
+            <Image class="huvudbild" src={d.bilder[0]} alt={altFor(0)} widths={[540, 900, 1400]} sizes="(min-width: 64rem) 36rem, 100vw" loading="eager" />
+          </button>
+        </figure>
         {
-          kappa.data.bilder.map((bild, i) => (
-            <button type="button" class="forstora" data-stor={helbilder[i].src} data-alt={altFor(i)} aria-label="Visa bilden i helbild">
-              <Image
-                src={bild}
-                alt={altFor(i)}
-                widths={[540, 900, 1400]}
-                sizes="(min-width: 64rem) 60rem, 100vw"
-                loading={i === 0 ? 'eager' : 'lazy'}
-              />
-            </button>
-          ))
+          d.bilder.length > 1 && (
+            <ul class="miniatyrer" aria-label="Fler bilder">
+              {d.bilder.map((b, i) => (
+                <li>
+                  <button type="button" class="miniatyr" data-index={i} aria-label={`Visa bild ${i + 1}`} aria-current={i === 0 ? 'true' : undefined}>
+                    <Image src={b} alt="" widths={[160, 240]} sizes="6rem" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )
         }
-      </figure>
-      <header>
+        <template id="bildlista" data-bilder={JSON.stringify(helbilder.map((h, i) => ({ src: h.src, alt: altFor(i) })))}></template>
+      </div>
+
+      <div class="info">
+        <p class="versaler overrad">{grupp?.namn}</p>
         <h1>{titel}</h1>
-        {fakta.length > 0 && <p class="fakta">{fakta.join(' · ')}</p>}
-      </header>
-      {
-        harBerattelse && (
-          <>
-            <Ringar />
+        {d.status && <p class:list={['status', d.status]}>{STATUS[d.status]}</p>}
+        {
+          (d.material.length > 0 || d.langd || d.ar) && (
+            <dl class="fakta">
+              {d.material.map((m) => (
+                <div>
+                  <dt>{m.del}</dt>
+                  <dd>
+                    {m.namn}
+                    {m.latin && <em class="latin">{m.latin}</em>}
+                  </dd>
+                </div>
+              ))}
+              {d.langd && (
+                <div>
+                  <dt>Längd</dt>
+                  <dd>{d.langd}</dd>
+                </div>
+              )}
+              {d.ar && (
+                <div>
+                  <dt>År</dt>
+                  <dd>{d.ar}</dd>
+                </div>
+              )}
+            </dl>
+          )
+        }
+        {
+          harText && (
             <div class="berattelse">
               <Content />
             </div>
-          </>
-        )
-      }
+          )
+        }
+        {
+          d.status !== 'privat' && d.status !== 'såld' && (
+            <a class="versaler knapp" href={`/kontakt/?kapp=${encodeURIComponent(titel)}`}>Fråga om käppen</a>
+          )
+        }
+      </div>
     </article>
     <nav class="bladdra" aria-label="Fler käppar" data-forra={forra && `/kappar/${forra.id}/`} data-nasta={nasta && `/kappar/${nasta.id}/`}>
       {forra ? <a href={`/kappar/${forra.id}/`}>← {rubrik(forra)}</a> : <span />}
@@ -83,22 +116,35 @@ const fakta = [
 </Bas>
 
 <script>
-  // Helbild och bläddring (#25). Utan JavaScript fungerar sidan som förut – det här är bara extra.
+  // Helbild, miniatyrer och bläddring (#25, #41). Utan JavaScript syns huvudbilden som vanligt.
   const dialog = document.querySelector<HTMLDialogElement>('dialog.helbild')!;
   const storBild = dialog.querySelector('img')!;
   const nav = document.querySelector<HTMLElement>('nav.bladdra')!;
+  const bilder: { src: string; alt: string }[] = JSON.parse(document.querySelector<HTMLElement>('#bildlista')!.dataset.bilder!);
+  const huvud = document.querySelector<HTMLButtonElement>('button.forstora')!;
+  const huvudbild = huvud.querySelector('img')!;
   const ga = (riktning: 'forra' | 'nasta') => {
     const dit = nav.dataset[riktning];
     if (dit) location.href = dit;
   };
 
-  document.querySelectorAll<HTMLButtonElement>('button.forstora').forEach((knapp) =>
+  document.querySelectorAll<HTMLButtonElement>('button.miniatyr').forEach((knapp) =>
     knapp.addEventListener('click', () => {
-      storBild.src = knapp.dataset.stor!;
-      storBild.alt = knapp.dataset.alt ?? '';
-      dialog.showModal();
+      const i = Number(knapp.dataset.index);
+      huvud.dataset.index = String(i);
+      huvudbild.removeAttribute('srcset');
+      huvudbild.src = bilder[i].src;
+      huvudbild.alt = bilder[i].alt;
+      document.querySelectorAll('button.miniatyr').forEach((m) => m.removeAttribute('aria-current'));
+      knapp.setAttribute('aria-current', 'true');
     }),
   );
+  huvud.addEventListener('click', () => {
+    const b = bilder[Number(huvud.dataset.index ?? 0)];
+    storBild.src = b.src;
+    storBild.alt = b.alt;
+    dialog.showModal();
+  });
   // Klick var som helst i helbilden stänger den; Esc stänger av sig själv.
   dialog.addEventListener('click', () => dialog.close());
 
@@ -108,10 +154,10 @@ const fakta = [
     if (e.key === 'ArrowRight') ga('nasta');
   });
 
-  // Svep åt sidan (mobil): tydligt vågrätt drag, inte en scroll.
+  // Svep åt sidan (mobil): tydligt vågrätt drag, inte en scroll – och inte bland miniatyrerna.
   let start: { x: number; y: number } | null = null;
   document.addEventListener('touchstart', (e) => {
-    if (dialog.open || e.touches.length !== 1) return (start = null);
+    if (dialog.open || e.touches.length !== 1 || (e.target as Element).closest('.miniatyrer')) return (start = null);
     start = { x: e.touches[0].clientX, y: e.touches[0].clientY };
   }, { passive: true });
   document.addEventListener('touchend', (e) => {
@@ -124,6 +170,39 @@ const fakta = [
 </script>
 
 <style>
+  main {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 4vw, 3rem);
+  }
+  .tillbaka {
+    margin: 2rem 0;
+  }
+  .tillbaka a {
+    text-decoration: none;
+    color: var(--dampad);
+  }
+  .tillbaka a:hover {
+    color: var(--elfenben);
+  }
+  .kappa {
+    display: grid;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+  }
+  @media (min-width: 60rem) {
+    .kappa {
+      grid-template-columns: 1.15fr 1fr;
+    }
+  }
+  .ram {
+    margin: 0;
+    padding: clamp(0.5rem, 1.5vw, 0.9rem);
+    border: 1px solid rgb(184 149 90 / 0.5);
+    outline: 1px solid rgb(184 149 90 / 0.2);
+    outline-offset: 6px;
+    background: var(--yta);
+  }
   .forstora {
     display: block;
     width: 100%;
@@ -131,6 +210,93 @@ const fakta = [
     border: 0;
     background: none;
     cursor: zoom-in;
+  }
+  .forstora :global(img) {
+    width: 100%;
+  }
+  .miniatyrer {
+    list-style: none;
+    padding: 0;
+    margin: 1.25rem 0 0;
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .miniatyr {
+    padding: 0;
+    border: 1px solid rgb(184 149 90 / 0.25);
+    background: none;
+    cursor: pointer;
+    width: 5.5rem;
+  }
+  .miniatyr[aria-current='true'] {
+    border-color: var(--massing);
+  }
+  .miniatyr :global(img) {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+  .overrad {
+    color: var(--massing);
+    margin: 0 0 0.5rem;
+  }
+  h1 {
+    font-family: var(--rubrik);
+    font-weight: var(--rubrik-vikt);
+    font-style: var(--rubrik-stil);
+    font-size: clamp(3rem, 9vw, 4.5rem);
+    line-height: 1;
+    margin: 0;
+  }
+  .status {
+    display: inline-block;
+    margin: 1rem 0 0;
+    padding: 0.2rem 0.75rem;
+    border: 1px solid rgb(184 149 90 / 0.5);
+    color: var(--massing-ljus);
+    font-size: 1rem;
+  }
+  .fakta {
+    margin: 1.75rem 0 0;
+    border-top: 1px solid rgb(184 149 90 / 0.25);
+  }
+  .fakta div {
+    display: grid;
+    grid-template-columns: minmax(7rem, 38%) 1fr;
+    gap: 1rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid rgb(184 149 90 / 0.25);
+  }
+  dt {
+    color: var(--dampad);
+  }
+  dd {
+    margin: 0;
+  }
+  .latin {
+    display: block;
+    color: var(--dampad);
+  }
+  .berattelse {
+    margin-top: 1.75rem;
+    font-size: 1.2rem;
+  }
+  .berattelse :global(p) {
+    margin: 0 0 1rem;
+  }
+  .knapp {
+    display: inline-block;
+    margin-top: 1rem;
+    text-decoration: none;
+    color: var(--elfenben);
+    border: 1px solid var(--massing);
+    padding: 0.9rem 1.6rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  .knapp:hover {
+    background: var(--massing);
+    color: var(--svart);
   }
   .helbild {
     width: 100vw;
@@ -168,61 +334,6 @@ const fakta = [
     font-family: inherit;
     cursor: pointer;
   }
-  .tips {
-    text-align: center;
-    font-style: italic;
-    font-size: 0.95rem;
-    color: var(--dampad);
-    margin: 1.5rem 0 0;
-  }
-  main {
-    max-width: 64rem;
-    margin: 0 auto;
-    padding: 0 clamp(1rem, 4vw, 3rem);
-  }
-  .tillbaka {
-    margin: 2rem 0;
-  }
-  .tillbaka a {
-    text-decoration: none;
-    color: var(--dampad);
-  }
-  .tillbaka a:hover {
-    color: var(--elfenben);
-  }
-  .ram {
-    margin: 0;
-    padding: clamp(0.5rem, 1.5vw, 0.9rem);
-    border: 1px solid rgb(184 149 90 / 0.5);
-    outline: 1px solid rgb(184 149 90 / 0.2);
-    outline-offset: 6px;
-    background: var(--yta);
-    display: grid;
-    gap: 0.9rem;
-  }
-  .ram img {
-    width: 100%;
-  }
-  header {
-    text-align: center;
-    margin: 3rem 0 1.5rem;
-  }
-  h1 {
-    font-weight: 400;
-    font-style: italic;
-    font-size: clamp(3rem, 9vw, 5rem);
-    line-height: 1;
-    margin: 0;
-  }
-  .fakta {
-    color: var(--dampad);
-    margin: 0.75rem 0 0;
-  }
-  .berattelse {
-    max-width: 38rem;
-    margin: 2rem auto 0;
-    font-size: 1.3rem;
-  }
   .bladdra {
     display: flex;
     justify-content: space-between;
@@ -240,5 +351,12 @@ const fakta = [
   }
   .bladdra a:hover {
     color: var(--massing-ljus);
+  }
+  .tips {
+    text-align: center;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--dampad);
+    margin: 1.5rem 0 0;
   }
 </style>

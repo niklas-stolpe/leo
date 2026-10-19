@@ -26,3 +26,14 @@ export function rubrik(k: Kappa): string {
 export async function allaKappar(): Promise<Kappa[]> {
   return (await getCollection('kappar')).sort((a, b) => a.data.nummer - b.data.nummer);
 }
+
+/** Samlingens grupper i den ordning de visas (#41). Indelningen är ett förslag – Leo bestämmer. */
+export const GRUPPER = [
+  { id: 'krok', namn: 'Krokhandtag', text: 'Den klassiska kroken – att hänga på armen eller bordskanten.' },
+  { id: 'skulpterad', namn: 'Skulpterade handtag', text: 'Fria former, där träets egen linje får bestämma.' },
+  { id: 't-handtag', namn: 'T-handtag', text: 'Handtaget som vilar i handflatan och bär vid varje steg.' },
+] as const;
+
+export function kapparIGrupper(kappar: Kappa[]) {
+  return GRUPPER.map((g) => ({ ...g, kappar: kappar.filter((k) => k.data.grupp === g.id) })).filter((g) => g.kappar.length > 0);
+}

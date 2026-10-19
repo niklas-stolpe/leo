@@ -10,8 +10,17 @@ interface Props {
   beskrivning?: string;
   /** Bild som visas när länken delas (F-30). Absolut eller rot-relativ URL. */
   delningsbild?: string;
+  /** Huvudet ligger ovanpå sidans första bild (startsidan, #41). */
+  overBild?: boolean;
 }
-const { titel, beskrivning = 'Käppar av Leo – konst som används.', delningsbild } = Astro.props;
+const { titel, beskrivning = 'Handgjorda käppar av Leo Lowejko – konsthantverk i exklusiva träslag, gjorda för att användas.', delningsbild, overBild = false } = Astro.props;
+// Menyn (#41): få, tydliga sidor – samma i huvudet och foten.
+const MENY = [
+  { href: '/#samlingen', text: 'Samlingen' },
+  { href: '/om/', text: 'Om Leo' },
+  { href: '/bestallning/', text: 'Beställningsverk' },
+  { href: '/kontakt/', text: 'Kontakt' },
+];
 const ar = new Date().getFullYear();
 const bildUrl = delningsbild ? new URL(delningsbild, Astro.url).href : undefined;
 // Kanonisk adress (NF-04): samma sida kan nås på flera adresser (versionslänkar, stage) – den här räknas.
@@ -38,15 +47,24 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
     <title>{titel}</title>
   </head>
   <body>
-    <header class="huvud">
+    <header class:list={['huvud', { 'over-bild': overBild }]}>
       <a class="marke" href="/">Leo</a>
-      <nav aria-label="Huvudmeny">
-        <a href="/#samlingen">Samlingen</a>
+      <nav class="bred" aria-label="Huvudmeny">
+        {MENY.map((m) => <a href={m.href}>{m.text}</a>)}
       </nav>
+      <details class="smal">
+        <summary aria-label="Meny">Meny</summary>
+        <nav aria-label="Huvudmeny">
+          {MENY.map((m) => <a href={m.href}>{m.text}</a>)}
+        </nav>
+      </details>
     </header>
     <slot />
     <footer class="fot">
       <Ringar />
+      <nav class="fotmeny" aria-label="Sidfot">
+        {MENY.map((m) => <a href={m.href}>{m.text}</a>)}
+      </nav>
       <p>© Leo {ar}</p>
     </footer>
   </body>
@@ -62,6 +80,15 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
     --massing: #b8955a;
     --massing-ljus: #d4b27a;
     --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+    /* Stilen (#41): rubrikernas typsnitt och tyngd – versionerna byter här. */
+    --rubrik: var(--serif);
+    --rubrik-vikt: 400;
+    --rubrik-stil: italic;
+    --brodtext: var(--serif);
+    /* Samlingens bakgrund och text – den ljusa versionen byter här. */
+    --samling-bg: var(--svart);
+    --samling-text: var(--elfenben);
+    --samling-dampad: var(--dampad);
   }
   *,
   *::before,
@@ -75,7 +102,7 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
     margin: 0;
     background: var(--svart);
     color: var(--elfenben);
-    font-family: var(--serif);
+    font-family: var(--brodtext);
     font-size: 1.2rem;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
@@ -112,9 +139,55 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
   .huvud {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
-    padding: 1.5rem clamp(1rem, 4vw, 3rem);
+    align-items: center;
+    padding: 1.25rem clamp(1rem, 4vw, 3rem);
     border-bottom: 1px solid rgb(184 149 90 / 0.25);
+    position: relative;
+    z-index: 2;
+  }
+  .huvud.over-bild {
+    position: absolute;
+    inset: 0 0 auto;
+    border-bottom-color: transparent;
+    background: linear-gradient(rgb(14 13 11 / 0.7), transparent);
+  }
+  .bred {
+    display: none;
+    gap: 1.25rem;
+  }
+  .smal summary {
+    list-style: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--dampad);
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  .smal summary::-webkit-details-marker {
+    display: none;
+  }
+  .smal[open] nav {
+    position: absolute;
+    right: clamp(1rem, 4vw, 3rem);
+    top: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--yta);
+    border: 1px solid rgb(184 149 90 / 0.4);
+    padding: 0.5rem 1.25rem;
+    min-width: 14rem;
+  }
+  @media (min-width: 48rem) {
+    .bred {
+      display: flex;
+    }
+    .smal {
+      display: none;
+    }
   }
   .marke {
     text-decoration: none;
@@ -134,8 +207,6 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
     display: inline-flex;
     align-items: center;
     min-height: 44px;
-    padding: 0 0.5rem;
-    margin-right: -0.5rem;
   }
   nav a:hover {
     color: var(--elfenben);
@@ -145,6 +216,13 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
     text-align: center;
     color: var(--dampad);
     font-size: 0.95rem;
+  }
+  .fotmeny {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem 1.5rem;
+    margin-top: 1.5rem;
   }
   .fot p {
     margin: 1.25rem 0 0;

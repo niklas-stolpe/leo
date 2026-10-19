@@ -1,0 +1,24 @@
+---
+// Plats för en text som Leo skriver själv (#41). Syns tydligt som platshållare så att ingen tror att
+// den är färdig – och så att Claude aldrig behöver hitta på något om Leo. Byt mot Leos text när den kommer.
+interface Props {
+  om: string;
+}
+const { om } = Astro.props;
+---
+
+<aside class="platshallare" aria-label="Text som kommer">
+  <p>Här kommer Leos text {om}.</p>
+</aside>
+
+<style>
+  .platshallare {
+    border: 1px dashed rgb(184 149 90 / 0.55);
+    padding: 1.25rem 1.5rem;
+    color: var(--dampad);
+    font-style: italic;
+  }
+  .platshallare p {
+    margin: 0;
+  }
+</style>

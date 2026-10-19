@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-10-19 | #41 (Leo via Admin): ny struktur inspirerad av gilliscanes.com – stor bild, Leos hälsning (hans utkast), grupper (krok/skulpterad/T-handtag – Claudes förslag), meny med Om Leo, Beställningsverk, Kontakt (platshållare där Leos text saknas). Käppsidan med miniatyrer och materialdel (F-18); Nº I med Leos text, material och status privat. Leo vill inte att det kallas konst (B-10) – all sådan text borttagen. Pris väntar (Leo). |
 | 2026-09-30 | #37 (Admin): Google-inloggning på versionssidan (F-45) – versionssidan blir en Worker med egen Google-inloggning (inte Cloudflare Zero Trust, som krävde betalkort), tillåtna adresser, live-märkningar och publicering direkt via Cloudflares API. Egen stabil demo `leo-demo` (F-44) med demo-utförande (PUBLIC_MILJO=demo, "Leo demo", DEMO-ikon); v1–v6 uppladdade dit bakåt. Stage blir Claudes arbetsyta (T-03, T-10). |
 | 2026-09-30 | #35 (Admin): F-43 publicera en version på demo – `publicera-version.sh N demo` bygger om taggen som stage och lägger den på aliaset stage; knappen "Publicera på demo" och märkningen "På demo nu" på versionssidan; `publicera.yml` förstår "på demo". |
 | 2026-09-26 | #29: F-16 mjuk entré – käpparna tonar fram vid scroll (CSS scroll-driven animation), ornamentet vidgas. Ingen JavaScript. |
@@ -32,7 +33,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | ID | Term | Betyder |
 |---|---|---|
-| T-01 | **Leo** | Konstnären. Beställare och konstnärlig ledare – bestämmer hur sidan ska se ut och kännas. |
+| T-01 | **Leo** | Leo Lowejko, käppmakaren. Beställare och den som bestämmer över uttrycket – bestämmer hur sidan ska se ut och kännas. |
 | T-02 | **Admin** | Niklas. Beslutar om säkerhet, konton, domän, pengar och låsta beslut (B-rader). |
 | T-03 | **Stage** | Claudes arbetsyta, https://stage-leo.niklasstolpe.workers.dev – visar alltid den senast pushade ändringen. |
 | T-08 | **Version** | En publicering till prod av något som syns: "Version 3 – Leo bland sina verk", med datum, vad som ändrades och en egen länk som visar den precis som den var. Tagg `vN` + GitHub Release. |
@@ -66,6 +67,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | B-07 | **Admin äger det riskabla:** säkerhet, konton, hemligheter, domän, pengar, `.github/` och `scripts/`. Leo kan inte råka ha sönder något. | Admin 2026-09-25 |
 | B-08 | **Webbplatsen är navet.** Instagram och Facebook länkar hit; ingen Facebook-app. | Admin 2026-09-25 |
 | B-09 | **Konton startar hos Admin** – Claude-prenumerationen och GitHub (Admin godkänner i Leos ställe) – och flyttas till Leo när han har egna. | Admin 2026-09-25 |
+| B-10 | **Konsthantverk, inte konst.** Leo kallar inte käpparna konst – "jävligt bra konsthantverk" med en viktig funktion för brukaren. Ordet konst (konstverk, konstnär) används inte på sidan. | Leo via Admin 2026-10-19 |
 
 ## Funktionella krav
 
@@ -73,7 +75,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | ID | Krav | Klart när | Prio | Status | Verif. | Källa |
 |---|---|---|---|---|---|---|
-| F-01 | Startsidan presenterar Leo och käpparna så att besökaren förstår direkt att det är konst som används. | Leo har godkänt startsidan i förhandsvisningen. | v1 | Klar | leo | Admin 2026-09-25 |
+| F-01 | Startsidan presenterar Leo och käpparna så att besökaren förstår direkt att det är handgjort konsthantverk som används. | Leo har godkänt startsidan i förhandsvisningen. | v1 | Klar | leo | Admin 2026-09-25 |
 | F-02 | Sidan finns på en publik adress och visar den version Admin eller Leo har valt. | Vald version syns på produktionsadressen inom en minut, utan manuella steg utöver valet. | v1 | Backlog | – | Admin 2026-09-25 |
 | F-03 | Längst ned på sidan finns en diskret sidfot med "© Leo" och årtalet, i samma dämpade färg som övrig text. | Sidfoten syns, är liten och lugn. Leo har godkänt förhandsvisningen. | v1 | Klar | leo | Leo (issue #11) 2026-09-25 |
 
@@ -83,8 +85,11 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 |---|---|---|---|---|---|---|
 | F-10 | Galleri med alla käppar, stora bilder, lugn presentation. | Galleriet visar alla käpp-mappar (T-05); Leo har godkänt utseendet. | v1 | Klar | leo | Admin 2026-09-25 |
 | F-16 | Käpparna i samlingen tonar stillsamt fram när de kommer in i bild. Ingen rörelse för den som valt minskad rörelse; webbläsare utan stöd visar allt direkt. | Framtoning syns vid scroll; med "minska rörelse" visas allt direkt. | v1 | Klar | claude | Admin (chatt, #29) 2026-09-26 |
+| F-17 | Startsidan i Gillis anda: stor bild på en käpp överst, Leos hälsning, käpparna i grupper efter handtagets form med snabblänkar, och vägar vidare till beställningsverk och Om Leo. | Struktur på plats; grupperna godkända av Leo. | v1 | Pågår | – | Leo via Admin (#41) 2026-10-19 |
+| F-18 | Varje käpps sida har plats för 4–5 bilder från olika håll (miniatyrer + helbild) och en materialdel: del, träslag, latinskt namn, längd, status – sedan Leos text. | Nº I med Leos text och material; flera bilder visas som miniatyrer. | v1 | Klar | claude | Leo via Admin (#41) 2026-10-19 |
+| F-19 | Meny med få, tydliga sidor: Samlingen, Om Leo, Beställningsverk, Kontakt – samma i huvud och fot, egen meny i mobilen. | Menyn fungerar vid 360 px utan horisontell scroll. | v1 | Klar | claude | Leo via Admin (#41) 2026-10-19 |
 | F-11 | Varje käpp har en egen sida med egen adress som går att länka till från ett Instagram-inlägg. | `/kappar/<namn>` finns för varje käpp. | v1 | Klar | leo | Admin 2026-09-25 |
-| F-12 | Varje käpp visar status: tillgänglig, såld eller beställningsverk. Sålda käppar ligger kvar i galleriet. | Status syns i galleri och på käppens sida. | v1 | Backlog | – | Admin 2026-09-25 |
+| F-12 | Varje käpp visar status: tillgänglig, såld, beställningsverk eller privat (inte till salu). Sålda käppar ligger kvar i galleriet. | Status syns i galleri och på käppens sida. | v1 | Backlog | – | Admin 2026-09-25 |
 | F-13 | Besökaren kan fråga om en käpp eller be om ett möte. Frågan kommer som mejl till Leo. Gratis tjänst (B-01). | Ett testmeddelande från förhandsvisningen når Leos mejl. | v1 | Backlog | – | Admin 2026-09-25 |
 | F-14 | Leo lägger upp en ny käpp genom att skicka bilder och text i ett issue (mall "Ny käpp"). Claude skapar käpp-mappen och en förhandsvisning. | En käpp har lagts upp från ett issue utan att Leo rört kod. | v1 | Backlog | – | Admin 2026-09-25 |
 | F-15 | Tryck på käppens bild för att se den i helbild; svep åt sidan (mobil) eller använd piltangenterna (dator) för att gå till föregående eller nästa käpp. | Helbild öppnas och stängs; svep och piltangenter byter käpp; lodrät scroll byter inte. | v1 | Klar | claude | Admin (chatt, #25) 2026-09-26 |
@@ -153,4 +158,6 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | Q-05 | Har Jan Guillou sagt ja till att visas på sidan (bilderna 02–04 i albumet)? Krävs för F-23. |
 | Q-06 | Vem är personen i verkstaden (bild 15 i albumet), och får bilden visas? |
 | Q-08 | Hur lämnar granskare av demon förslag – mejl till Admin, mejl till Leo, formulär eller GitHub? (F-42) |
+| Q-09 | Pris på käpparna – på startsidan, efter informationstexten eller inte alls? (Leo funderar) |
+| Q-10 | Leos mejladress och telefonnummer för kontaktsidan, och vilken formulärtjänst (F-13, Q-03). |
 | Q-07 | Namn, år, material och status för käpparna Nº I–XXIII – vill Leo fylla i dem? |

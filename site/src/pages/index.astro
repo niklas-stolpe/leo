@@ -1,99 +1,155 @@
 ---
+// Startsidan (#41, inspirerad av gilliscanes.com): stor bild överst, Leos hälsning, käpparna i grupper
+// och vägar vidare till beställningsverk och Om Leo. Ingen kassa (B-04).
 import { Image, getImage } from 'astro:assets';
 import Bas from '../layouts/Bas.astro';
 import Ringar from '../components/Ringar.astro';
-import { allaKappar, romersk, rubrik } from '../lib/kappa';
+import { allaKappar, kapparIGrupper, romersk, rubrik } from '../lib/kappa';
 import leoVaggen from '../assets/leo-vaggen.jpg';
 
 const kappar = await allaKappar();
+const grupper = kapparIGrupper(kappar);
+const forsta = kappar[0];
 const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg' });
 ---
 
-<Bas titel="Leo – käppar" delningsbild={delningsbild.src}>
+<Bas titel="Leo – käppar" delningsbild={delningsbild.src} overBild>
   <main>
-    <section class="hero">
-      <div class="text">
+    <section class="hero" aria-labelledby="hero-rubrik">
+      <Image
+        class="hero-bild"
+        src={forsta.data.bilder[0]}
+        alt=""
+        widths={[800, 1200, 1600]}
+        sizes="100vw"
+        loading="eager"
+        fetchpriority="high"
+      />
+      <div class="hero-text">
         <p class="versaler overrad">Handgjorda käppar</p>
-        <h1>Leo</h1>
-        <p class="ingress">Käppar som konstverk – gjorda för att användas.</p>
+        <h1 id="hero-rubrik">Leo</h1>
+        <p class="ingress">Handgjorda käppar i exklusiva träslag – gjorda för att användas.</p>
         <a class="versaler knapp" href="#samlingen">Se samlingen</a>
+      </div>
+    </section>
+
+    <section class="valkommen" aria-label="Välkommen">
+      <div class="halsning">
+        <p class="versaler overrad">Välkommen</p>
+        {/* Leos text (2026-10-19, utkast – han filar vidare). */}
+        <p class="halsningstext">
+          Leo Lowejko är möbelsnickaren som blev käppmakare. Han har själv använt käpp i över tjugo år.
+          Käpparna är unika och handgjorda i exklusiva träslag. Han erbjuder en stor variation för olika
+          händer och anpassar käppens längd efter bärarens behov.
+        </p>
       </div>
       <figure class="ram">
         <Image
           src={leoVaggen}
           alt="Leo sitter framför en vägg med upphängda käppar i trä, med handtag i olika former."
           widths={[480, 800, 1080]}
-          sizes="(min-width: 60rem) 45vw, 100vw"
-          loading="eager"
-          fetchpriority="high"
+          sizes="(min-width: 60rem) 40vw, 100vw"
         />
-        <figcaption>Leo bland sina verk</figcaption>
+        <figcaption>Leo bland sina käppar</figcaption>
       </figure>
     </section>
 
     <div class="avdelare"><Ringar /></div>
 
     <section id="samlingen" class="samlingen" aria-labelledby="samlingen-rubrik">
-      <header>
-        <p class="versaler overrad">{romersk(kappar.length)} verk</p>
+      <header class="samling-huvud">
+        <p class="versaler overrad">{romersk(kappar.length)} käppar</p>
         <h2 id="samlingen-rubrik">Samlingen</h2>
+        <nav class="grupplankar" aria-label="Grupper i samlingen">
+          {grupper.map((g) => <a href={`#${g.id}`}>{g.namn} <span>{g.kappar.length}</span></a>)}
+        </nav>
       </header>
-      <ol class="galleri">
-        {
-          kappar.map((k) => (
-            <li>
-              <a href={`/kappar/${k.id}/`}>
-                <Image
-                  src={k.data.bilder[0]}
-                  alt={k.data.alt}
-                  widths={[360, 540, 720]}
-                  sizes="(min-width: 70rem) 22rem, (min-width: 40rem) 45vw, 92vw"
-                />
-                <span class="bildtext">{rubrik(k)}</span>
-              </a>
-            </li>
-          ))
-        }
-      </ol>
+      {
+        grupper.map((g) => (
+          <section id={g.id} class="grupp" aria-labelledby={`${g.id}-rubrik`}>
+            <h3 id={`${g.id}-rubrik`}>{g.namn}</h3>
+            <p class="grupptext">{g.text}</p>
+            <ol class="galleri">
+              {g.kappar.map((k) => (
+                <li>
+                  <a href={`/kappar/${k.id}/`}>
+                    <Image
+                      src={k.data.bilder[0]}
+                      alt={k.data.alt}
+                      widths={[360, 540, 720]}
+                      sizes="(min-width: 70rem) 22rem, (min-width: 40rem) 45vw, 92vw"
+                    />
+                    <span class="bildtext">{rubrik(k)}</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ))
+      }
+    </section>
+
+    <section class="vidare" aria-label="Mer om Leo">
+      <a class="kort" href="/bestallning/">
+        <span class="versaler overrad">Beställningsverk</span>
+        <span class="kort-rubrik">En käpp gjord för dig</span>
+        <span class="kort-text">Så går det till – från första mötet till den färdiga käppen.</span>
+      </a>
+      <a class="kort" href="/om/">
+        <span class="versaler overrad">Om Leo</span>
+        <span class="kort-rubrik">Käppmakaren och verkstaden</span>
+        <span class="kort-text">Varför käppar, och hur de blir till.</span>
+      </a>
     </section>
   </main>
 </Bas>
 
 <style>
-  main {
-    padding: 0 clamp(1rem, 4vw, 3rem);
-  }
   .hero {
+    position: relative;
+    min-height: min(92vh, 52rem);
     display: grid;
-    gap: clamp(2rem, 5vw, 5rem);
-    align-items: center;
-    max-width: 72rem;
-    margin: 0 auto;
-    padding: clamp(3rem, 9vw, 7rem) 0 clamp(3rem, 7vw, 5rem);
+    place-items: center;
+    text-align: center;
+    overflow: hidden;
+    isolation: isolate;
   }
-  @media (min-width: 60rem) {
-    .hero {
-      grid-template-columns: 1fr 1.1fr;
-    }
+  .hero :global(.hero-bild) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(ellipse at center, rgb(14 13 11 / 0.55), rgb(14 13 11 / 0.88));
+  }
+  .hero-text {
+    padding: 6rem 1rem 4rem;
   }
   .overrad {
     color: var(--massing);
     margin: 0 0 1rem;
   }
   h1 {
-    font-weight: 400;
-    font-style: italic;
-    font-size: clamp(5rem, 18vw, 10rem);
+    font-family: var(--rubrik);
+    font-weight: var(--rubrik-vikt);
+    font-style: var(--rubrik-stil);
+    font-size: clamp(5rem, 20vw, 11rem);
     line-height: 0.85;
     margin: 0;
-    letter-spacing: -0.01em;
   }
   .ingress {
-    font-size: clamp(1.35rem, 3vw, 1.7rem);
+    font-size: clamp(1.35rem, 3vw, 1.8rem);
     font-style: italic;
-    color: var(--dampad);
-    max-width: 24ch;
-    margin: 1.5rem 0 2.25rem;
+    color: var(--elfenben);
+    margin: 1.5rem auto 2.25rem;
+    max-width: 26ch;
   }
   .knapp {
     display: inline-block;
@@ -106,6 +162,25 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
   .knapp:hover {
     background: var(--massing);
     color: var(--svart);
+  }
+
+  .valkommen {
+    display: grid;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: clamp(3rem, 8vw, 6rem) clamp(1rem, 4vw, 3rem);
+  }
+  @media (min-width: 60rem) {
+    .valkommen {
+      grid-template-columns: 1.1fr 1fr;
+    }
+  }
+  .halsningstext {
+    font-size: clamp(1.3rem, 2.4vw, 1.55rem);
+    line-height: 1.55;
+    margin: 0;
   }
   .ram {
     margin: 0;
@@ -123,21 +198,68 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
     font-size: 1rem;
   }
   .avdelare {
-    margin: 1rem auto 4rem;
+    margin: 0 auto 4rem;
   }
+
   .samlingen {
-    max-width: 72rem;
-    margin: 0 auto;
+    background: var(--samling-bg);
+    color: var(--samling-text);
+    padding: clamp(3rem, 7vw, 5rem) clamp(1rem, 4vw, 3rem);
   }
-  .samlingen header {
+  .samling-huvud {
     text-align: center;
-    margin-bottom: 3rem;
+    max-width: 72rem;
+    margin: 0 auto 3rem;
   }
   h2 {
-    font-weight: 400;
+    font-family: var(--rubrik);
+    font-weight: var(--rubrik-vikt);
     font-size: clamp(2.5rem, 6vw, 3.75rem);
     margin: 0;
     line-height: 1;
+  }
+  .grupplankar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+  .grupplankar a {
+    text-decoration: none;
+    border: 1px solid rgb(184 149 90 / 0.45);
+    padding: 0.55rem 1.1rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--samling-text);
+  }
+  .grupplankar a:hover {
+    border-color: var(--massing);
+  }
+  .grupplankar span {
+    color: var(--massing);
+    font-size: 0.9em;
+  }
+  .grupp {
+    max-width: 72rem;
+    margin: 0 auto 4rem;
+    scroll-margin-top: 2rem;
+  }
+  h3 {
+    font-family: var(--rubrik);
+    font-weight: var(--rubrik-vikt);
+    font-style: var(--rubrik-stil);
+    font-size: clamp(1.9rem, 4vw, 2.5rem);
+    margin: 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgb(184 149 90 / 0.3);
+  }
+  .grupptext {
+    color: var(--samling-dampad);
+    font-style: italic;
+    margin: 0.75rem 0 2rem;
   }
   .galleri {
     list-style: none;
@@ -151,39 +273,12 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
     display: block;
     text-decoration: none;
   }
-  /* Mjuk entré (#29): varje käpp tonar fram när den kommer in i bild. Ren CSS (scroll-driven
-     animation) – ingen rörelse vid "minska rörelse", och webbläsare utan stöd visar allt direkt. */
-  @supports (animation-timeline: view()) {
-    @media (prefers-reduced-motion: no-preference) {
-      .galleri li {
-        animation: tona-fram linear both;
-        animation-timeline: view();
-        animation-range: entry 0% entry 60%;
-      }
-      .avdelare {
-        animation: vidga linear both;
-        animation-timeline: view();
-        animation-range: entry 10% cover 35%;
-      }
-    }
-  }
-  @keyframes tona-fram {
-    from {
-      opacity: 0;
-      transform: translateY(1.75rem);
-    }
-  }
-  @keyframes vidga {
-    from {
-      opacity: 0;
-      transform: scaleX(0.4);
-    }
-  }
   .galleri img {
     width: 100%;
     aspect-ratio: 4 / 3;
     object-fit: cover;
     border: 1px solid rgb(184 149 90 / 0.18);
+    background: var(--svart);
     transition: border-color 0.4s, filter 0.4s;
     filter: saturate(0.92);
   }
@@ -198,10 +293,65 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
     font-style: italic;
     font-size: 1.15rem;
     padding-top: 0.6rem;
-    color: var(--dampad);
+    color: var(--samling-dampad);
     transition: color 0.3s;
   }
   .galleri a:hover .bildtext {
     color: var(--massing-ljus);
+  }
+
+  .vidare {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: clamp(3rem, 7vw, 5rem) clamp(1rem, 4vw, 3rem) 0;
+  }
+  @media (min-width: 48rem) {
+    .vidare {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .kort {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    text-decoration: none;
+    border: 1px solid rgb(184 149 90 / 0.4);
+    padding: 2rem;
+    transition: border-color 0.3s;
+  }
+  .kort:hover {
+    border-color: var(--massing);
+  }
+  .kort .overrad {
+    margin: 0;
+  }
+  .kort-rubrik {
+    font-family: var(--rubrik);
+    font-weight: var(--rubrik-vikt);
+    font-style: var(--rubrik-stil);
+    font-size: 1.9rem;
+    line-height: 1.15;
+  }
+  .kort-text {
+    color: var(--dampad);
+  }
+
+  /* Mjuk entré (#29): som tidigare, nu per grupp. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .galleri li {
+        animation: tona-fram linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 60%;
+      }
+    }
+  }
+  @keyframes tona-fram {
+    from {
+      opacity: 0;
+      transform: translateY(1.75rem);
+    }
   }
 </style>

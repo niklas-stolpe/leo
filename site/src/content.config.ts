@@ -11,10 +11,18 @@ const kappar = defineCollection({
     z.object({
       // Löpnummer i samlingen – visas som romersk siffra (Nº XII) och styr ordningen.
       nummer: z.number().int().positive(),
+      // Grupp i samlingen efter handtagets form (#41) – Claudes förslag, Leo kan ändra.
+      grupp: z.enum(['krok', 'skulpterad', 't-handtag']),
       titel: z.string().optional(),
       ar: z.number().int().optional(),
-      material: z.array(z.string()).default([]),
-      status: z.enum(['tillgänglig', 'såld', 'beställningsverk']).optional(),
+      // Material per del (#41): "Handtag och skaft" – masurbjörk (Betula pendula var. carelica).
+      material: z
+        .array(z.object({ del: z.string(), namn: z.string(), latin: z.string().optional() }))
+        .default([]),
+      // Mått, t.ex. "92 cm" – bara det Leo har angett.
+      langd: z.string().optional(),
+      // privat = inte till salu (Leos egen eller en gåva).
+      status: z.enum(['tillgänglig', 'såld', 'beställningsverk', 'privat']).optional(),
       bilder: z.array(image()).min(1),
       // Beskriver huvudbilden för den som inte ser den (NF-02).
       alt: z.string().min(10),
