@@ -6,7 +6,7 @@
  *     blir ett issue i niklas-stolpe/leo med etiketten "mejl" – eller en kommentar på samma issue om
  *     mejlet är ett svar i samma tråd. Texten börjar med "@claude", så Claude på GitHub tar över.
  *     Bilder sparas i inkorgens Google Drive (läsbara via länk) och länkas i issuet.
- *  2. Kommentarer på de issuena med text mellan <!-- till-leo --> och <!-- /till-leo --> skickas som
+ *  2. Kommentarer på de issuena med text mellan [[till-leo]] och [[/till-leo]] skickas som
  *     mejlsvar i samma tråd. Allt annat på GitHub (loggar, länkar, teknik) når aldrig Leo.
  *
  * Inställningar: Projektinställningar → Skriptegenskaper (inte i koden – adresserna är personuppgifter):
@@ -18,8 +18,8 @@
 
 const REPO = 'niklas-stolpe/leo';
 const VERSIONSSIDAN = 'https://leo-versioner.niklasstolpe.workers.dev';
-const START = '<!-- till-leo -->';
-const SLUT = '<!-- /till-leo -->';
+const START = '[[till-leo]]';
+const SLUT = '[[/till-leo]]';
 const MAX_PER_KORNING = 5;
 // GitHub-konton vars kommentarer får mejlas till Leo: Claude-appen, workflows och Admin (PROCESS_TOKEN).
 const AVSANDARE_GITHUB = ['claude[bot]', 'github-actions[bot]', 'nstolpeflir'];

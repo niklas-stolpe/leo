@@ -54,7 +54,8 @@ Krav: `docs/requirements.md` · Process: `docs/process.md` · Leos guide: `READM
 ## Mejl från Leo (etiketten `mejl`, F-46)
 
 Leo mejlar inkorgen; `inkorg/Kod.gs` gör mejlet till ett issue (eller en kommentar i samma tråd) och mejlar
-tillbaka **allt du skriver mellan `<!-- till-leo -->` och `<!-- /till-leo -->`** – inget annat når Leo.
+tillbaka **allt du skriver mellan `[[till-leo]]` och `[[/till-leo]]`** – inget annat når Leo. Markörerna ska stå
+synliga på egna rader (HTML-kommentarer rensas bort ur dina kommentarer innan de postas).
 Skriv där på enkel svenska, kort och varmt, utan tekniska ord, länkar till GitHub eller kodnamn.
 
 1. **Nytt mejl – bygg inte än.** Svara (mellan markörerna): vad du har förstått, högst två frågor om något är

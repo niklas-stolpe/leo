@@ -173,7 +173,7 @@ aldrig behöver godkänna sitt eget arbete (auto mode stoppar det, med rätta).
 
 Beställaren mejlar en egen Gmail-inkorg; ett Google Apps Script i det kontot (`inkorg/Kod.gs`, uppsättning i
 `inkorg/README.md`) gör mejlet till ett issue med etiketten `mejl` och mejlar tillbaka allt som står mellan
-`<!-- till-leo -->` och `<!-- /till-leo -->` i kommentarerna. Gratis, utan betalkort och utan Googles sjudagarsgräns
+`[[till-leo]]` och `[[/till-leo]]` i kommentarerna. Gratis, utan betalkort och utan Googles sjudagarsgräns
 för testappar (skriptet körs i kontot självt). Bara tillåtna avsändare med DMARC pass tas emot.
 
 - `claude.yml`: kvotkontroll → Claude med Admins modell/effort → tokens räknas (`scripts/leo-kvot.sh`).

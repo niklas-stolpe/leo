@@ -25,9 +25,9 @@ var() {
 }
 procent() { awk -v a="$1" -v b="$2" 'BEGIN { if (b <= 0) print 0; else printf "%.2f", a * 100 / b }'; }
 till_leo() {   # kommentar som Apps-scriptet i inkorgen mejlar till Leo (markörerna, se inkorg/Kod.gs)
-  gh issue comment "$1" --repo "$REPO" --body "<!-- till-leo -->
+  gh issue comment "$1" --repo "$REPO" --body "[[till-leo]]
 $2
-<!-- /till-leo -->" >/dev/null
+[[/till-leo]]" >/dev/null
 }
 
 budget="$(var LEO_TOKEN_BUDGET 0)"; kvot="$(var LEO_KVOT_PROCENT 10)"; varning="$(var LEO_VARNING_PROCENT 8)"
