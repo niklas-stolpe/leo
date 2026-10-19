@@ -32,8 +32,9 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-          # version-release.sh pushar taggen vN – GITHUB_TOKEN har bara läsrätt här.
-          token: ${{ secrets.PROCESS_TOKEN }}
+          # Ingen nyckel i .git/config – bygget av ändringen körs i en worktree som delar den.
+          # version-release.sh pushar taggen vN med GH_TOKEN bara för den pushen.
+          persist-credentials: false
 
       - name: Hör ändringen till ett mejlärende?
         id: pr
