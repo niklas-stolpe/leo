@@ -60,6 +60,12 @@ jobs:
           # Granskningens sammanfattning för PR:ens senaste commit: blockerande fynd → Claude rättar först.
           sha="$(pr_field "$pr" .headRefOid)"
           sammanf="$(gh pr view "$pr" --repo "$REPO" --json comments --jq '.comments[].body' | grep -A2 "Granskning – ${sha:0:7}" || true)"
+          if [ -z "$sammanf" ]; then
+            # Ingen sammanfattning för senaste commit = ingen granskning. Mergas inte.
+            gh issue comment "$issue" --repo "$REPO" --body "Admin: granskningen av #$pr postade ingen sammanfattning för ${sha:0:7} – ändringen mergas inte av sig själv. Titta på den, eller skriv @claude åtgärda granskningsfynden på PR:en."
+            exit 0
+          fi
+          # "Blockerande: inga" eller "Blockerande: 0" → 0; ett tal > 0 → fynd.
           block="$(printf '%s' "$sammanf" | grep -oE 'Blockerande: *[0-9]+' | grep -oE '[0-9]+' | tail -1)"
           if [ "${block:-0}" -gt 0 ]; then
             forsok="$(gh pr view "$pr" --repo "$REPO" --json comments --jq '[.comments[] | select(.body | startswith("@claude åtgärda granskningsfynden"))] | length')"

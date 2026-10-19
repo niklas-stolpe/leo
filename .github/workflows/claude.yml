@@ -66,6 +66,9 @@ jobs:
           status="$(bash scripts/leo-kvot.sh status)"
           echo "status=$status" >> "$GITHUB_OUTPUT"
           if [ "$status" != ok ]; then
+            # Beskedet om paus eller slut kvot mejlas bara en gång per ärende.
+            redan="$(gh issue view "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --json comments --jq '[.comments[] | select(.body | test("utrymme för Claude är slut|Claude tar en paus"))] | length')"
+            [ "$redan" -eq 0 ] || exit 0
             if [ "$status" = slut ]; then
               text="Hej Leo! Månadens utrymme för Claude är slut – det fylls på igen den 1:a nästa månad. Hör av dig till Niklas om något brådskar."
             else
