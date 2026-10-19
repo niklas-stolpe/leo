@@ -9,6 +9,7 @@
 # Tokens = input + output + cache-skrivning (cache-läsning räknas inte – den är nästan gratis).
 #
 #   scripts/leo-kvot.sh status                    → ok | pausad | slut  (och procent på stderr)
+#   scripts/leo-kvot.sh saldo                     → skriver saldot till ärendet med etiketten kvot
 #   scripts/leo-kvot.sh lagg-till <execution.json> <issue>
 #                                                 → räknar upp; mejlar Leo (via kommentar) vid 8 % och 10 %
 # Kräver GH_TOKEN med rätt att läsa och skriva repo-variabler (PROCESS_TOKEN).
@@ -38,7 +39,30 @@ heltal "$anvant" || { warn "$manad är inte ett heltal ('$anvant') – räknas f
 heltal "$kvot" || kvot=10
 heltal "$varning" || varning=8
 
-case "${1:?status|lagg-till}" in
+# Skriver saldot till ett stängt ärende med etiketten kvot – inkorgen (inkorg/Kod.gs) läser det och skriver
+# "kvar den här månaden" längst ned i varje mejl till Leo. Inkorgens nyckel har bara Issues-behörighet.
+skriv_saldo() {
+  local anv="$1" tak nr
+  tak=$(( budget * kvot / 100 ))
+  nr="$(gh issue list --repo "$REPO" --label kvot --state all --limit 1 --json number --jq '.[0].number // empty')"
+  local text="Leos tokenkvot – skrivs automatiskt av scripts/leo-kvot.sh, läses av inkorgen. Ändra inte för hand.
+
+manad: $(date -u +%Y-%m)
+anvant: $anv
+tak: $tak"
+  if [ -n "$nr" ]; then gh issue edit "$nr" --repo "$REPO" --body "$text" >/dev/null
+  else
+    gh label create kvot --repo "$REPO" --color ededed --force >/dev/null
+    nr="$(gh issue create --repo "$REPO" --title "Leos tokenkvot (automatisk)" --label kvot --body "$text" | grep -oE '[0-9]+$')"
+    gh issue close "$nr" --repo "$REPO" >/dev/null
+  fi
+}
+
+case "${1:?status|lagg-till|saldo}" in
+  saldo)
+    skriv_saldo "$anvant"
+    ok "saldo skrivet: $anvant av $(( budget * kvot / 100 )) tokens"
+    ;;
   status)
     andel="$(procent "$anvant" "$budget")"
     printf 'Leo har använt %s %% av budgeten i %s (kvot %s %%)\n' "$andel" "${manad#LEO_TOKENS_}" "$kvot" >&2
@@ -60,6 +84,7 @@ case "${1:?status|lagg-till}" in
       console.log((u.input_tokens ?? 0) + (u.output_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0));" "$fil")"
     nytt=$(( anvant + tokens ))
     gh variable set "$manad" --repo "$REPO" --body "$nytt"
+    skriv_saldo "$nytt"
     fore="$(procent "$anvant" "$budget")"; efter="$(procent "$nytt" "$budget")"
     ok "+$tokens tokens → $nytt ($efter % av budgeten, kvot $kvot %)"
     if awk -v f="$fore" -v e="$efter" -v k="$kvot" 'BEGIN { exit !(f < k && e >= k) }'; then
