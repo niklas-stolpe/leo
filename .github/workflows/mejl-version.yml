@@ -68,7 +68,8 @@ jobs:
             exit 0
           fi
           # "Blockerande: inga" eller "Blockerande: 0" → 0; ett tal > 0 → fynd.
-          block="$(printf '%s' "$sammanf" | grep -oE 'Blockerande: *[0-9]+' | grep -oE '[0-9]+' | tail -1)"
+          # (|| true: "inga" ger ingen träff, och med pipefail skulle steget annars dö tyst.)
+          block="$(printf '%s' "$sammanf" | grep -oE 'Blockerande: *[0-9]+' | grep -oE '[0-9]+' | tail -1 || true)"
           if [ "${block:-0}" -gt 0 ]; then
             forsok="$(gh pr view "$pr" --repo "$REPO" --json comments --jq '[.comments[] | select(.body | startswith("@claude åtgärda granskningsfynden"))] | length')"
             if [ "$forsok" -lt 2 ]; then gh pr comment "$pr" --repo "$REPO" --body "@claude åtgärda granskningsfynden"
