@@ -127,7 +127,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | F-45 | Admin och Leo loggar in med sina Google-konton på versionssidan och publicerar på demo eller den riktiga sidan därifrån. Andra kan titta men inte publicera. Gratis, utan betalkort. | Admin och Leo har loggat in och publicerat; en annan Google-adress nekas. | v1 | Pågår | – | Admin (chatt, #37) 2026-09-30 |
 | F-46 | Leo kan mejla Claude: mejlet blir ett ärende, Claude svarar med vad den förstått och frågar "Ska jag börja?", bygger efter ja och mejlar en länk när den nya versionen finns. Bara Leo och Admin tas emot (äkta avsändare). Allt Leo får är vanlig svenska – inget tekniskt. | Ett testmejl har gått hela vägen: ärende, svar, bygge, version, mejl med länk. | v1 | Pågår | – | Admin (chatt, #48) 2026-10-19 |
 | F-47 | Admin styr Leos användning av Claude: på/av, modell och effort, och en månadskvot (10 % av en tokenbudget). Vid 8 % får Leo ett varningsmejl, vid 10 % ett mejl om att det är slut till den 1:a. | Kvoten räknas per körning; varning och stopp provade. | v1 | Pågår | – | Admin (chatt, #48) 2026-10-19 |
-| F-48 | Hälsningstexten på startsidan ("Leo Lowejko är möbelsnickaren …") är lite större – den märks, men tar inte över sidan. | Texten är ungefär 15 % större än förut på både mobil och dator; ingen horisontell scroll vid 360 px. | v1 | Klar | – | Niklas via mejl (#51) 2026-10-19 |
+| F-48 | Hälsningstexten på startsidan ("Leo Lowejko är möbelsnickaren …") är lite större – den märks, men tar inte över sidan. | Texten är ungefär 15 % större än förut på både mobil och dator; ingen horisontell scroll vid 360 px. | v1 | Pågår | – | Niklas via mejl (#51) 2026-10-19 |
 
 ## Icke-funktionella krav
 
