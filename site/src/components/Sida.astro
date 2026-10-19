@@ -1,0 +1,44 @@
+---
+// En enkel innehållssida (#41): överrad, rubrik och innehåll – samma stil som resten av sidan.
+import Bas from '../layouts/Bas.astro';
+interface Props {
+  titel: string;
+  overrad: string;
+  beskrivning?: string;
+}
+const { titel, overrad, beskrivning } = Astro.props;
+---
+
+<Bas titel={`${titel} – Leo`} beskrivning={beskrivning}>
+  <main class="sida">
+    <p class="versaler overrad">{overrad}</p>
+    <h1>{titel}</h1>
+    <div class="innehall"><slot /></div>
+  </main>
+</Bas>
+
+<style>
+  .sida {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: clamp(3rem, 8vw, 5rem) clamp(1rem, 4vw, 3rem) 0;
+  }
+  .overrad {
+    color: var(--massing);
+    margin: 0 0 0.75rem;
+  }
+  h1 {
+    font-family: var(--rubrik);
+    font-weight: var(--rubrik-vikt);
+    font-style: var(--rubrik-stil);
+    font-size: clamp(2.75rem, 8vw, 4rem);
+    line-height: 1.05;
+    margin: 0 0 2rem;
+  }
+  .innehall {
+    font-size: 1.25rem;
+  }
+  .innehall :global(p) {
+    margin: 0 0 1.25rem;
+  }
+</style>

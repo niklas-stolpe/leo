@@ -1,6 +1,6 @@
 # Leo
 
-Webbplatsen för Leos käppar – konst som används.
+Webbplatsen för Leos käppar – konsthantverk som används.
 
 ## Leo – så här gör du
 

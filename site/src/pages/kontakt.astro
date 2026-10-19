@@ -1,0 +1,29 @@
+---
+// Kontakt (#41): Leos egna ord. Formulär, mejl och telefon kommer när Leo har gett uppgifterna och
+// formulärtjänsten är vald (F-13, Q-03). Inget formulär som dyker upp av sig självt.
+import Sida from '../components/Sida.astro';
+import Platshallare from '../components/Platshallare.astro';
+---
+
+<Sida titel="Kontakt" overrad="Hör av dig" beskrivning="Kontakta Leo Lowejko om en käpp eller ett beställningsverk.">
+  <p class="fraga" hidden></p>
+  <p>Personlig kontakt är viktig, om möjligheten finns. Hör av dig genom kontaktformuläret – det går även bra att skicka ett mejl eller ringa.</p>
+  <Platshallare om="– kontaktformulär, mejladress och telefonnummer" />
+</Sida>
+
+<script>
+  // Kommer besökaren från "Fråga om käppen" står käppen här, så att den inte behöver skrivas igen.
+  const kapp = new URLSearchParams(location.search).get('kapp');
+  const rad = document.querySelector<HTMLElement>('.fraga')!;
+  if (kapp) {
+    rad.textContent = `Du frågar om ${kapp}.`;
+    rad.hidden = false;
+  }
+</script>
+
+<style>
+  .fraga {
+    color: var(--massing-ljus);
+    font-style: italic;
+  }
+</style>
