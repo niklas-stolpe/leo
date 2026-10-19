@@ -169,6 +169,27 @@ aldrig behöver godkänna sitt eget arbete (auto mode stoppar det, med rätta).
 - Versionssidan kräver wrangler-inloggning där scripten körs (session: `npx wrangler login`;
   Actions: `CLOUDFLARE_API_TOKEN`/`_ACCOUNT_ID`).
 
+## Mejl från beställaren
+
+Beställaren mejlar en egen Gmail-inkorg; ett Google Apps Script i det kontot (`inkorg/Kod.gs`, uppsättning i
+`inkorg/README.md`) gör mejlet till ett issue med etiketten `mejl` och mejlar tillbaka allt som står mellan
+`<!-- till-leo -->` och `<!-- /till-leo -->` i kommentarerna. Gratis, utan betalkort och utan Googles sjudagarsgräns
+för testappar (skriptet körs i kontot självt). Bara tillåtna avsändare med DMARC pass tas emot.
+
+- `claude.yml`: kvotkontroll → Claude med Admins modell/effort → tokens räknas (`scripts/leo-kvot.sh`).
+- Claude svarar först med vad den förstått och "Ska jag börja?" (CLAUDE.md, *Mejl från Leo*).
+- `mejl-version.yml`: när granskningen är klar → `merge-pr.sh` → ny version → mejl med länken. Prod rörs inte.
+- Kostnad: tokens från Admins prenumeration (styrs av kvoten) och GitHub-minuter (~15–20 per ärende).
+- Säkerhet: mejltext är indata till Claude (prompt injection). Därför: bara äkta avsändare (Gmails översta
+  Authentication-Results-rad, DMARC pass), ingen automatisk merge av ändringar på Admins yta eller CLAUDE.md,
+  merge bara efter lyckad granskning utan blockerande fynd, och bygget i mejl-version körs utan nycklar.
+  Kvar att känna till: Cloudflare Workers Builds bygger varje push med sin egen nyckel – bygget själv är
+  alltså betrott; prod skyddas av att den bara byts när Admin/Leo väljer en version (B-06).
+- Kvoten kontrolleras före och räknas efter en körning; flera samtidiga mejl kan gå något över taket.
+- Känd restrisk: granskaren och byggaren är samma Claude-app (claude[bot]), så en manipulerad körning kan i
+  teorin posta en falsk sammanfattning. Det värsta som händer är en dålig *version* – prod byts bara när
+  Admin/Leo väljer (B-06), och Admins yta mergas aldrig automatiskt.
+
 ## Vardagen
 
 - **Beställaren:** issue-mall → titta på versionssidan → "Publicera på prod" eller `@claude …`. Inget annat.

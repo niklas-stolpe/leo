@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-10-19 | #48 (Admin): Leo mejlar Claude (F-46) – Google Apps Script i en egen Gmail-inkorg (inkorg/Kod.gs) gör mejl till issues och mejlar tillbaka text mellan <!-- till-leo -->-markörer; claude.yml svarar och bygger; mejl-version.yml mergar efter granskningen och mejlar länken. Admins styrning (F-47): repo-variabler LEO_CLAUDE_AKTIV/MODELL (Opus 5.5)/EFFORT (medium), månadskvot 10 % av LEO_TOKEN_BUDGET med varning vid 8 % (scripts/leo-kvot.sh). |
 | 2026-10-19 | #45: version att jämföra – klassisk stil (som version 8) med samlingen på ljus elfenbensbakgrund och mörkare mässing (--samling-accent) så att små texter har kontrast ≥ 4,5. |
 | 2026-10-19 | #43: version att jämföra – modern stil (Jost, tunt och rakt, ingen kursiv) med samma struktur som version 8. Stilen styrs av variablerna i layouten (--rubrik, --brodtext, --kursiv, --versal-vikt). |
 | 2026-10-19 | #41 (Leo via Admin): ny struktur inspirerad av gilliscanes.com – stor bild, Leos hälsning (hans utkast), grupper (krok/skulpterad/T-handtag – Claudes förslag), meny med Om Leo, Beställningsverk, Kontakt (platshållare där Leos text saknas). Käppsidan med miniatyrer och materialdel (F-18); Nº I med Leos text, material och status privat. Leo vill inte att det kallas konst (B-10) – all sådan text borttagen. Pris väntar (Leo). |
@@ -123,6 +124,8 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | F-43 | Admin eller Leo kan publicera en version på demon (stage), med en knapp på versionssidan, för att visa den för andra. Rör inte den riktiga sidan. | Version 6 publicerad på demo; versionssidan märker den "På demo nu". | v1 | Klar | claude | Admin (chatt, #35) 2026-09-30 |
 | F-44 | Demon har en egen stabil adress (https://leo-demo.niklasstolpe.workers.dev) som bara visar den version Admin eller Leo har valt – den skrivs aldrig över av Claudes arbete. Varje version finns i demo-utförande (osynlig för Google, "Leo demo", egen ikon), så att publicera på demo tar sekunder. | Version 5 och 6 publicerade på demo på sekunder; en branch-push ändrar inte demon. | v1 | Klar | claude | Admin (chatt, #37) 2026-09-30 |
 | F-45 | Admin och Leo loggar in med sina Google-konton på versionssidan och publicerar på demo eller den riktiga sidan därifrån. Andra kan titta men inte publicera. Gratis, utan betalkort. | Admin och Leo har loggat in och publicerat; en annan Google-adress nekas. | v1 | Pågår | – | Admin (chatt, #37) 2026-09-30 |
+| F-46 | Leo kan mejla Claude: mejlet blir ett ärende, Claude svarar med vad den förstått och frågar "Ska jag börja?", bygger efter ja och mejlar en länk när den nya versionen finns. Bara Leo och Admin tas emot (äkta avsändare). Allt Leo får är vanlig svenska – inget tekniskt. | Ett testmejl har gått hela vägen: ärende, svar, bygge, version, mejl med länk. | v1 | Pågår | – | Admin (chatt, #48) 2026-10-19 |
+| F-47 | Admin styr Leos användning av Claude: på/av, modell och effort, och en månadskvot (10 % av en tokenbudget). Vid 8 % får Leo ett varningsmejl, vid 10 % ett mejl om att det är slut till den 1:a. | Kvoten räknas per körning; varning och stopp provade. | v1 | Pågår | – | Admin (chatt, #48) 2026-10-19 |
 
 ## Icke-funktionella krav
 
