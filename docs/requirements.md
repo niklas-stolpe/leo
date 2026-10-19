@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-10-19 | #51 (Niklas via mejl, första testet av F-46): hälsningstexten på startsidan lite större (F-48) – från clamp(1.3rem, 2.4vw, 1.55rem) till clamp(1.5rem, 2.8vw, 1.8rem). |
 | 2026-10-19 | #48 (Admin): Saldo och utskick (F-49) – leo-kvot.sh skriver saldot till ett stängt ärende med etiketten kvot som inkorgen läser och skriver sist i varje mejl; ärenden med etiketten mejl-ut skickas som nya mejl och blir sedan vanliga mejlärenden. Citatraden "… skrev <adress>:" rensas nu bort ur Leos svar. |
 | 2026-10-19 | #48 (Admin): Leo mejlar Claude (F-46) – Google Apps Script i en egen Gmail-inkorg (inkorg/Kod.gs) gör mejl till issues och mejlar tillbaka text mellan <!-- till-leo -->-markörer; claude.yml svarar och bygger; mejl-version.yml mergar efter granskningen och mejlar länken. Admins styrning (F-47): repo-variabler LEO_CLAUDE_AKTIV/MODELL (Opus 5.5)/EFFORT (medium), månadskvot 10 % av LEO_TOKEN_BUDGET med varning vid 8 % (scripts/leo-kvot.sh). |
 | 2026-10-19 | #45: version att jämföra – klassisk stil (som version 8) med samlingen på ljus elfenbensbakgrund och mörkare mässing (--samling-accent) så att små texter har kontrast ≥ 4,5. |
@@ -127,6 +128,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | F-45 | Admin och Leo loggar in med sina Google-konton på versionssidan och publicerar på demo eller den riktiga sidan därifrån. Andra kan titta men inte publicera. Gratis, utan betalkort. | Admin och Leo har loggat in och publicerat; en annan Google-adress nekas. | v1 | Pågår | – | Admin (chatt, #37) 2026-09-30 |
 | F-46 | Leo kan mejla Claude: mejlet blir ett ärende, Claude svarar med vad den förstått och frågar "Ska jag börja?", bygger efter ja och mejlar en länk när den nya versionen finns. Bara Leo och Admin tas emot (äkta avsändare). Allt Leo får är vanlig svenska – inget tekniskt. | Ett testmejl har gått hela vägen: ärende, svar, bygge, version, mejl med länk. | v1 | Pågår | – | Admin (chatt, #48) 2026-10-19 |
 | F-47 | Admin styr Leos användning av Claude: på/av, modell och effort, och en månadskvot (10 % av en tokenbudget). Vid 8 % får Leo ett varningsmejl, vid 10 % ett mejl om att det är slut till den 1:a. | Kvoten räknas per körning; varning och stopp provade. | v1 | Pågår | – | Admin (chatt, #48) 2026-10-19 |
+| F-48 | Hälsningstexten på startsidan ("Leo Lowejko är möbelsnickaren …") är lite större – den märks, men tar inte över sidan. | Texten är ungefär 15 % större än förut på både mobil och dator; ingen horisontell scroll vid 360 px. | v1 | Pågår | – | Niklas via mejl (#51) 2026-10-19 |
 | F-49 | Varje mejl Leo får från Claude slutar med hur mycket av månadens utrymme han har kvar. Claude kan också skicka ett nytt mejl till Leo (inte bara svara), t.ex. en introduktion till hur han pratar med Claude. | Ett mejl till Leo visar saldot; introduktionsmejlet har kommit fram och Leos svar på det når Claude. | v1 | Pågår | – | Admin (chatt, #48) 2026-10-19 |
 
 ## Icke-funktionella krav
