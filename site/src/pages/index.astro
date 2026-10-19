@@ -355,3 +355,18 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
     }
   }
 </style>
+
+<style>
+  /* Samlingens accent (#45): mörkare mässing när bakgrunden är ljus, så att små texter syns. */
+  .samlingen .overrad,
+  .grupplankar span {
+    color: var(--samling-accent, var(--massing));
+  }
+  .grupplankar a,
+  .samlingen h3 {
+    border-color: color-mix(in srgb, var(--samling-accent, var(--massing)) 45%, transparent);
+  }
+  .galleri a:hover .bildtext {
+    color: var(--samling-accent, var(--massing-ljus));
+  }
+</style>
