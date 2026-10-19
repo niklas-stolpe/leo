@@ -32,6 +32,8 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+          # version-release.sh pushar taggen vN – GITHUB_TOKEN har bara läsrätt här.
+          token: ${{ secrets.PROCESS_TOKEN }}
 
       - name: Hör ändringen till ett mejlärende?
         id: pr
@@ -102,7 +104,7 @@ jobs:
         if: steps.merge.outcome == 'success'
         run: |
           source scripts/lib.sh
-          rad="$(grep -oE 'Version [0-9]+ – .*\(https://[^)]+\)' merge.log | sed 's/\x1b\[[0-9;]*m//g' | tail -1)"
+          rad="$(grep -oE 'Version [0-9]+ – .*\(https://[^)]+\)' merge.log | sed 's/\x1b\[[0-9;]*m//g' | tail -1 || true)"
           namn="${rad% (*}"; lank="$(printf '%s' "$rad" | grep -oE 'https://[^)]+')"
           if [ -z "$rad" ]; then
             text="Hej Leo! Ändringen är klar. Titta på versionssidan: $VERSIONER_URL"
