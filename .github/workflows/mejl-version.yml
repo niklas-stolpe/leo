@@ -52,9 +52,9 @@ jobs:
           \`\`\`
           $admin
           \`\`\`
-          <!-- till-leo -->
+          [[till-leo]]
           Hej Leo! Ändringen behöver Niklas titta på innan den blir en ny version. Du får ett mejl när den är klar.
-          <!-- /till-leo -->"
+          [[/till-leo]]"
             exit 0
           fi
           # Granskningens sammanfattning för PR:ens senaste commit: blockerande fynd → Claude rättar först.
@@ -114,9 +114,9 @@ jobs:
 
           Vill du ändra något, svara bara på det här mejlet."
           fi
-          gh issue comment "${{ steps.pr.outputs.issue }}" --repo "$REPO" --body "<!-- till-leo -->
+          gh issue comment "${{ steps.pr.outputs.issue }}" --repo "$REPO" --body "[[till-leo]]
           $text
-          <!-- /till-leo -->"
+          [[/till-leo]]"
 
       - name: Granskningsfynd eller annat stopp
         if: failure() && steps.merge.outcome == 'failure'
