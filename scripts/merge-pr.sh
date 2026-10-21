@@ -79,7 +79,7 @@ for n in $issues; do
 done
 
 if [ -z "${CI:-}" ]; then
-  git checkout -q main && git pull -q origin main
+  git checkout -q main && git_nat pull -q origin main
   git branch -D "$head" -q 2>/dev/null || true
   ok "main synkad lokalt"
 fi

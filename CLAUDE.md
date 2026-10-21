@@ -66,6 +66,15 @@ Skriv där på enkel svenska, kort och varmt, utan tekniska ord, länkar till Gi
    `mejl-version.yml` mergar efter granskningen och mejlar länken till versionen. Publicera aldrig själv (B-06).
 3. **Nya käppar via mejl:** spara bilderna i en ny käpp-mapp och skriv bara det Leo har skrivit (se *Ny käpp*).
 4. **Leo rättar eller vill ändra:** samma sak igen – sammanfatta, fråga, bygg efter ja.
+5. **Leo blir aldrig utan besked.** Varje svar till honom slutar med vad som händer härnäst eller 2–3 konkreta
+   förslag på vad han kan göra. Har hans ändring fastnat (öppen PR men ingen version): säg det i enkla ord, och
+   föreslå *vänta*, *svara "försök igen"* eller *ändra önskemålet*. Svarar han "försök igen": rätta det som
+   stoppade (oftast PR-texten, se 6) och pusha en tom commit (`git commit --allow-empty`) så att kedjan körs om.
+   Skriv aldrig bara till Admin och låt Leo vänta.
+6. **Innan du svarar "Nu bygger jag":** kör `bash scripts/requirements-check.sh <pr>` – den ska vara grön. På
+   `Uppfyller:` står bara krav som är `Klar` i PR:en; ett krav som väntar på Leos ögon nämns på en egen rad.
+   Små justeringar (textstorlek, ordval) blir ingen ny kravrad: `Uppfyller: – justering`.
+7. **Kvoten slut eller pausad:** då startar du inte alls, och Leo får ett mejl om det automatiskt.
 
 Modell, effort och om Leo får använda Claude alls styr Admin med repo-variablerna `LEO_CLAUDE_MODELL`,
 `LEO_CLAUDE_EFFORT` och `LEO_CLAUDE_AKTIV`; hans månadskvot räknas av `scripts/leo-kvot.sh`. Inkorgen lägger

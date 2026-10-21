@@ -51,13 +51,7 @@ jobs:
           admin="$(gh api --paginate "repos/$REPO/pulls/$pr/files" --jq '.[].filename' \
             | grep -E '^(\.github/|scripts/|inkorg/|versioner/|CLAUDE\.md|site/wrangler|site/package|site/astro\.config|site/[^/]*\.config\.)' || true)"
           if [ -n "$admin" ]; then
-            gh issue comment "$issue" --repo "$REPO" --body "Admin: ändringen #$pr rör Admins yta och mergas inte av sig själv – granska och kör scripts/merge-pr.sh $pr om den är okej:
-          \`\`\`
-          $admin
-          \`\`\`
-          [[till-leo]]
-          Hej Leo! Ändringen behöver Niklas titta på innan den blir en ny version. Du får ett mejl när den är klar.
-          [[/till-leo]]"
+            stopp_till_leo "$issue" "ändringen #$pr rör Admins yta och mergas inte av sig själv – granska och kör scripts/merge-pr.sh $pr om den är okej: $(echo $admin)"
             exit 0
           fi
           # Granskningens sammanfattning för PR:ens senaste commit: blockerande fynd → Claude rättar först.
@@ -67,7 +61,7 @@ jobs:
             | grep -A2 "Granskning – ${sha:0:7}" || true)"
           if [ -z "$sammanf" ]; then
             # Ingen sammanfattning för senaste commit = ingen granskning. Mergas inte.
-            gh issue comment "$issue" --repo "$REPO" --body "Admin: granskningen av #$pr postade ingen sammanfattning för ${sha:0:7} – ändringen mergas inte av sig själv. Titta på den, eller skriv @claude åtgärda granskningsfynden på PR:en."
+            stopp_till_leo "$issue" "granskningen av #$pr postade ingen sammanfattning för ${sha:0:7} – ändringen mergas inte av sig själv. Titta på den, eller skriv @claude åtgärda granskningsfynden på PR:en."
             exit 0
           fi
           # "Blockerande: inga" eller "Blockerande: 0" → 0; ett tal > 0 → fynd.
@@ -76,7 +70,7 @@ jobs:
           if [ "${block:-0}" -gt 0 ]; then
             forsok="$(gh pr view "$pr" --repo "$REPO" --json comments --jq '[.comments[] | select(.body | startswith("@claude åtgärda granskningsfynden"))] | length')"
             if [ "$forsok" -lt 2 ]; then gh pr comment "$pr" --repo "$REPO" --body "@claude åtgärda granskningsfynden"
-            else gh issue comment "$issue" --repo "$REPO" --body "Admin: granskningen av #$pr har fortfarande blockerande fynd efter två försök – titta på den."; fi
+            else stopp_till_leo "$issue" "granskningen av #$pr har fortfarande blockerande fynd efter två försök – titta på den."; fi
             exit 0
           fi
           echo "pr=$pr" >> "$GITHUB_OUTPUT"; echo "issue=$issue" >> "$GITHUB_OUTPUT"
@@ -106,7 +100,7 @@ jobs:
         run: |
           source scripts/lib.sh
           rad="$(grep -oE 'Version [0-9]+ – .*\(https://[^)]+\)' merge.log | sed 's/\x1b\[[0-9;]*m//g' | tail -1 || true)"
-          namn="${rad% (*}"; lank="$(printf '%s' "$rad" | grep -oE 'https://[^)]+')"
+          namn="${rad% (*}"; lank="$(printf '%s' "$rad" | grep -oE 'https://[^)]+' || true)"
           if [ -z "$rad" ]; then
             text="Hej Leo! Ändringen är klar. Titta på versionssidan: $VERSIONER_URL"
           else
@@ -127,6 +121,16 @@ jobs:
         run: |
           source scripts/lib.sh
           pr="${{ steps.pr.outputs.pr }}"
+          # Kravgrinden röd (oftast fel på Uppfyller:-raden) → Claude rättar PR-texten och bygger om, högst två gånger.
+          if ! grep -q 'Kravgrinden grön' merge.log; then
+            forsok="$(gh pr view "$pr" --repo "$REPO" --json comments --jq '[.comments[] | select(.body | startswith("@claude rätta kravgrinden"))] | length')"
+            if [ "$forsok" -lt 2 ]; then
+              fel="$(grep '✗' merge.log | tr -d '\033' | sed 's/\[[0-9;]*m//g' | head -3 || true)"
+              gh pr comment "$pr" --repo "$REPO" --body "@claude rätta kravgrinden: ändra PR-texten (gh pr edit) eller kravraden så att \`bash scripts/requirements-check.sh $pr\` blir grön, och pusha sedan en tom commit så att kedjan körs igen. Felet:
+          $fel"
+              exit 0
+            fi
+          fi
           if grep -q 'olöst(a) granskningstråd' merge.log; then
             forsok="$(gh pr view "$pr" --repo "$REPO" --json comments --jq '[.comments[] | select(.body | startswith("@claude åtgärda granskningsfynden"))] | length')"
             if [ "$forsok" -lt 2 ]; then
@@ -134,4 +138,4 @@ jobs:
               exit 0
             fi
           fi
-          gh issue comment "${{ steps.pr.outputs.issue }}" --repo "$REPO" --body "Admin: mejlärendets ändring (#$pr) kunde inte bli en version av sig själv – se [körningen]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
+          stopp_till_leo "${{ steps.pr.outputs.issue }}" "mejlärendets ändring (#$pr) kunde inte bli en version av sig själv – se [körningen]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
