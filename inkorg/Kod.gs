@@ -231,9 +231,8 @@ function sidfot() {
     const falt = (n) => ((arende && arende.body || '').match(new RegExp('^' + n + ':\\s*(\\S+)', 'm')) || [])[1];
     const tak = Number(falt('tak'));
     if (tak > 0) {
-      // Veckokvot: förbrukningen gäller fram till "nollstalls" (nästa måndag, UTC) – därefter är allt kvar.
-      const idag = new Date().toISOString().slice(0, 10);
-      const anvant = idag < (falt('nollstalls') || '') ? Number(falt('anvant')) || 0 : 0;
+      // Veckokvot: förbrukningen gäller fram till "nollstalls" (nästa onsdag 05:00 svensk tid) – därefter är allt kvar.
+      const anvant = Date.now() < Date.parse(falt('nollstalls') || '') ? Number(falt('anvant')) || 0 : 0;
       const kvar = Math.max(0, tak - anvant);
       saldo = `\nKvar av ditt utrymme för Claude den här veckan: ${kvar.toLocaleString('sv-SE')} av ${tak.toLocaleString('sv-SE')} tokens (${Math.floor((kvar * 100) / tak)} %)`;
     }
