@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Leos tokenkvot (F-47). Claudes arbete med Leos mejlärenden räknas per månad mot en budget som Admin
+# Leos tokenkvot (F-47). Claudes arbete med Leos mejlärenden räknas per vecka (måndag–söndag, UTC) mot en budget som Admin
 # styr med repo-variabler (Settings → Secrets and variables → Actions → Variables):
-#   LEO_TOKEN_BUDGET      100 %, tokens per månad          (t.ex. 20000000)
+#   LEO_TOKEN_BUDGET      100 %, tokens per vecka          (t.ex. 20000000)
 #   LEO_KVOT_PROCENT      Leos del av budgeten, procent    (10)
 #   LEO_VARNING_PROCENT   varningsmejl vid, procent        (8)
 #   LEO_CLAUDE_AKTIV      false = pausat helt
-#   LEO_TOKENS_ÅÅÅÅ_MM    förbrukat hittills i månaden – skrivs av det här scriptet
+#   LEO_TOKENS_ÅÅÅÅ_Vvv   förbrukat hittills i veckan (ISO-vecka) – skrivs av det här scriptet
 # Tokens = input + output + cache-skrivning (cache-läsning räknas inte – den är nästan gratis).
 #
 #   scripts/leo-kvot.sh status                    → ok | pausad | slut  (och procent på stderr)
@@ -14,7 +14,8 @@
 #                                                 → räknar upp; mejlar Leo (via kommentar) vid 8 % och 10 %
 # Kräver GH_TOKEN med rätt att läsa och skriva repo-variabler (PROCESS_TOKEN).
 source "$(dirname "$0")/lib.sh"
-manad="LEO_TOKENS_$(date -u +%Y_%m)"
+manad="LEO_TOKENS_$(date -u +%G_V%V)"   # en räknare per ISO-vecka
+nollstalls="$(date -u -d 'next monday' +%Y-%m-%d)"
 
 # var <namn> [standard] – finns variabeln inte (404) används standardvärdet; annat fel avbryter, så att
 # förbrukningen aldrig räknas från 0 och skrivs över bara för att GitHub inte svarade.
@@ -40,14 +41,15 @@ heltal "$kvot" || kvot=10
 heltal "$varning" || varning=8
 
 # Skriver saldot till ett stängt ärende med etiketten kvot – inkorgen (inkorg/Kod.gs) läser det och skriver
-# "kvar den här månaden" längst ned i varje mejl till Leo. Inkorgens nyckel har bara Issues-behörighet.
+# "kvar den här veckan" längst ned i varje mejl till Leo. Inkorgens nyckel har bara Issues-behörighet.
 skriv_saldo() {
   local anv="$1" tak nr
   tak=$(( budget * kvot / 100 ))
   nr="$(gh issue list --repo "$REPO" --label kvot --state all --limit 1 --json number --jq '.[0].number // empty')"
   local text="Leos tokenkvot – skrivs automatiskt av scripts/leo-kvot.sh, läses av inkorgen. Ändra inte för hand.
 
-manad: $(date -u +%Y-%m)
+period: $(date -u +%G-V%V)
+nollstalls: $nollstalls
 anvant: $anv
 tak: $tak"
   if [ -n "$nr" ]; then gh issue edit "$nr" --repo "$REPO" --body "$text" >/dev/null
@@ -88,9 +90,9 @@ case "${1:?status|lagg-till|saldo}" in
     fore="$(procent "$anvant" "$budget")"; efter="$(procent "$nytt" "$budget")"
     ok "+$tokens tokens → $nytt ($efter % av budgeten, kvot $kvot %)"
     if awk -v f="$fore" -v e="$efter" -v k="$kvot" 'BEGIN { exit !(f < k && e >= k) }'; then
-      till_leo "$issue" "Hej Leo! Månadens utrymme för Claude är nu slut – det fylls på igen den 1:a nästa månad. Det du redan har fått finns kvar på versionssidan: $VERSIONER_URL. Hör av dig till Niklas om något brådskar."
+      till_leo "$issue" "Hej Leo! Veckans utrymme för Claude är nu slut – det fylls på igen på måndag. Det du redan har fått finns kvar på versionssidan: $VERSIONER_URL. Hör av dig till Niklas om något brådskar."
     elif awk -v f="$fore" -v e="$efter" -v v="$varning" 'BEGIN { exit !(f < v && e >= v) }'; then
-      till_leo "$issue" "Hej Leo! En liten varning: det mesta av månadens utrymme för Claude är använt. Det räcker till något mindre till – sedan fylls det på den 1:a nästa månad."
+      till_leo "$issue" "Hej Leo! En liten varning: det mesta av veckans utrymme för Claude är använt. Det räcker till något mindre till – sedan fylls det på igen på måndag."
     fi
     ;;
   *) fail "okänt kommando: $1" ;;

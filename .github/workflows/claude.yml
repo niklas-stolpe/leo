@@ -67,10 +67,10 @@ jobs:
           echo "status=$status" >> "$GITHUB_OUTPUT"
           if [ "$status" != ok ]; then
             # Beskedet om paus eller slut kvot mejlas bara en gång per ärende.
-            redan="$(gh issue view "${{ github.event.issue.number || github.event.pull_request.number }}" --repo "$GITHUB_REPOSITORY" --json comments --jq "[.comments[] | select(.createdAt >= \"$(date -u +%Y-%m-01)\") | select(.body | test(\"utrymme för Claude är slut|Claude tar en paus\"))] | length")"
+            redan="$(gh issue view "${{ github.event.issue.number || github.event.pull_request.number }}" --repo "$GITHUB_REPOSITORY" --json comments --jq "[.comments[] | select(.createdAt >= \"$(date -u -d "$(( $(date -u +%u) - 1 )) days ago" +%Y-%m-%d)\") | select(.body | test(\"utrymme för Claude är slut|Claude tar en paus\"))] | length")"
             [ "$redan" -eq 0 ] || exit 0
             if [ "$status" = slut ]; then
-              text="Hej Leo! Månadens utrymme för Claude är slut – det fylls på igen den 1:a nästa månad. Hör av dig till Niklas om något brådskar."
+              text="Hej Leo! Veckans utrymme för Claude är slut – det fylls på igen på måndag. Hör av dig till Niklas om något brådskar."
             else
               text="Hej Leo! Claude tar en paus just nu – Niklas har pausat det tillfälligt. Ditt mejl ligger kvar och tas om hand senare."
             fi
@@ -97,7 +97,7 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           claude_args: |
             --allowed-tools "Edit,Write,Read,Glob,Grep,Bash(npm run check:*),Bash(npm run build:*),Bash(npm run check),Bash(npm run build),Bash(git:*),Bash(gh pr create:*),Bash(gh pr view:*),Bash(gh pr edit:*),Bash(gh pr comment:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh issue edit:*),Bash(ls:*),Bash(mkdir:*),Bash(cp:*),Bash(mv:*),Bash(curl:*),Bash(file:*),Bash(bash scripts/publicera-version.sh:*),Bash(bash scripts/pr-preview.sh:*)"
-            ${{ steps.kvot.outputs.status == 'ok' && format('--model {0} --effort {1}', vars.LEO_CLAUDE_MODELL || 'claude-opus-5-5', vars.LEO_CLAUDE_EFFORT || 'medium') || '' }}
+            ${{ steps.kvot.outputs.status == 'ok' && format('--model {0} --effort {1}', vars.LEO_CLAUDE_MODELL || 'claude-sonnet-5-5', vars.LEO_CLAUDE_EFFORT || 'medium') || '' }}
             --append-system-prompt "Du kör i GitHub för projektet Leo. Följ CLAUDE.md, särskilt avsnittet 'När du kör i GitHub'. Den som skriver är oftast Leo – konstnär, ingen teknisk bakgrund. Svara honom på enkel svenska utan tekniska ord. Är issuet ett mejlärende (etiketten mejl) – följ avsnittet 'Mejl från Leo' i CLAUDE.md."
 
       - name: Räkna Leos tokens

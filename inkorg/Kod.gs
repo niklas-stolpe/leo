@@ -223,7 +223,7 @@ function skickaUtskick() {
   }
 }
 
-/** Sist i varje mejl: versionssidan och hur mycket av månadens utrymme för Claude som finns kvar. */
+/** Sist i varje mejl: versionssidan och hur mycket av veckans utrymme för Claude som finns kvar. */
 function sidfot() {
   let saldo = '';
   try {
@@ -231,10 +231,11 @@ function sidfot() {
     const falt = (n) => ((arende && arende.body || '').match(new RegExp('^' + n + ':\\s*(\\S+)', 'm')) || [])[1];
     const tak = Number(falt('tak'));
     if (tak > 0) {
-      const manad = new Date().toISOString().slice(0, 7);
-      const anvant = falt('manad') === manad ? Number(falt('anvant')) || 0 : 0;
+      // Veckokvot: förbrukningen gäller fram till "nollstalls" (nästa måndag, UTC) – därefter är allt kvar.
+      const idag = new Date().toISOString().slice(0, 10);
+      const anvant = idag < (falt('nollstalls') || '') ? Number(falt('anvant')) || 0 : 0;
       const kvar = Math.max(0, tak - anvant);
-      saldo = `\nKvar av ditt utrymme för Claude den här månaden: ${kvar.toLocaleString('sv-SE')} av ${tak.toLocaleString('sv-SE')} tokens (${Math.floor((kvar * 100) / tak)} %)`;
+      saldo = `\nKvar av ditt utrymme för Claude den här veckan: ${kvar.toLocaleString('sv-SE')} av ${tak.toLocaleString('sv-SE')} tokens (${Math.floor((kvar * 100) / tak)} %)`;
     }
   } catch (e) {
     Logger.log('Kunde inte läsa saldot: ' + e);
