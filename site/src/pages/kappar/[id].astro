@@ -29,7 +29,7 @@ const delningsbild = await getImage({ src: d.bilder[0], width: 1200, format: 'jp
 const helbilder = await Promise.all(d.bilder.map((b) => getImage({ src: b, width: Math.min(b.width, 2000), format: 'webp' })));
 const altFor = (i: number) => (i === 0 ? d.alt : (d.bildtexter[i - 1] ?? `${titel}, bild ${i + 1}`));
 const grupp = GRUPPER.find((g) => g.id === d.grupp);
-const STATUS = { tillgänglig: 'Tillgänglig', såld: 'Såld', beställningsverk: 'Beställningsverk', privat: 'Privat – inte till salu' };
+const STATUS = { tillgänglig: 'Tillgänglig', såld: 'Såld', beställningsverk: 'Beställning av käpp', privat: 'Privat – inte till salu' };
 ---
 
 <Bas titel={`${titel} – Leo`} beskrivning={`${titel} ur Leos samling. ${d.alt}`} delningsbild={delningsbild.src}>
