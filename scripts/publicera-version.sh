@@ -17,7 +17,7 @@ rot="$(cd "$(dirname "$0")/.." && pwd)"
 wrangler="$rot/site/node_modules/.bin/wrangler"
 [ -x "$wrangler" ] || (cd "$rot/site" && npm ci --silent)
 
-git fetch -q --tags origin
+git_nat fetch -q --tags origin
 git rev-parse -q --verify "refs/tags/v$n" >/dev/null || fail "version $n finns inte (ingen tagg v$n)"
 titel="$(gh release view "v$n" --repo "$REPO" --json name --jq .name)"
 cf="$(gh release view "v$n" --repo "$REPO" --json body --jq .body | grep -oE '^Cloudflare-version: [0-9a-f-]{36}' | head -1 | sed 's/.*: //')"

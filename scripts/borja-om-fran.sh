@@ -8,10 +8,10 @@
 source "$(dirname "$0")/lib.sh"
 n="${1:?versionsnummer}"; n="${n#v}"; issue="${2:-}"
 
-git fetch -q --tags origin
+git_nat fetch -q --tags origin
 git rev-parse -q --verify "refs/tags/v$n" >/dev/null || fail "version $n finns inte (ingen tagg v$n)"
 titel="$(gh release view "v$n" --repo "$REPO" --json name --jq .name)"
-git fetch -q origin main
+git_nat fetch -q origin main
 [ "$(site_tree origin/main)" != "$(site_tree "v$n")" ] || { ok "main har redan innehållet i version $n"; exit 0; }
 
 branch="site/borja-om-fran-v$n-$(date +%Y%m%d%H%M)"
@@ -22,7 +22,7 @@ git commit -q -m "site: börja om från version $n – ${titel#Version $n – }
 site/ identiskt med taggen v$n. Senare versioner finns kvar som taggar och releaser.
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
-git push -q -u origin "$branch"
+git_nat push -q -u origin "$branch"
 gh pr create --repo "$REPO" --head "$branch" --title "site: börja om från version $n" --body "${issue:+Closes #$issue
 
 }## Vad Leo ska titta på

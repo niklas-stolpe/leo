@@ -118,3 +118,11 @@ Du kan välja:
 3. Vill du ändra något i önskemålet, skriv det – så tar jag med det.
 [[/till-leo]]" >/dev/null
 }
+
+# git_nat <git-argument…> – git mot GitHub. I Actions skickas nyckeln (GH_TOKEN) bara med just det anropet,
+# aldrig via .git/config – bygget av en ändring körs i en worktree som delar den (persist-credentials: false).
+git_nat() {
+  if [ "${CI:-}" = true ] && [ -n "${GH_TOKEN:-}" ]; then
+    git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" "$@"
+  else git "$@"; fi
+}

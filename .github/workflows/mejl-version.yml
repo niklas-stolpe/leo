@@ -100,7 +100,7 @@ jobs:
         run: |
           source scripts/lib.sh
           rad="$(grep -oE 'Version [0-9]+ – .*\(https://[^)]+\)' merge.log | sed 's/\x1b\[[0-9;]*m//g' | tail -1 || true)"
-          namn="${rad% (*}"; lank="$(printf '%s' "$rad" | grep -oE 'https://[^)]+')"
+          namn="${rad% (*}"; lank="$(printf '%s' "$rad" | grep -oE 'https://[^)]+' || true)"
           if [ -z "$rad" ]; then
             text="Hej Leo! Ändringen är klar. Titta på versionssidan: $VERSIONER_URL"
           else

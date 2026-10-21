@@ -10,7 +10,7 @@ source "$(dirname "$0")/lib.sh"
 sha="${1:?merge-sha}"; pr="${2:?pr}"
 here="$(dirname "$0")"
 
-git fetch -q --tags origin
+git_nat fetch -q --tags origin
 cf="$(cloudflare_version_for "$sha")" || fail "hittade ingen Cloudflare-version för $sha – versionen skapas inte (kör scripts/version-release.sh $sha $pr igen)"
 [ -n "$cf" ] || fail "Cloudflare-bygget av $sha saknar Version ID i sin sammanfattning"
 datum="$(date +%Y-%m-%d)"
@@ -37,10 +37,7 @@ else
     [ -z "$demo" ] || printf 'Demo-version: %s\n' "$demo"
   } > "${TMPDIR:-/tmp}/rel-$$.md"
   git tag "v$n" "$sha"
-  if [ "${CI:-}" = true ] && [ -n "${GH_TOKEN:-}" ]; then
-    # I Actions: nyckeln bara för just den här pushen – aldrig i .git/config, som bygget av en ändring kan läsa.
-    git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" push -q origin "v$n"
-  else git push -q origin "v$n"; fi
+  git_nat push -q origin "v$n"
   gh release create "v$n" --repo "$REPO" --title "Version $n – $titel" --notes-file "${TMPDIR:-/tmp}/rel-$$.md" >/dev/null
   rm -f "${TMPDIR:-/tmp}/rel-$$.md"
   ok "Version $n – $titel ($(version_url "$cf"))"
