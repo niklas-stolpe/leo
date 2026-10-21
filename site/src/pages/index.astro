@@ -1,6 +1,6 @@
 ---
 // Startsidan (#41, inspirerad av gilliscanes.com): stor bild överst, Leos hälsning, käpparna i grupper
-// och vägar vidare till beställningsverk och Om Leo. Ingen kassa (B-04).
+// och vägar vidare till beställning av käpp och Om Leo. Ingen kassa (B-04).
 import { Image, getImage } from 'astro:assets';
 import Bas from '../layouts/Bas.astro';
 import Ringar from '../components/Ringar.astro';
@@ -26,10 +26,10 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
         fetchpriority="high"
       />
       <div class="hero-text">
-        <p class="versaler overrad">Handgjorda käppar</p>
-        <h1 id="hero-rubrik">Leo</h1>
-        <p class="ingress">Handgjorda käppar i exklusiva träslag – gjorda för att användas.</p>
-        <a class="versaler knapp" href="#samlingen">Se samlingen</a>
+        <h1 id="hero-rubrik">Leo Lowejko</h1>
+        <p class="handtag">(@llcanes)</p>
+        <p class="ingress">Handgjorda och unika käppar i exklusiva träslag</p>
+        <a class="versaler knapp" href="#samlingen">Se käpparna</a>
       </div>
     </section>
 
@@ -91,7 +91,7 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
 
     <section class="vidare" aria-label="Mer om Leo">
       <a class="kort" href="/bestallning/">
-        <span class="versaler overrad">Beställningsverk</span>
+        <span class="versaler overrad">Beställning av käpp</span>
         <span class="kort-rubrik">En käpp gjord för dig</span>
         <span class="kort-text">Så går det till – från första mötet till den färdiga käppen.</span>
       </a>
@@ -140,9 +140,18 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
     font-family: var(--rubrik);
     font-weight: var(--rubrik-vikt);
     font-style: var(--rubrik-stil);
-    font-size: clamp(5rem, 20vw, 11rem);
+    font-size: clamp(4rem, 16vw, 9rem);
     line-height: 0.85;
     margin: 0;
+  }
+  /* Instagram-namnet (#57): samma stil som namnet, mindre. */
+  .handtag {
+    font-family: var(--rubrik);
+    font-weight: var(--rubrik-vikt);
+    font-style: var(--rubrik-stil);
+    font-size: clamp(1.75rem, 5vw, 3rem);
+    line-height: 1;
+    margin: 1rem 0 0;
   }
   .ingress {
     font-size: clamp(1.35rem, 3vw, 1.8rem);

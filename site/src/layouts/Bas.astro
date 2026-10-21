@@ -16,11 +16,10 @@ interface Props {
   overBild?: boolean;
 }
 const { titel, beskrivning = 'Handgjorda käppar av Leo Lowejko – konsthantverk i exklusiva träslag, gjorda för att användas.', delningsbild, overBild = false } = Astro.props;
-// Menyn (#41): få, tydliga sidor – samma i huvudet och foten.
+// Menyn (#41, #57): få, tydliga sidor – samma i huvudet och foten. Beställningssidan nås från startsidan.
 const MENY = [
-  { href: '/#samlingen', text: 'Samlingen' },
+  { href: '/#samlingen', text: 'Käpparna' },
   { href: '/om/', text: 'Om Leo' },
-  { href: '/bestallning/', text: 'Beställningsverk' },
   { href: '/kontakt/', text: 'Kontakt' },
 ];
 const ar = new Date().getFullYear();
@@ -50,7 +49,7 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
   </head>
   <body>
     <header class:list={['huvud', { 'over-bild': overBild }]}>
-      <a class="marke" href="/">Leo</a>
+      <a class="marke" href="/">llcanes</a>
       <nav class="bred" aria-label="Huvudmeny">
         {MENY.map((m) => <a href={m.href}>{m.text}</a>)}
       </nav>
@@ -163,14 +162,14 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
   }
   .bred {
     display: none;
-    gap: 1.25rem;
+    gap: 2rem;
   }
   .smal summary {
     list-style: none;
     cursor: pointer;
     text-transform: uppercase;
     letter-spacing: 0.25em;
-    font-size: 0.8rem;
+    font-size: 1.6rem;
     font-weight: var(--versal-vikt);
     color: var(--dampad);
     min-height: 44px;
@@ -191,7 +190,7 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
     padding: 0.5rem 1.25rem;
     min-width: 14rem;
   }
-  @media (min-width: 48rem) {
+  @media (min-width: 56rem) {
     .bred {
       display: flex;
     }
@@ -201,9 +200,8 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
   }
   .marke {
     text-decoration: none;
-    text-transform: uppercase;
-    letter-spacing: 0.5em;
-    font-size: 1.1rem;
+    letter-spacing: 0.2em;
+    font-size: 1.3rem;
     font-weight: var(--versal-vikt);
     color: var(--massing-ljus);
   }
@@ -220,6 +218,10 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
   }
   nav a:hover {
     color: var(--elfenben);
+  }
+  /* Menyn i huvudet dubbelt så stor (#57) – foten behåller den lilla texten. */
+  .huvud nav a {
+    font-size: 1.6rem;
   }
   .fot {
     padding: 4rem 1rem 3rem;
