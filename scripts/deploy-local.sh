@@ -15,7 +15,7 @@ branch="$(git rev-parse --abbrev-ref HEAD)"
 case "$miljo" in
   prod)
     [ "$branch" = "main" ] || fail "prod publiceras bara från main (du står på $branch)"
-    git fetch -q origin main
+    git_nat fetch -q origin main
     [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" ] || fail "lokal main är inte i takt med origin/main – kör git pull"
     ;;
   stage) ;;
