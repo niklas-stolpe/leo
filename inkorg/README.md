@@ -47,12 +47,12 @@ Repo → Settings → Secrets and variables → Actions → **Variables**:
 | Variabel | Värde | Betyder |
 |---|---|---|
 | `LEO_CLAUDE_AKTIV` | `true` / `false` | `false` = pausat; Leo får ett mejl om att det är paus |
-| `LEO_CLAUDE_MODELL` | `claude-opus-5-5` | Modellen för Leos ärenden |
+| `LEO_CLAUDE_MODELL` | `claude-sonnet-5-5` | Modellen för Leos ärenden |
 | `LEO_CLAUDE_EFFORT` | `medium` | `low` · `medium` · `high` · `xhigh` · `max` |
-| `LEO_TOKEN_BUDGET` | t.ex. `20000000` | 100 % – tokens per månad |
+| `LEO_TOKEN_BUDGET` | t.ex. `20000000` | 100 % – tokens per vecka |
 | `LEO_KVOT_PROCENT` | `10` | Leos del av budgeten; när den är nådd får han mejl om att det är slut |
 | `LEO_VARNING_PROCENT` | `8` | Varningsmejl till Leo |
-| `LEO_TOKENS_ÅÅÅÅ_MM` | skrivs automatiskt | Förbrukat hittills i månaden |
+| `LEO_TOKENS_ÅÅÅÅ_MM_DD` | skrivs automatiskt | Förbrukat sedan veckans start (onsdag 05:00 svensk tid, som prenumerationen) |
 
 Saldot speglas i ett stängt ärende med etiketten `kvot` (skrivs av `scripts/leo-kvot.sh`, ändra inte för hand).
 Inkorgen läser det och skriver sist i varje mejl hur mycket Leo har kvar. Ändrar du budgeten: kör

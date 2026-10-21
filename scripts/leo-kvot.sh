@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# Leos tokenkvot (F-47). Claudes arbete med Leos mejlärenden räknas per månad mot en budget som Admin
+# Leos tokenkvot (F-47). Claudes arbete med Leos mejlärenden räknas per vecka mot en budget som Admin
 # styr med repo-variabler (Settings → Secrets and variables → Actions → Variables):
-#   LEO_TOKEN_BUDGET      100 %, tokens per månad          (t.ex. 20000000)
+#   LEO_TOKEN_BUDGET      100 %, tokens per vecka          (t.ex. 20000000)
 #   LEO_KVOT_PROCENT      Leos del av budgeten, procent    (10)
 #   LEO_VARNING_PROCENT   varningsmejl vid, procent        (8)
 #   LEO_CLAUDE_AKTIV      false = pausat helt
-#   LEO_TOKENS_ÅÅÅÅ_MM    förbrukat hittills i månaden – skrivs av det här scriptet
+#   LEO_TOKENS_ÅÅÅÅ_MM_DD förbrukat sedan veckans start (datumet) – skrivs av det här scriptet
+# Veckan börjar onsdag 05:00 svensk tid – samma gräns som Admins Claude-prenumeration.
 # Tokens = input + output + cache-skrivning (cache-läsning räknas inte – den är nästan gratis).
 #
 #   scripts/leo-kvot.sh status                    → ok | pausad | slut  (och procent på stderr)
@@ -14,7 +15,25 @@
 #                                                 → räknar upp; mejlar Leo (via kommentar) vid 8 % och 10 %
 # Kräver GH_TOKEN med rätt att läsa och skriva repo-variabler (PROCESS_TOKEN).
 source "$(dirname "$0")/lib.sh"
-manad="LEO_TOKENS_$(date -u +%Y_%m)"
+# Senaste onsdag 05:00 svensk tid → veckans start och nästa nollställning. Svensk tid räknas själv (Git Bash
+# på Windows saknar tidszonsdata): sommartid från sista söndagen i mars till sista söndagen i oktober, 01:00 UTC.
+sista_sondag() { echo "$1-$2-$(( $3 - $(date -u -d "$1-$2-$3" +%u) % 7 ))"; }
+offset() {   # <epoch> → timmar före UTC i Sverige
+  local ar; ar="$(date -u -d "@$1" +%Y)"
+  local fran till
+  fran="$(date -u -d "$(sista_sondag "$ar" 03 31) 01:00" +%s)"; till="$(date -u -d "$(sista_sondag "$ar" 10 31) 01:00" +%s)"
+  if [ "$1" -ge "$fran" ] && [ "$1" -lt "$till" ]; then echo 2; else echo 1; fi
+}
+kl05() {     # <YYYY-MM-DD> → epoch för 05:00 svensk tid den dagen
+  local t; t="$(date -u -d "$1 05:00" +%s)"; echo $(( t - $(offset "$t") * 3600 ))
+}
+nu="$(date -u +%s)"
+lokal_dag="$(date -u -d "@$(( nu + $(offset "$nu") * 3600 ))" +%Y-%m-%d)"
+start_dag="$(date -u -d "$lokal_dag -$(( ( $(date -u -d "$lokal_dag" +%u) - 3 + 7 ) % 7 )) days" +%Y-%m-%d)"
+[ "$(kl05 "$start_dag")" -le "$nu" ] || start_dag="$(date -u -d "$start_dag -7 days" +%Y-%m-%d)"
+start_iso="$(date -u -d "@$(kl05 "$start_dag")" +%Y-%m-%dT%H:%M:%SZ)"
+nollstalls="$(date -u -d "@$(kl05 "$(date -u -d "$start_dag +7 days" +%Y-%m-%d)")" +%Y-%m-%dT%H:%M:%SZ)"
+manad="LEO_TOKENS_${start_dag//-/_}"   # en räknare per vecka, namngiven efter veckans första dag
 
 # var <namn> [standard] – finns variabeln inte (404) används standardvärdet; annat fel avbryter, så att
 # förbrukningen aldrig räknas från 0 och skrivs över bara för att GitHub inte svarade.
@@ -40,14 +59,15 @@ heltal "$kvot" || kvot=10
 heltal "$varning" || varning=8
 
 # Skriver saldot till ett stängt ärende med etiketten kvot – inkorgen (inkorg/Kod.gs) läser det och skriver
-# "kvar den här månaden" längst ned i varje mejl till Leo. Inkorgens nyckel har bara Issues-behörighet.
+# "kvar den här veckan" längst ned i varje mejl till Leo. Inkorgens nyckel har bara Issues-behörighet.
 skriv_saldo() {
   local anv="$1" tak nr
   tak=$(( budget * kvot / 100 ))
   nr="$(gh issue list --repo "$REPO" --label kvot --state all --limit 1 --json number --jq '.[0].number // empty')"
   local text="Leos tokenkvot – skrivs automatiskt av scripts/leo-kvot.sh, läses av inkorgen. Ändra inte för hand.
 
-manad: $(date -u +%Y-%m)
+period: $start_dag
+nollstalls: $nollstalls
 anvant: $anv
 tak: $tak"
   if [ -n "$nr" ]; then gh issue edit "$nr" --repo "$REPO" --body "$text" >/dev/null
@@ -58,7 +78,8 @@ tak: $tak"
   fi
 }
 
-case "${1:?status|lagg-till|saldo}" in
+case "${1:?status|lagg-till|saldo|veckostart}" in
+  veckostart) echo "$start_iso" ;;   # för claude.yml: beskedet om paus/slut en gång per vecka
   saldo)
     skriv_saldo "$anvant"
     ok "saldo skrivet: $anvant av $(( budget * kvot / 100 )) tokens"
@@ -88,9 +109,9 @@ case "${1:?status|lagg-till|saldo}" in
     fore="$(procent "$anvant" "$budget")"; efter="$(procent "$nytt" "$budget")"
     ok "+$tokens tokens → $nytt ($efter % av budgeten, kvot $kvot %)"
     if awk -v f="$fore" -v e="$efter" -v k="$kvot" 'BEGIN { exit !(f < k && e >= k) }'; then
-      till_leo "$issue" "Hej Leo! Månadens utrymme för Claude är nu slut – det fylls på igen den 1:a nästa månad. Det du redan har fått finns kvar på versionssidan: $VERSIONER_URL. Hör av dig till Niklas om något brådskar."
+      till_leo "$issue" "Hej Leo! Veckans utrymme för Claude är nu slut – det fylls på igen på onsdag morgon. Det du redan har fått finns kvar på versionssidan: $VERSIONER_URL. Hör av dig till Niklas om något brådskar."
     elif awk -v f="$fore" -v e="$efter" -v v="$varning" 'BEGIN { exit !(f < v && e >= v) }'; then
-      till_leo "$issue" "Hej Leo! En liten varning: det mesta av månadens utrymme för Claude är använt. Det räcker till något mindre till – sedan fylls det på den 1:a nästa månad."
+      till_leo "$issue" "Hej Leo! En liten varning: det mesta av veckans utrymme för Claude är använt. Det räcker till något mindre till – sedan fylls det på igen på onsdag morgon."
     fi
     ;;
   *) fail "okänt kommando: $1" ;;
