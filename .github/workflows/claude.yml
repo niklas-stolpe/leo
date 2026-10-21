@@ -96,9 +96,18 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           claude_args: |
-            --allowed-tools "Edit,Write,Read,Glob,Grep,Bash(npm run check:*),Bash(npm run build:*),Bash(npm run check),Bash(npm run build),Bash(git:*),Bash(gh pr create:*),Bash(gh pr view:*),Bash(gh pr edit:*),Bash(gh pr comment:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh issue edit:*),Bash(ls:*),Bash(mkdir:*),Bash(cp:*),Bash(mv:*),Bash(curl:*),Bash(file:*),Bash(bash scripts/publicera-version.sh:*),Bash(bash scripts/pr-preview.sh:*)"
+            --allowed-tools "Edit,Write,Read,Glob,Grep,Bash(npm run check:*),Bash(npm run build:*),Bash(npm run check),Bash(npm run build),Bash(git:*),Bash(gh pr create:*),Bash(gh pr view:*),Bash(gh pr edit:*),Bash(gh pr comment:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh issue edit:*),Bash(ls:*),Bash(mkdir:*),Bash(cp:*),Bash(mv:*),Bash(curl:*),Bash(file:*),Bash(bash scripts/publicera-version.sh:*),Bash(bash scripts/pr-preview.sh:*),Bash(bash scripts/requirements-check.sh:*)"
             ${{ steps.kvot.outputs.status == 'ok' && format('--model {0} --effort {1}', vars.LEO_CLAUDE_MODELL || 'claude-opus-5-5', vars.LEO_CLAUDE_EFFORT || 'medium') || '' }}
             --append-system-prompt "Du kör i GitHub för projektet Leo. Följ CLAUDE.md, särskilt avsnittet 'När du kör i GitHub'. Den som skriver är oftast Leo – konstnär, ingen teknisk bakgrund. Svara honom på enkel svenska utan tekniska ord. Är issuet ett mejlärende (etiketten mejl) – följ avsnittet 'Mejl från Leo' i CLAUDE.md."
+
+      # Leo blir aldrig utan besked: kraschar Claudes körning på ett mejlärende får han förslag på vad han kan göra.
+      - name: Besked till Leo om körningen misslyckades
+        if: failure() && steps.kvot.outputs.status == 'ok'
+        env:
+          GH_TOKEN: ${{ secrets.PROCESS_TOKEN }}
+        run: |
+          source scripts/lib.sh
+          stopp_till_leo "${{ github.event.issue.number || github.event.pull_request.number }}" "Claudes körning misslyckades – se [körningen]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
 
       - name: Räkna Leos tokens
         if: always() && steps.kvot.outputs.status == 'ok' && steps.claude.outputs.execution_file != ''

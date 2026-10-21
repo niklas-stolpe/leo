@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-10-21 | #57 (Admin): Leo får alltid besked (F-51) – Leos första ändring (#59) fastnade tyst: kravgrinden stoppade på Uppfyller:-raden och Cloudflare byggde aldrig commiten. Nu ger varje stopp i mejl-version.yml och en krasch i claude.yml ett mejl till Leo med förslag (scripts/lib.sh stopp_till_leo); röd kravgrind → Claude rättar PR-texten själv (högst två gånger); Claude kör kravgrinden innan "Nu bygger jag"; "försök igen" = tom commit. |
 | 2026-10-19 | #51 (Niklas via mejl, första testet av F-46): hälsningstexten på startsidan lite större (F-48) – från clamp(1.3rem, 2.4vw, 1.55rem) till clamp(1.5rem, 2.8vw, 1.8rem). |
 | 2026-10-19 | #48 (Admin): Saldo och utskick (F-49) – leo-kvot.sh skriver saldot till ett stängt ärende med etiketten kvot som inkorgen läser och skriver sist i varje mejl; ärenden med etiketten mejl-ut skickas som nya mejl och blir sedan vanliga mejlärenden. Citatraden "… skrev <adress>:" rensas nu bort ur Leos svar. |
 | 2026-10-19 | #48 (Admin): Leo mejlar Claude (F-46) – Google Apps Script i en egen Gmail-inkorg (inkorg/Kod.gs) gör mejl till issues och mejlar tillbaka text mellan <!-- till-leo -->-markörer; claude.yml svarar och bygger; mejl-version.yml mergar efter granskningen och mejlar länken. Admins styrning (F-47): repo-variabler LEO_CLAUDE_AKTIV/MODELL (Opus 5.5)/EFFORT (medium), månadskvot 10 % av LEO_TOKEN_BUDGET med varning vid 8 % (scripts/leo-kvot.sh). |
@@ -130,6 +131,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | F-47 | Admin styr Leos användning av Claude: på/av, modell och effort, och en månadskvot (10 % av en tokenbudget). Vid 8 % får Leo ett varningsmejl, vid 10 % ett mejl om att det är slut till den 1:a. | Kvoten räknas per körning; varning och stopp provade. | v1 | Pågår | – | Admin (chatt, #48) 2026-10-19 |
 | F-48 | Hälsningstexten på startsidan ("Leo Lowejko är möbelsnickaren …") är lite större – den märks, men tar inte över sidan. | Texten är ungefär 15 % större än förut på både mobil och dator; ingen horisontell scroll vid 360 px. | v1 | Pågår | – | Niklas via mejl (#51) 2026-10-19 |
 | F-49 | Varje mejl Leo får från Claude slutar med hur mycket av månadens utrymme han har kvar. Claude kan också skicka ett nytt mejl till Leo (inte bara svara), t.ex. en introduktion till hur han pratar med Claude. | Ett mejl till Leo visar saldot; introduktionsmejlet har kommit fram och Leos svar på det når Claude. | v1 | Pågår | – | Admin (chatt, #48) 2026-10-19 |
+| F-51 | Leo blir aldrig stående utan besked. Fastnar hans ändring någonstans får han ett mejl i enkla ord med förslag på vad han kan göra (vänta, "försök igen" eller ändra önskemålet), och Niklas får orsaken. | Varje stopp i mejlkedjan (granskning, kravgrind, bygge, Admins yta, krasch) ger ett mejl till Leo med förslag. | v1 | Pågår | – | Admin (chatt, #57) 2026-10-21 |
 
 ## Icke-funktionella krav
 
