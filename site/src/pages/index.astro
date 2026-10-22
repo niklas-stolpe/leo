@@ -132,6 +132,18 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
   .hero-text {
     padding: 6rem 1rem 4rem;
   }
+  /* Mobil (#57): lägre topp och ljusare toning, så att mer av käppen syns i bilden. */
+  @media (max-width: 40rem) {
+    .hero {
+      min-height: 62svh;
+    }
+    .hero::after {
+      background: radial-gradient(ellipse at center, rgb(14 13 11 / 0.3), rgb(14 13 11 / 0.7));
+    }
+    .hero-text {
+      padding: 5rem 1rem 2.5rem;
+    }
+  }
   .overrad {
     color: var(--massing);
     margin: 0 0 1rem;
