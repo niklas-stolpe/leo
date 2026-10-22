@@ -152,11 +152,31 @@ jobs:
           fi
           stopp_till_leo "${{ steps.pr.outputs.issue }}" "mejlärendets ändring (#$pr) kunde inte bli en version av sig själv – se [körningen]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
 
-      # Leos byggtid: den här körningen + granskning, kravgrind och tavla på PR:ens branch (en gång per körning).
+    outputs:
+      leo: ${{ steps.pr.outputs.leo }}
+
+  # Leos byggtid: den här körningen + granskning, kravgrind och tavla på PR:ens branch. Eget jobb i samma kö
+  # (leo-kvot) som bokföringen i claude.yml, så att två körningar aldrig skriver över varandras räknare.
+  byggtid:
+    needs: version
+    if: always() && needs.version.outputs.leo != ''
+    runs-on: ubuntu-latest
+    concurrency:
+      group: leo-kvot
+      cancel-in-progress: false
+    env:
+      GH_TOKEN: ${{ secrets.PROCESS_TOKEN }}
+      GREN: ${{ github.event.workflow_run.head_branch || inputs.gren }}
+      LEO: ${{ needs.version.outputs.leo }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          persist-credentials: false
       - name: Räkna Leos byggtid
-        if: always() && steps.pr.outputs.leo != ''
         run: |
+          [[ "$LEO" =~ ^[0-9]+$ ]] || exit 0
           source scripts/lib.sh
           ids="$(gh api "repos/$REPO/actions/runs?branch=$GREN&per_page=100" --jq '.workflow_runs[]
             | select(.status == "completed" and .conclusion != "skipped" and (.name == "Claude Code Review" or .name == "requirements-gate" or .name == "board")) | .id')"
-          bash scripts/leo-kvot.sh minuter "${{ steps.pr.outputs.leo }}" $ids || true
+          bash scripts/leo-kvot.sh minuter "$LEO" $ids || true
