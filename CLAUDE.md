@@ -73,6 +73,8 @@ Skriv där på enkel svenska, kort och varmt, utan tekniska ord, länkar till Gi
    (oftast PR-texten, se 6) och kör `gh workflow run mejl-version.yml -f gren=<PR:ens branch>` – aldrig en tom
    commit (dina pushar startar ingen granskning – det gör processen själv efter din körning). Kommer du inte vidare: mejla att han ska **kontakta Niklas**.
    Informera först, fixa sedan. Skriv aldrig bara till Admin och låt Leo vänta.
+   Lovar du Leo något senare, skriv **"du får ett mejl"** (eller "jag hör av mig") – inkorgens vakt känner igen
+   det och säger till Leo och Niklas om löftet inte hålls inom 45 minuter.
 6. **Innan du svarar "Nu bygger jag":** kör `bash scripts/requirements-check.sh <pr>` – den ska vara grön. På
    `Uppfyller:` står bara krav som är `Klar` i PR:en; ett krav som väntar på Leos ögon nämns på en egen rad.
    Små justeringar (textstorlek, ordval) blir ingen ny kravrad: `Uppfyller: – justering`.

@@ -232,6 +232,8 @@ function skickaUtskick() {
  * Vaktens egna meddelanden lovar inget, så klockan startar inte om av dem.
  */
 const VAKT = '(vakten)';
+// Ett löfte om mer: CLAUDE.md och processens meddelanden skriver "du får ett mejl" eller "hör av mig" när något återstår.
+const LOFTE = /du får (ett )?mejl|hör av mig/i;
 function vakta() {
   const egenskaper = PropertiesService.getScriptProperties();
   const vilka = tillatna();
@@ -247,9 +249,11 @@ function vakta() {
     let fran = null;
     let grans = 45;
     let vantarPa = '';
-    if (leo && (!senaste || Date.parse(leo.created_at) > Date.parse(senaste.created_at))) {
+    // Obesvarat = Claude har inte kommenterat alls efter Leos mejl (ett svar utan mejl till Leo, t.ex. på "Tack!", räknas).
+    const claudeSenast = kommentarer.filter((k) => k.user && k.user.login === 'claude[bot]').pop();
+    if (leo && (!claudeSenast || Date.parse(leo.created_at) > Date.parse(claudeSenast.created_at))) {
       fran = leo; grans = 30; vantarPa = 'svar från Claude på Leos mejl';
-    } else if (senaste && /du får ett mejl/i.test(tillLeo(senaste.body))) {
+    } else if (senaste && LOFTE.test(tillLeo(senaste.body))) {
       fran = senaste; vantarPa = 'det Leo blivit lovad (version eller besked)';
     }
     if (!fran && !senaste) {
