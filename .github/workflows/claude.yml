@@ -67,9 +67,11 @@ jobs:
           echo "status=$status" >> "$GITHUB_OUTPUT"
           if [ "$status" != ok ]; then
             # Beskedet om paus eller slut kvot mejlas bara en gång per ärende.
-            redan="$(gh issue view "${{ github.event.issue.number || github.event.pull_request.number }}" --repo "$GITHUB_REPOSITORY" --json comments --jq "[.comments[] | select(.createdAt >= \"$(bash scripts/leo-kvot.sh veckostart)\") | select(.body | test(\"utrymme för Claude är slut|Claude tar en paus\"))] | length")"
+            redan="$(gh issue view "${{ github.event.issue.number || github.event.pull_request.number }}" --repo "$GITHUB_REPOSITORY" --json comments --jq "[.comments[] | select(.createdAt >= \"$(bash scripts/leo-kvot.sh veckostart)\") | select(.body | test(\"utrymme för Claude är slut|byggtid är slut|Claude tar en paus\"))] | length")"
             [ "$redan" -eq 0 ] || exit 0
-            if [ "$status" = slut ]; then
+            if [ "$status" = slut-byggtid ]; then
+              text="Hej Leo! Månadens byggtid är slut – den fylls på igen den 1:a nästa månad. Hör av dig till Niklas om något brådskar."
+            elif [ "$status" = slut ]; then
               text="Hej Leo! Veckans utrymme för Claude är slut – det fylls på igen på onsdag morgon. Hör av dig till Niklas om något brådskar."
             else
               text="Hej Leo! Claude tar en paus just nu – Niklas har pausat det tillfälligt. Ditt mejl ligger kvar och tas om hand senare."
@@ -135,6 +137,12 @@ jobs:
             git_nat push -q origin "$gren"
             echo "Startade granskningen för #$pr"
           done
+
+      - name: Räkna Leos byggtid
+        if: always() && steps.kvot.outputs.status != ''
+        env:
+          GH_TOKEN: ${{ secrets.PROCESS_TOKEN }}
+        run: bash scripts/leo-kvot.sh minuter "${{ github.event.issue.number || github.event.pull_request.number }}" || true
 
       - name: Räkna Leos tokens
         if: always() && steps.kvot.outputs.status == 'ok' && steps.claude.outputs.execution_file != ''

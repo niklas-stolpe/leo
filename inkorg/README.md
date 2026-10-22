@@ -53,6 +53,9 @@ Repo → Settings → Secrets and variables → Actions → **Variables**:
 | `LEO_KVOT_PROCENT` | `10` | Leos del av budgeten; när den är nådd får han mejl om att det är slut |
 | `LEO_VARNING_PROCENT` | `8` | Varningsmejl till Leo |
 | `LEO_TOKENS_ÅÅÅÅ_MM_DD` | skrivs automatiskt | Förbrukat sedan veckans start (onsdag 05:00 svensk tid, som prenumerationen) |
+| `LEO_ACTIONS_BUDGET` | `2000` | Organisationens GitHub Actions-minuter per månad (100 %) – Leo får samma kvot (10 % = 200 min) |
+| `LEO_MINUTER_ÅÅÅÅ_MM` | skrivs automatiskt | Leos byggtid i månaden (minuter) |
+| `LEO_MINUTER_RAKNADE_ÅÅÅÅ_MM` | skrivs automatiskt | Körningar som redan räknats (så att inget räknas två gånger) |
 
 Saldot speglas i ett stängt ärende med etiketten `kvot` (skrivs av `scripts/leo-kvot.sh`, ändra inte för hand).
 Inkorgen läser det och skriver sist i varje mejl hur mycket Leo har kvar. Ändrar du budgeten: kör

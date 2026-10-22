@@ -297,6 +297,13 @@ function sidfot() {
       const kvar = Math.max(0, tak - anvant);
       saldo = `\nKvar av ditt utrymme för Claude den här veckan: ${kvar.toLocaleString('sv-SE')} av ${tak.toLocaleString('sv-SE')} tokens (${Math.floor((kvar * 100) / tak)} %)`;
     }
+    // Byggtid (GitHub-minuter) räknas per månad.
+    const mtak = Number(falt('byggtid_tak'));
+    if (mtak > 0) {
+      const manad = new Date().toISOString().slice(0, 7);
+      const manv = falt('byggtid_manad') === manad ? Number(falt('byggtid_anvant')) || 0 : 0;
+      saldo += `\nByggtid kvar den här månaden: ${Math.max(0, mtak - manv)} av ${mtak} minuter`;
+    }
   } catch (e) {
     Logger.log('Kunde inte läsa saldot: ' + e);
   }

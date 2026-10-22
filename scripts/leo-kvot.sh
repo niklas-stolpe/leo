@@ -13,6 +13,7 @@
 #   scripts/leo-kvot.sh saldo                     → skriver saldot till ärendet med etiketten kvot
 #   scripts/leo-kvot.sh lagg-till <execution.json> <issue>
 #                                                 → räknar upp; mejlar Leo (via kommentar) vid 8 % och 10 %
+#   scripts/leo-kvot.sh minuter <issue|pr> [run-id …] → räknar byggtid (Actions-minuter); mejlar vid 8 % och 10 %
 # Kräver GH_TOKEN med rätt att läsa och skriva repo-variabler (PROCESS_TOKEN).
 source "$(dirname "$0")/lib.sh"
 # Senaste onsdag 05:00 svensk tid → veckans start och nästa nollställning. Svensk tid räknas själv (Git Bash
@@ -58,6 +59,15 @@ heltal "$anvant" || { warn "$manad är inte ett heltal ('$anvant') – räknas f
 heltal "$kvot" || kvot=10
 heltal "$varning" || varning=8
 
+# Byggtid (GitHub Actions-minuter): Leo får samma andel (kvot %) av organisationens minuter per månad – GitHub
+# räknar per kalendermånad. Räknas av körningarna som hör till hans mejl (claude.yml, mejl-version.yml, och
+# granskning/kravgrind/tavla på hans PR:er) med kommandot "minuter".
+min_budget="$(var LEO_ACTIONS_BUDGET 2000)"; heltal "$min_budget" || min_budget=2000
+min_var="LEO_MINUTER_$(date -u +%Y_%m)"
+min_anvant="$(var "$min_var" 0)"; heltal "$min_anvant" || min_anvant=0
+min_tak=$(( min_budget * kvot / 100 ))
+min_nollstalls="$(date -u -d "$(date -u +%Y-%m-01) +1 month" +%Y-%m-%dT00:00:00Z)"
+
 # Skriver saldot till ett stängt ärende med etiketten kvot – inkorgen (inkorg/Kod.gs) läser det och skriver
 # "kvar den här veckan" längst ned i varje mejl till Leo. Inkorgens nyckel har bara Issues-behörighet.
 skriv_saldo() {
@@ -69,7 +79,12 @@ skriv_saldo() {
 period: $start_dag
 nollstalls: $nollstalls
 anvant: $anv
-tak: $tak"
+tak: $tak
+
+byggtid_manad: $(date -u +%Y-%m)
+byggtid_nollstalls: $min_nollstalls
+byggtid_anvant: $min_anvant
+byggtid_tak: $min_tak"
   if [ -n "$nr" ]; then gh issue edit "$nr" --repo "$REPO" --body "$text" >/dev/null
   else
     gh label create kvot --repo "$REPO" --color ededed --force >/dev/null
@@ -89,7 +104,10 @@ case "${1:?status|lagg-till|saldo|veckostart}" in
     printf 'Leo har använt %s %% av budgeten i %s (kvot %s %%)\n' "$andel" "${manad#LEO_TOKENS_}" "$kvot" >&2
     if [ "$(var LEO_CLAUDE_AKTIV true)" = false ]; then echo pausad
     elif [ "$budget" -le 0 ] || awk -v a="$andel" -v k="$kvot" 'BEGIN { exit !(a >= k) }'; then echo slut
+    elif [ "$min_anvant" -ge "$min_tak" ]; then echo slut-byggtid
     else echo ok; fi
+    printf 'Byggtid: %s av %s min i %s
+' "$min_anvant" "$min_tak" "${min_var#LEO_MINUTER_}" >&2
     ;;
   lagg-till)
     fil="${2:?execution-fil}"; issue="${3:?issue}"
@@ -112,6 +130,36 @@ case "${1:?status|lagg-till|saldo|veckostart}" in
       till_leo "$issue" "Hej Leo! Veckans utrymme för Claude är nu slut – det fylls på igen på onsdag morgon. Det du redan har fått finns kvar på versionssidan: $VERSIONER_URL. Hör av dig till Niklas om något brådskar."
     elif awk -v f="$fore" -v e="$efter" -v v="$varning" 'BEGIN { exit !(f < v && e >= v) }'; then
       till_leo "$issue" "Hej Leo! En liten varning: det mesta av veckans utrymme för Claude är använt. Det räcker till något mindre till – sedan fylls det på igen på onsdag morgon."
+    fi
+    ;;
+  minuter)
+    # minuter <issue|pr> [run-id …] – lägger till den här körningens minuter hittills (avrundat uppåt per jobb)
+    # och de angivna färdiga körningarna som inte redan räknats (granskning, kravgrind, tavla på Leos PR).
+    issue="${2:?issue}"; shift 2
+    if gh pr view "$issue" --repo "$REPO" >/dev/null 2>&1; then
+      stanger="$(pr_closes "$issue" | head -1)"; [ -z "$stanger" ] || issue="$stanger"
+    fi
+    jobbmin() {
+      gh api "repos/$REPO/actions/runs/$1/jobs" --jq '[.jobs[] | select(.started_at and .conclusion != "skipped")
+        | ((((.completed_at // (now | todate)) | fromdateiso8601) - (.started_at | fromdateiso8601) + 59) / 60 | floor)
+        | if . < 1 then 1 else . end] | add // 0'
+    }
+    raknade_var="LEO_MINUTER_RAKNADE_$(date -u +%Y_%m)"; raknade="$(var "$raknade_var" "")"
+    summa=0; [ -z "${GITHUB_RUN_ID:-}" ] || summa="$(jobbmin "$GITHUB_RUN_ID")"
+    for id in "$@"; do
+      case ",$raknade," in *",$id,"*) continue ;; esac
+      summa=$(( summa + $(jobbmin "$id") )); raknade="${raknade:+$raknade,}$id"
+    done
+    [ $# -eq 0 ] || gh variable set "$raknade_var" --repo "$REPO" --body "${raknade:-–}"
+    fore="$min_anvant"; min_anvant=$(( min_anvant + summa ))
+    gh variable set "$min_var" --repo "$REPO" --body "$min_anvant"
+    skriv_saldo "$anvant"
+    ok "+$summa min byggtid → $min_anvant av $min_tak"
+    vgrans=$(( min_budget * varning / 100 ))
+    if [ "$fore" -lt "$min_tak" ] && [ "$min_anvant" -ge "$min_tak" ]; then
+      till_leo "$issue" "Hej Leo! Månadens byggtid är nu slut – den fylls på igen den 1:a nästa månad. Det du redan har fått finns kvar på versionssidan: $VERSIONER_URL. Hör av dig till Niklas om något brådskar."
+    elif [ "$fore" -lt "$vgrans" ] && [ "$min_anvant" -ge "$vgrans" ]; then
+      till_leo "$issue" "Hej Leo! En liten varning: det mesta av månadens byggtid är använd. Det räcker till någon ändring till – sedan fylls den på igen den 1:a nästa månad."
     fi
     ;;
   *) fail "okänt kommando: $1" ;;
