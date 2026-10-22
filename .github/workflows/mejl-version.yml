@@ -52,6 +52,7 @@ jobs:
           issue="$(pr_closes "$pr" | head -1)"
           [ -n "$issue" ] || { echo "PR #$pr stänger inget issue"; exit 0; }
           gh issue view "$issue" --repo "$REPO" --json labels --jq '.labels[].name' | grep -qx mejl || { echo "#$issue är inget mejlärende"; exit 0; }
+          echo "leo=$issue" >> "$GITHUB_OUTPUT"   # Leos ärende – byggtiden räknas sist
           # PR:en ärver etiketten, så att "@claude åtgärda granskningsfynden" också räknas mot Leos kvot.
           gh pr edit "$pr" --repo "$REPO" --add-label mejl >/dev/null
           # Mejltext är indata till Claude. Rör ändringen Admins yta (B-07) mergas den aldrig av sig själv.
@@ -150,3 +151,12 @@ jobs:
             fi
           fi
           stopp_till_leo "${{ steps.pr.outputs.issue }}" "mejlärendets ändring (#$pr) kunde inte bli en version av sig själv – se [körningen]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
+
+      # Leos byggtid: den här körningen + granskning, kravgrind och tavla på PR:ens branch (en gång per körning).
+      - name: Räkna Leos byggtid
+        if: always() && steps.pr.outputs.leo != ''
+        run: |
+          source scripts/lib.sh
+          ids="$(gh api "repos/$REPO/actions/runs?branch=$GREN&per_page=100" --jq '.workflow_runs[]
+            | select(.status == "completed" and .conclusion != "skipped" and (.name == "Claude Code Review" or .name == "requirements-gate" or .name == "board")) | .id')"
+          bash scripts/leo-kvot.sh minuter "${{ steps.pr.outputs.leo }}" $ids || true

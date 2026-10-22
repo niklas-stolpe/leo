@@ -81,7 +81,7 @@ Skriv där på enkel svenska, kort och varmt, utan tekniska ord, länkar till Gi
 7. **Kvoten slut eller pausad:** då startar du inte alls, och Leo får ett mejl om det automatiskt.
 
 Modell, effort och om Leo får använda Claude alls styr Admin med repo-variablerna `LEO_CLAUDE_MODELL`,
-`LEO_CLAUDE_EFFORT` och `LEO_CLAUDE_AKTIV`; hans veckokvot räknas av `scripts/leo-kvot.sh`. Inkorgen lägger
+`LEO_CLAUDE_EFFORT` och `LEO_CLAUDE_AKTIV`; hans veckokvot (tokens) och månadskvot för byggtid (GitHub-minuter) räknas av `scripts/leo-kvot.sh`. Inkorgen lägger
 själv till versionssidan och Leos saldo sist i varje mejl – skriv inte det. Ett *nytt* mejl till Leo: ärende med
 etiketten `mejl-ut` (F-49, se `inkorg/README.md`).
 
