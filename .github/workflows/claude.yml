@@ -67,7 +67,7 @@ jobs:
           echo "status=$status" >> "$GITHUB_OUTPUT"
           if [ "$status" != ok ]; then
             # Beskedet om paus eller slut kvot mejlas bara en gång per ärende.
-            redan="$(gh issue view "${{ github.event.issue.number || github.event.pull_request.number }}" --repo "$GITHUB_REPOSITORY" --json comments --jq "[.comments[] | select(.createdAt >= \"$(bash scripts/leo-kvot.sh veckostart)\") | select(.body | test(\"utrymme för Claude är slut|byggtid är slut|Claude tar en paus\"))] | length")"
+            redan="$(gh issue view "${{ github.event.issue.number || github.event.pull_request.number }}" --repo "$GITHUB_REPOSITORY" --json comments --jq "[.comments[] | select(.createdAt >= \"$( [ "$status" = slut-byggtid ] && date -u +%Y-%m-01T00:00:00Z || bash scripts/leo-kvot.sh veckostart )\") | select(.body | test(\"utrymme för Claude är slut|byggtid är slut|Claude tar en paus\"))] | length")"
             [ "$redan" -eq 0 ] || exit 0
             if [ "$status" = slut-byggtid ]; then
               text="Hej Leo! Månadens byggtid är slut – den fylls på igen den 1:a nästa månad. Hör av dig till Niklas om något brådskar."
