@@ -23,11 +23,11 @@ log "1/3 kravgrinden"
 log "2/3 bygget ($BUILD_CHECK)"
 # Bygget körs av Cloudflare Workers Builds, inte GitHub Actions – fungerar även när Actions-minuterna
 # är slut. Kravgrinden i Actions (requirements-gate) räknas inte här: steg 1 körde samma script.
-for i in $(seq 1 60); do
+for i in $(seq 1 150); do   # Cloudflare tar ibland mer än 10 min – vänta upp till 25
   byggt="$(gh api "repos/$REPO/commits/$sha/check-runs" \
     --jq ".check_runs[] | select(.name==\"$BUILD_CHECK\" and .app.slug==\"$BUILD_APP\") | \"\(.status)|\(.conclusion // \"\")\"" | head -1)"
   case "$byggt" in completed\|*) break ;; esac
-  [ "$i" -eq 60 ] && fail "$BUILD_CHECK blev inte klar inom 10 min (${byggt:-ingen check-run – är Workers Builds kopplat?})"
+  [ "$i" -eq 150 ] && fail "$BUILD_CHECK blev inte klar inom 25 min (${byggt:-ingen check-run – är Workers Builds kopplat?})"
   sleep 10
 done
 [ "$byggt" = "completed|success" ] || fail "$BUILD_CHECK: $byggt – se bygget i Cloudflare-dashboarden"

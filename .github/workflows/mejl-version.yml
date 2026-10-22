@@ -11,9 +11,16 @@ on:
   workflow_run:
     workflows: ['Claude Code Review']
     types: [completed]
+  # "Försök igen" (Leo svarar så på ett stoppbesked): Claude startar körningen igen för samma commit –
+  # granskningens sammanfattning finns redan. En tom commit duger inte: Claudes pushar startar ingen granskning.
+  workflow_dispatch:
+    inputs:
+      gren:
+        description: PR:ens branch
+        required: true
 
 concurrency:
-  group: mejl-version-${{ github.event.workflow_run.head_branch }}
+  group: mejl-version-${{ github.event.workflow_run.head_branch || inputs.gren }}
   cancel-in-progress: false
 
 permissions:
@@ -22,11 +29,11 @@ permissions:
 jobs:
   version:
     # Bara när granskningen faktiskt gick klart – en misslyckad eller avbruten granskning är ingen granskning.
-    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.PROCESS_TOKEN }}
-      GREN: ${{ github.event.workflow_run.head_branch }}
+      GREN: ${{ github.event.workflow_run.head_branch || inputs.gren }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -69,7 +76,9 @@ jobs:
           block="$(printf '%s' "$sammanf" | grep -oE 'Blockerande: *[0-9]+' | grep -oE '[0-9]+' | tail -1 || true)"
           if [ "${block:-0}" -gt 0 ]; then
             forsok="$(gh pr view "$pr" --repo "$REPO" --json comments --jq '[.comments[] | select(.body | startswith("@claude åtgärda granskningsfynden"))] | length')"
-            if [ "$forsok" -lt 2 ]; then gh pr comment "$pr" --repo "$REPO" --body "@claude åtgärda granskningsfynden"
+            if [ "$forsok" -lt 2 ]; then
+              fixar_till_leo "$issue" "Granskningen av din ändring hittade något som behöver rättas innan den blir en ny version."
+              gh pr comment "$pr" --repo "$REPO" --body "@claude åtgärda granskningsfynden"
             else stopp_till_leo "$issue" "granskningen av #$pr har fortfarande blockerande fynd efter två försök – titta på den."; fi
             exit 0
           fi
@@ -125,8 +134,9 @@ jobs:
           if ! grep -q 'Kravgrinden grön' merge.log; then
             forsok="$(gh pr view "$pr" --repo "$REPO" --json comments --jq '[.comments[] | select(.body | startswith("@claude rätta kravgrinden"))] | length')"
             if [ "$forsok" -lt 2 ]; then
+              fixar_till_leo "${{ steps.pr.outputs.issue }}" "Din ändring stoppades i en kontroll hos oss – inget du har gjort."
               fel="$(grep '✗' merge.log | tr -d '\033' | sed 's/\[[0-9;]*m//g' | head -3 || true)"
-              gh pr comment "$pr" --repo "$REPO" --body "@claude rätta kravgrinden: ändra PR-texten (gh pr edit) eller kravraden så att \`bash scripts/requirements-check.sh $pr\` blir grön, och pusha sedan en tom commit så att kedjan körs igen. Felet:
+              gh pr comment "$pr" --repo "$REPO" --body "@claude rätta kravgrinden: ändra PR-texten (gh pr edit) eller kravraden så att \`bash scripts/requirements-check.sh $pr\` blir grön, och kör sedan \`gh workflow run mejl-version.yml -f gren=$GREN\` (ingen tom commit – den startar ingen granskning). Felet:
           $fel"
               exit 0
             fi
@@ -134,6 +144,7 @@ jobs:
           if grep -q 'olöst(a) granskningstråd' merge.log; then
             forsok="$(gh pr view "$pr" --repo "$REPO" --json comments --jq '[.comments[] | select(.body | startswith("@claude åtgärda granskningsfynden"))] | length')"
             if [ "$forsok" -lt 2 ]; then
+              fixar_till_leo "${{ steps.pr.outputs.issue }}" "Granskningen av din ändring hittade något som behöver rättas innan den blir en ny version."
               gh pr comment "$pr" --repo "$REPO" --body "@claude åtgärda granskningsfynden"
               exit 0
             fi

@@ -29,7 +29,7 @@ permissions:
   pull-requests: write
   issues: write
   id-token: write
-  actions: read
+  actions: write   # "försök igen" startar mejl-version.yml (gh workflow run)
 
 jobs:
   claude:
@@ -96,7 +96,7 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           claude_args: |
-            --allowed-tools "Edit,Write,Read,Glob,Grep,Bash(npm run check:*),Bash(npm run build:*),Bash(npm run check),Bash(npm run build),Bash(git:*),Bash(gh pr create:*),Bash(gh pr view:*),Bash(gh pr edit:*),Bash(gh pr comment:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh issue edit:*),Bash(ls:*),Bash(mkdir:*),Bash(cp:*),Bash(mv:*),Bash(curl:*),Bash(file:*),Bash(bash scripts/publicera-version.sh:*),Bash(bash scripts/pr-preview.sh:*),Bash(bash scripts/requirements-check.sh:*)"
+            --allowed-tools "Edit,Write,Read,Glob,Grep,Bash(npm run check:*),Bash(npm run build:*),Bash(npm run check),Bash(npm run build),Bash(git:*),Bash(gh pr create:*),Bash(gh pr view:*),Bash(gh pr edit:*),Bash(gh pr comment:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh issue edit:*),Bash(ls:*),Bash(mkdir:*),Bash(cp:*),Bash(mv:*),Bash(curl:*),Bash(file:*),Bash(bash scripts/publicera-version.sh:*),Bash(bash scripts/pr-preview.sh:*),Bash(bash scripts/requirements-check.sh:*),Bash(gh workflow run mejl-version.yml:*),Bash(gh run list:*),Bash(gh run view:*)"
             ${{ steps.kvot.outputs.status == 'ok' && format('--model {0} --effort {1}', vars.LEO_CLAUDE_MODELL || 'claude-sonnet-5-5', vars.LEO_CLAUDE_EFFORT || 'medium') || '' }}
             --append-system-prompt "Du kör i GitHub för projektet Leo. Följ CLAUDE.md, särskilt avsnittet 'När du kör i GitHub'. Den som skriver är oftast Leo – konstnär, ingen teknisk bakgrund. Svara honom på enkel svenska utan tekniska ord. Är issuet ett mejlärende (etiketten mejl) – följ avsnittet 'Mejl från Leo' i CLAUDE.md."
 

@@ -46,6 +46,7 @@ function korInkorg() {
     hamtaNyaMejl();
     skickaUtskick();
     skickaSvar();
+    vakta();
   } finally {
     las.releaseLock();
   }
@@ -190,7 +191,7 @@ function skickaSvar() {
       egenskaper.deleteProperty(nyckel);
       egenskaper.deleteProperty('till:' + issue);
       Object.keys(egenskaper.getProperties())
-        .filter((k) => k.startsWith('skickat:' + issue + ':'))
+        .filter((k) => k.startsWith('skickat:' + issue + ':') || k.startsWith('vakt:' + issue + ':'))
         .forEach((k) => egenskaper.deleteProperty(k));
     }
   }
@@ -220,6 +221,59 @@ function skickaUtskick() {
     egenskaper.setProperty('till:' + arende.number, till);
     github('POST', `/repos/${REPO}/issues/${arende.number}/labels`, { labels: ['mejl'] });
     github('DELETE', `/repos/${REPO}/issues/${arende.number}/labels/mejl-ut`);
+  }
+}
+
+/**
+ * Vakten: Leo ska aldrig vänta i tystnad. Har han blivit lovad ett mejl ("du får ett mejl …") eller väntar hans
+ * senaste mejl på svar, och inget nytt har kommit:
+ *   efter 45 min (svar: 30 min) → Leo: det tar längre tid än vanligt; Niklas får ett mejl
+ *   efter 3 timmar              → Leo: jag kommer inte vidare, kontakta Niklas; Niklas får ett mejl
+ * Vaktens egna meddelanden lovar inget, så klockan startar inte om av dem.
+ */
+const VAKT = '(vakten)';
+function vakta() {
+  const egenskaper = PropertiesService.getScriptProperties();
+  const vilka = tillatna();
+  const niklas = Object.keys(vilka).find((adr) => vilka[adr] === 'Niklas');
+  for (const nyckel of Object.keys(egenskaper.getProperties()).filter((k) => k.startsWith('issue:'))) {
+    const issue = nyckel.slice('issue:'.length);
+    const kommentarer = github('GET', `/repos/${REPO}/issues/${issue}/comments?per_page=100`);
+    const tillLeoKomm = kommentarer.filter(
+      (k) => AVSANDARE_GITHUB.includes(k.user && k.user.login) && tillLeo(k.body || '') && !(k.body || '').includes(VAKT)
+    );
+    const senaste = tillLeoKomm[tillLeoKomm.length - 1];
+    const leo = kommentarer.filter((k) => /^@claude\s/.test(k.body || '') && /\*\*Svar från /.test(k.body || '')).pop();
+    let fran = null;
+    let grans = 45;
+    let vantarPa = '';
+    if (leo && (!senaste || Date.parse(leo.created_at) > Date.parse(senaste.created_at))) {
+      fran = leo; grans = 30; vantarPa = 'svar från Claude på Leos mejl';
+    } else if (senaste && /du får ett mejl/i.test(tillLeo(senaste.body))) {
+      fran = senaste; vantarPa = 'det Leo blivit lovad (version eller besked)';
+    }
+    if (!fran && !senaste) {
+      // Nytt ärende som Claude ännu inte svarat på alls.
+      const info = github('GET', `/repos/${REPO}/issues/${issue}`);
+      if (info.state === 'open') { fran = { id: 'nytt', created_at: info.created_at }; grans = 30; vantarPa = 'Claudes första svar'; }
+    }
+    if (!fran) continue;
+    const minuter = (Date.now() - Date.parse(fran.created_at)) / 60000;
+    const steg = minuter >= 180 ? 2 : minuter >= grans ? 1 : 0;
+    const vaktNyckel = 'vakt:' + issue + ':' + fran.id;
+    if (steg <= Number(egenskaper.getProperty(vaktNyckel) || 0)) continue;
+    const text = steg === 1
+      ? 'Hej Leo! Det tar längre tid än vanligt den här gången. Jag håller på, och Niklas har fått besked. Jag hör av mig så fort det är klart.'
+      : 'Hej Leo! Jag kommer tyvärr inte vidare med det här just nu. Kontakta Niklas, så hjälper han dig. Allt du redan har fått finns kvar på versionssidan.';
+    github('POST', `/repos/${REPO}/issues/${issue}/comments`, {
+      body: `Admin: ${VAKT} inget har hänt på ${Math.round(minuter)} min – väntar på ${vantarPa}.\n\n${START}\n${text}\n${SLUT}`,
+    });
+    if (niklas) {
+      GmailApp.sendEmail(niklas, `Leo väntar – ärende #${issue}`,
+        `Inget har hänt på ${Math.round(minuter)} min i ärende #${issue} – väntar på ${vantarPa}.\n` +
+        `Leo har fått besked: "${text}"\n\nhttps://github.com/${REPO}/issues/${issue}`);
+    }
+    egenskaper.setProperty(vaktNyckel, String(steg));
   }
 }
 
