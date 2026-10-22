@@ -249,8 +249,11 @@ function vakta() {
     let fran = null;
     let grans = 45;
     let vantarPa = '';
-    // Obesvarat = Claude har inte kommenterat alls efter Leos mejl (ett svar utan mejl till Leo, t.ex. på "Tack!", räknas).
-    const claudeSenast = kommentarer.filter((k) => k.user && k.user.login === 'claude[bot]').pop();
+    // Obesvarat = Claude har inte svarat klart efter Leos mejl. Claude-actionens spårningskommentar skapas direkt
+    // ("arbetar …") och räknas först när den blivit "Claude finished" – ett svar utan mejl (t.ex. på "Tack!") räknas.
+    const claudeSenast = kommentarer
+      .filter((k) => k.user && k.user.login === 'claude[bot]' && /Claude finished|\[\[till-leo\]\]/.test(k.body || ''))
+      .pop();
     if (leo && (!claudeSenast || Date.parse(leo.created_at) > Date.parse(claudeSenast.created_at))) {
       fran = leo; grans = 30; vantarPa = 'svar från Claude på Leos mejl';
     } else if (senaste && LOFTE.test(tillLeo(senaste.body))) {

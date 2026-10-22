@@ -127,7 +127,8 @@ jobs:
             granskad="$(gh api "repos/$REPO/commits/$sha/check-runs" --jq '[.check_runs[] | select(.name=="review")] | length')"
             [ "$granskad" -eq 0 ] || continue
             gren="$(pr_field "$pr" .headRefName)"
-            git_nat fetch -q origin "$gren" && git checkout -q -B "$gren" FETCH_HEAD
+            git reset -q --hard && git clean -fdq   # ev. ocommittat från Claudes körning hör inte hit
+            git_nat fetch -q origin "$gren" && git checkout -q -B "$gren" FETCH_HEAD               || { echo "::warning::kunde inte byta till $gren – granskningen för #$pr startades inte"; continue; }
             git -c user.name=leo-process -c user.email=leo-process@users.noreply.github.com               commit -q --allow-empty -m "Starta granskning och bygge (Claudes push startar dem inte)"
             git_nat push -q origin "$gren"
             echo "Startade granskningen för #$pr"
