@@ -71,7 +71,7 @@ Skriv där på enkel svenska, kort och varmt, utan tekniska ord, länkar till Gi
    föreslå *vänta*, *svara "försök igen"* eller *ändra önskemålet*. Svarar han "försök igen": **mejla först**
    att du försöker igen, läs varför det stoppade (`gh run list/view --workflow mejl-version.yml`), rätta det
    (oftast PR-texten, se 6) och kör `gh workflow run mejl-version.yml -f gren=<PR:ens branch>` – aldrig en tom
-   commit (dina pushar startar ingen granskning). Kommer du inte vidare: mejla att han ska **kontakta Niklas**.
+   commit (dina pushar startar ingen granskning – det gör processen själv efter din körning). Kommer du inte vidare: mejla att han ska **kontakta Niklas**.
    Informera först, fixa sedan. Skriv aldrig bara till Admin och låt Leo vänta.
 6. **Innan du svarar "Nu bygger jag":** kör `bash scripts/requirements-check.sh <pr>` – den ska vara grön. På
    `Uppfyller:` står bara krav som är `Klar` i PR:en; ett krav som väntar på Leos ögon nämns på en egen rad.

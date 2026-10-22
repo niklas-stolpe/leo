@@ -132,6 +132,7 @@ Hör du inget från mig inom ett par timmar – kontakta Niklas.
 # aldrig via .git/config – bygget av en ändring körs i en worktree som delar den (persist-credentials: false).
 git_nat() {
   if [ "${CI:-}" = true ] && [ -n "${GH_TOKEN:-}" ]; then
-    git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" "$@"
+    # Tomt värde först: nollställer en ev. header från actions/checkout, så att bara vår nyckel skickas.
+    git -c http.https://github.com/.extraheader= -c http.https://github.com/.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" "$@"
   else git "$@"; fi
 }
