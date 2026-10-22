@@ -104,6 +104,13 @@ pr_closes() { pr_field "$1" .body | grep -oiE '(closes|fixes|resolves) #[0-9]+' 
 # pr_visible <pr> – lyckas om PR:en ändrar något som syns på webbplatsen (VISIBLE_PATH).
 pr_visible() { gh api --paginate "repos/$REPO/pulls/$1/files" --jq '.[].filename' | grep -qE "$VISIBLE_PATH"; }
 
+# fixar_till_leo <issue> <vad> – besked till Leo INNAN något rättas automatiskt: informera först, fixa sedan.
+fixar_till_leo() {
+  gh issue comment "$1" --repo "$REPO" --body "[[till-leo]]
+Hej Leo! $2 Jag rättar det nu – du behöver inte göra något. Du får ett mejl när den nya versionen finns, eller om jag inte kommer vidare.
+[[/till-leo]]" >/dev/null
+}
+
 # stopp_till_leo <issue> <text till Admin> – när ett mejlärende stannar får Leo ALLTID besked med förslag på
 # vad han kan göra (inkorgen mejlar texten mellan markörerna), och Admin får orsaken i samma kommentar.
 stopp_till_leo() {
@@ -116,6 +123,8 @@ Du kan välja:
 1. Vänta – du får ett mejl så fort den nya versionen finns.
 2. Svara \"försök igen\", så gör jag ett nytt försök direkt.
 3. Vill du ändra något i önskemålet, skriv det – så tar jag med det.
+
+Hör du inget från mig inom ett par timmar – kontakta Niklas.
 [[/till-leo]]" >/dev/null
 }
 
@@ -123,6 +132,7 @@ Du kan välja:
 # aldrig via .git/config – bygget av en ändring körs i en worktree som delar den (persist-credentials: false).
 git_nat() {
   if [ "${CI:-}" = true ] && [ -n "${GH_TOKEN:-}" ]; then
-    git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" "$@"
+    # Tomt värde först: nollställer en ev. header från actions/checkout, så att bara vår nyckel skickas.
+    git -c http.https://github.com/.extraheader= -c http.https://github.com/.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" "$@"
   else git "$@"; fi
 }

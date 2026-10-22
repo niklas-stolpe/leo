@@ -29,7 +29,7 @@ permissions:
   pull-requests: write
   issues: write
   id-token: write
-  actions: read
+  actions: write   # "försök igen" startar mejl-version.yml (gh workflow run)
 
 jobs:
   claude:
@@ -96,7 +96,7 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           claude_args: |
-            --allowed-tools "Edit,Write,Read,Glob,Grep,Bash(npm run check:*),Bash(npm run build:*),Bash(npm run check),Bash(npm run build),Bash(git:*),Bash(gh pr create:*),Bash(gh pr view:*),Bash(gh pr edit:*),Bash(gh pr comment:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh issue edit:*),Bash(ls:*),Bash(mkdir:*),Bash(cp:*),Bash(mv:*),Bash(curl:*),Bash(file:*),Bash(bash scripts/publicera-version.sh:*),Bash(bash scripts/pr-preview.sh:*),Bash(bash scripts/requirements-check.sh:*)"
+            --allowed-tools "Edit,Write,Read,Glob,Grep,Bash(npm run check:*),Bash(npm run build:*),Bash(npm run check),Bash(npm run build),Bash(git:*),Bash(gh pr create:*),Bash(gh pr view:*),Bash(gh pr edit:*),Bash(gh pr comment:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh issue edit:*),Bash(ls:*),Bash(mkdir:*),Bash(cp:*),Bash(mv:*),Bash(curl:*),Bash(file:*),Bash(bash scripts/publicera-version.sh:*),Bash(bash scripts/pr-preview.sh:*),Bash(bash scripts/requirements-check.sh:*),Bash(gh workflow run mejl-version.yml:*),Bash(gh run list:*),Bash(gh run view:*)"
             ${{ steps.kvot.outputs.status == 'ok' && format('--model {0} --effort {1}', vars.LEO_CLAUDE_MODELL || 'claude-sonnet-5-5', vars.LEO_CLAUDE_EFFORT || 'medium') || '' }}
             --append-system-prompt "Du kör i GitHub för projektet Leo. Följ CLAUDE.md, särskilt avsnittet 'När du kör i GitHub'. Den som skriver är oftast Leo – konstnär, ingen teknisk bakgrund. Svara honom på enkel svenska utan tekniska ord. Är issuet ett mejlärende (etiketten mejl) – följ avsnittet 'Mejl från Leo' i CLAUDE.md."
 
@@ -108,6 +108,31 @@ jobs:
         run: |
           source scripts/lib.sh
           stopp_till_leo "${{ github.event.issue.number || github.event.pull_request.number }}" "Claudes körning misslyckades – se [körningen]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
+
+      # Claudes pushar startar varken granskningen eller mejl-version.yml (GitHub startar inga workflows av
+      # en push med körningens egen nyckel). Saknar en PR för ärendet granskning på sin senaste commit pushar
+      # processen en tom commit med PROCESS_TOKEN – då startar granskning, bygge och kedjan som vanligt.
+      - name: Starta granskningen efter Claudes push
+        if: always() && steps.kvot.outputs.status == 'ok'
+        env:
+          GH_TOKEN: ${{ secrets.PROCESS_TOKEN }}
+        run: |
+          source scripts/lib.sh
+          n="${{ github.event.issue.number || github.event.pull_request.number }}"
+          sleep 30   # en nyöppnad PR hinner registrera sin granskning
+          prs="$( { gh pr view "$n" --repo "$REPO" --json number,state --jq 'select(.state=="OPEN") | .number' 2>/dev/null || true
+                    gh pr list --repo "$REPO" --state open --search "Closes #$n in:body" --json number --jq '.[].number' || true; } | sort -u)"
+          for pr in $prs; do
+            sha="$(pr_field "$pr" .headRefOid)"
+            granskad="$(gh api "repos/$REPO/commits/$sha/check-runs" --jq '[.check_runs[] | select(.name=="review")] | length')"
+            [ "$granskad" -eq 0 ] || continue
+            gren="$(pr_field "$pr" .headRefName)"
+            git reset -q --hard && git clean -fdq   # ev. ocommittat från Claudes körning hör inte hit
+            git_nat fetch -q origin "$gren" && git checkout -q -B "$gren" FETCH_HEAD               || { echo "::warning::kunde inte byta till $gren – granskningen för #$pr startades inte"; continue; }
+            git -c user.name=leo-process -c user.email=leo-process@users.noreply.github.com               commit -q --allow-empty -m "Starta granskning och bygge (Claudes push startar dem inte)"
+            git_nat push -q origin "$gren"
+            echo "Startade granskningen för #$pr"
+          done
 
       - name: Räkna Leos tokens
         if: always() && steps.kvot.outputs.status == 'ok' && steps.claude.outputs.execution_file != ''
