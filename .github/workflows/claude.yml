@@ -124,6 +124,10 @@ jobs:
     needs: claude
     if: always() && needs.claude.outputs.kvot != ''
     runs-on: ubuntu-latest
+    # En bokföring i taget – två samtidiga körningar skulle annars kunna skriva över varandras räknare.
+    concurrency:
+      group: leo-kvot
+      cancel-in-progress: false
     env:
       GH_TOKEN: ${{ secrets.PROCESS_TOKEN }}
       N: ${{ github.event.issue.number || github.event.pull_request.number }}
@@ -169,4 +173,8 @@ jobs:
 
       - name: Räkna Leos tokens
         if: needs.claude.outputs.tokens != ''
-        run: bash scripts/leo-kvot.sh lagg-till "${{ needs.claude.outputs.tokens }}" "$N"
+        env:
+          TOKENS: ${{ needs.claude.outputs.tokens }}   # via miljön – aldrig inklistrat i skriptet
+        run: |
+          [[ "$TOKENS" =~ ^[0-9]+$ ]] || { echo "::warning::ogiltigt tokenantal – räknas inte"; exit 0; }
+          bash scripts/leo-kvot.sh lagg-till "$TOKENS" "$N"
