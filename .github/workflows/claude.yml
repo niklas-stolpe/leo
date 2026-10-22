@@ -102,50 +102,71 @@ jobs:
             ${{ steps.kvot.outputs.status == 'ok' && format('--model {0} --effort {1}', vars.LEO_CLAUDE_MODELL || 'claude-sonnet-5-5', vars.LEO_CLAUDE_EFFORT || 'medium') || '' }}
             --append-system-prompt "Du kör i GitHub för projektet Leo. Följ CLAUDE.md, särskilt avsnittet 'När du kör i GitHub'. Den som skriver är oftast Leo – konstnär, ingen teknisk bakgrund. Svara honom på enkel svenska utan tekniska ord. Är issuet ett mejlärende (etiketten mejl) – följ avsnittet 'Mejl från Leo' i CLAUDE.md."
 
+      # Tokens räknas här, utan nycklar – själva bokföringen sker i jobbet "efter".
+      - name: Tokens i körningen
+        id: tokens
+        if: always() && steps.kvot.outputs.status == 'ok' && steps.claude.outputs.execution_file != ''
+        run: |
+          node -e "
+            const m = JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'));
+            const r = [].concat(m).reverse().find((x) => x.type === 'result') ?? {};
+            const u = r.usage ?? {};
+            console.log('antal=' + ((u.input_tokens ?? 0) + (u.output_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0)));
+          " "${{ steps.claude.outputs.execution_file }}" >> "$GITHUB_OUTPUT"
+
+    outputs:
+      kvot: ${{ steps.kvot.outputs.status }}
+      tokens: ${{ steps.tokens.outputs.antal }}
+
+  # Allt som behöver PROCESS_TOKEN efter Claude körs i ett eget jobb med en ren checkout av main: Claudes
+  # arbetskatalog (som ett mejl kan ha styrt – ändrade skript, git-hooks, GITHUB_ENV) når aldrig nyckeln.
+  efter:
+    needs: claude
+    if: always() && needs.claude.outputs.kvot != ''
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PROCESS_TOKEN }}
+      N: ${{ github.event.issue.number || github.event.pull_request.number }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          persist-credentials: false
+
       # Leo blir aldrig utan besked: kraschar Claudes körning på ett mejlärende får han förslag på vad han kan göra.
       - name: Besked till Leo om körningen misslyckades
-        if: failure() && steps.kvot.outputs.status == 'ok'
-        env:
-          GH_TOKEN: ${{ secrets.PROCESS_TOKEN }}
+        if: needs.claude.result == 'failure' && needs.claude.outputs.kvot == 'ok'
         run: |
           source scripts/lib.sh
-          stopp_till_leo "${{ github.event.issue.number || github.event.pull_request.number }}" "Claudes körning misslyckades – se [körningen]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
+          stopp_till_leo "$N" "Claudes körning misslyckades – se [körningen]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
 
       # Claudes pushar startar varken granskningen eller mejl-version.yml (GitHub startar inga workflows av
       # en push med körningens egen nyckel). Saknar en PR för ärendet granskning på sin senaste commit pushar
       # processen en tom commit med PROCESS_TOKEN – då startar granskning, bygge och kedjan som vanligt.
       - name: Starta granskningen efter Claudes push
-        if: always() && steps.kvot.outputs.status == 'ok'
-        env:
-          GH_TOKEN: ${{ secrets.PROCESS_TOKEN }}
+        if: needs.claude.outputs.kvot == 'ok'
         run: |
           source scripts/lib.sh
-          n="${{ github.event.issue.number || github.event.pull_request.number }}"
           sleep 30   # en nyöppnad PR hinner registrera sin granskning
-          prs="$( { gh pr view "$n" --repo "$REPO" --json number,state --jq 'select(.state=="OPEN") | .number' 2>/dev/null || true
-                    gh pr list --repo "$REPO" --state open --search "Closes #$n in:body" --json number --jq '.[].number' || true; } | sort -u)"
+          prs="$( { gh pr view "$N" --repo "$REPO" --json number,state --jq 'select(.state=="OPEN") | .number' 2>/dev/null || true
+                    gh pr list --repo "$REPO" --state open --search "Closes #$N in:body" --json number --jq '.[].number' || true; } | sort -u)"
           for pr in $prs; do
             # Sökningen är fritext – bara PR:en själv eller en PR som verkligen stänger ärendet räknas.
-            [ "$pr" = "$n" ] || pr_closes "$pr" | grep -qx "$n" || continue
+            [ "$pr" = "$N" ] || pr_closes "$pr" | grep -qx "$N" || continue
             sha="$(pr_field "$pr" .headRefOid)"
             granskad="$(gh api "repos/$REPO/commits/$sha/check-runs" --jq '[.check_runs[] | select(.name=="review")] | length')"
             [ "$granskad" -eq 0 ] || continue
             gren="$(pr_field "$pr" .headRefName)"
-            git reset -q --hard && git clean -fdq   # ev. ocommittat från Claudes körning hör inte hit
-            git_nat fetch -q origin "$gren" && git checkout -q -B "$gren" FETCH_HEAD               || { echo "::warning::kunde inte byta till $gren – granskningen för #$pr startades inte"; continue; }
-            git -c user.name=leo-process -c user.email=leo-process@users.noreply.github.com               commit -q --allow-empty -m "Starta granskning och bygge (Claudes push startar dem inte)"
-            git_nat push -q origin "$gren"
+            # Bara metadata: den tomma commiten skapas ovanpå grenens topp utan att grenens filer körs.
+            git_nat fetch -q origin "$gren" || { echo "::warning::kunde inte hämta $gren – granskningen för #$pr startades inte"; continue; }
+            ny="$(git -c user.name=leo-process -c user.email=leo-process@users.noreply.github.com               commit-tree "FETCH_HEAD^{tree}" -p FETCH_HEAD -m "Starta granskning och bygge (Claudes push startar dem inte)")"
+            git_nat push -q origin "$ny:refs/heads/$gren"
             echo "Startade granskningen för #$pr"
           done
 
       - name: Räkna Leos byggtid
-        if: always() && steps.kvot.outputs.status != ''
-        env:
-          GH_TOKEN: ${{ secrets.PROCESS_TOKEN }}
-        run: bash scripts/leo-kvot.sh minuter "${{ github.event.issue.number || github.event.pull_request.number }}" || true
+        run: bash scripts/leo-kvot.sh minuter "$N" || true
 
       - name: Räkna Leos tokens
-        if: always() && steps.kvot.outputs.status == 'ok' && steps.claude.outputs.execution_file != ''
-        env:
-          GH_TOKEN: ${{ secrets.PROCESS_TOKEN }}
-        run: bash scripts/leo-kvot.sh lagg-till "${{ steps.claude.outputs.execution_file }}" "${{ github.event.issue.number || github.event.pull_request.number }}"
+        if: needs.claude.outputs.tokens != ''
+        run: bash scripts/leo-kvot.sh lagg-till "${{ needs.claude.outputs.tokens }}" "$N"

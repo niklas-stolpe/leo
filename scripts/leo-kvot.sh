@@ -11,7 +11,7 @@
 #
 #   scripts/leo-kvot.sh status                    → ok | pausad | slut  (och procent på stderr)
 #   scripts/leo-kvot.sh saldo                     → skriver saldot till ärendet med etiketten kvot
-#   scripts/leo-kvot.sh lagg-till <execution.json> <issue>
+#   scripts/leo-kvot.sh lagg-till <execution.json|antal> <issue>
 #                                                 → räknar upp; mejlar Leo (via kommentar) vid 8 % och 10 %
 #   scripts/leo-kvot.sh minuter <issue|pr> [run-id …] → räknar byggtid (Actions-minuter); mejlar vid 8 % och 10 %
 # Kräver GH_TOKEN med rätt att läsa och skriva repo-variabler (PROCESS_TOKEN).
@@ -115,12 +115,15 @@ case "${1:?status|lagg-till|saldo|veckostart}" in
     if gh pr view "$issue" --repo "$REPO" >/dev/null 2>&1; then
       stanger="$(pr_closes "$issue" | head -1)"; [ -z "$stanger" ] || issue="$stanger"
     fi
+    if [[ "$fil" =~ ^[0-9]+$ ]]; then tokens="$fil"   # antalet redan uträknat (claude.yml, jobbet "efter")
+    else
     [ -f "$fil" ] || { warn "ingen execution-fil ($fil) – inget att räkna"; exit 0; }
     tokens="$(node -e "
       const m = JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'));
       const r = [].concat(m).reverse().find((x) => x.type === 'result') ?? {};
       const u = r.usage ?? {};
       console.log((u.input_tokens ?? 0) + (u.output_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0));" "$fil")"
+    fi
     nytt=$(( anvant + tokens ))
     gh variable set "$manad" --repo "$REPO" --body "$nytt"
     skriv_saldo "$nytt"
@@ -145,6 +148,8 @@ case "${1:?status|lagg-till|saldo|veckostart}" in
         | if . < 1 then 1 else . end] | add // 0'
     }
     raknade_var="LEO_MINUTER_RAKNADE_$(date -u +%Y_%m)"; raknade="$(var "$raknade_var" "")"
+    # Listan börjar om varje månad (håller sig långt under GitHubs storleksgräns); förra månadens tas bort.
+    gh variable delete "LEO_MINUTER_RAKNADE_$(date -u -d "$(date -u +%Y-%m-01) -1 day" +%Y_%m)" --repo "$REPO" 2>/dev/null || true
     summa=0; [ -z "${GITHUB_RUN_ID:-}" ] || summa="$(jobbmin "$GITHUB_RUN_ID")"
     for id in "$@"; do
       case ",$raknade," in *",$id,"*) continue ;; esac
