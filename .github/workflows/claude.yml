@@ -123,6 +123,8 @@ jobs:
           prs="$( { gh pr view "$n" --repo "$REPO" --json number,state --jq 'select(.state=="OPEN") | .number' 2>/dev/null || true
                     gh pr list --repo "$REPO" --state open --search "Closes #$n in:body" --json number --jq '.[].number' || true; } | sort -u)"
           for pr in $prs; do
+            # Sökningen är fritext – bara PR:en själv eller en PR som verkligen stänger ärendet räknas.
+            [ "$pr" = "$n" ] || pr_closes "$pr" | grep -qx "$n" || continue
             sha="$(pr_field "$pr" .headRefOid)"
             granskad="$(gh api "repos/$REPO/commits/$sha/check-runs" --jq '[.check_runs[] | select(.name=="review")] | length')"
             [ "$granskad" -eq 0 ] || continue
