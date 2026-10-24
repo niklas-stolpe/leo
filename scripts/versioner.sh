@@ -21,6 +21,8 @@ rm -rf "$tmp"
 cd "$rot/versioner"
 "$wrangler" deploy 2>&1 | grep -E 'workers.dev|ERROR|✘' || true
 # Sessionerna signeras med en slumpad hemlighet – skapas en gång, visas aldrig.
+# Vem som får logga in är en secret (repot är publikt) – utan den kan ingen publicera från sidan.
+"$wrangler" secret list 2>/dev/null | grep -q TILLATNA   || warn "versionssidan saknar TILLATNA – kör: cd versioner && npx wrangler secret put TILLATNA (adresserna, kommaseparerade)"
 if ! "$wrangler" secret list 2>/dev/null | grep -q SESSION_SECRET; then
   node -e "process.stdout.write(require('crypto').randomBytes(32).toString('base64url'))" | "$wrangler" secret put SESSION_SECRET >/dev/null 2>&1     && ok "SESSION_SECRET skapad" || warn "SESSION_SECRET kunde inte sättas"
 fi
