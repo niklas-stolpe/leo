@@ -11,7 +11,7 @@
  *
  * Inställningar: Projektinställningar → Skriptegenskaper (inte i koden – adresserna är personuppgifter):
  *   GITHUB_TOKEN  fine-grained token med Issues: Read and write på niklas-stolpe/leo
- *   TILLATNA      vem som får mejla, med namn: lowejkoleo@gmail.com=Leo,niklasstolpe@gmail.com=Niklas
+ *   TILLATNA      vem som får mejla, med namn: <Leos adress>=Leo,<Admins adress>=Niklas
  * Uppsättning: inkorg/README.md.
  * Koden ändras i repot och klistras in här igen – den här kopian är inte källan.
  */

@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-10-24 | #48 (Admin): repot är publikt (obegränsade Actions-minuter). Mejladresser borta ur filerna (TILLATNA på versionssidan är nu en secret), Claude startar bara för medlemmar/medarbetare. Leos mejl blir publika ärenden – godkänt av Admin. |
 | 2026-10-24 | #48 (Admin): personer på bild – andra än Leo går bra när ansiktet inte syns (t.ex. handen på nr-03/04/13–16); syns ett ansikte krävs Admins bekräftade samtycke. Alla 24 bilder granskade: bara Leo med ansikte (leo-vaggen.jpg, bekräftad). |
 | 2026-10-22 | #48 (Admin): Leos byggtid begränsas till 10 % av organisationens Actions-minuter per månad (F-47) – leo-kvot.sh minuter räknar claude.yml, mejl-version.yml och granskning/kravgrind/tavla på hans PR:er; stopp och varning som för tokens; saldoraden visar byggtid kvar. Daglig requirements-audit avstängd i leo för att spara minuter – med `gh workflow disable requirements-audit` (Actions-inställning, ingen kodändring; slås på med `gh workflow enable`). |
 | 2026-10-22 | #57 (Admin): informera först (F-51) – #64 fastnade (Cloudflare-bygget >10 min, och "försök igen" som tom commit startade ingen granskning) och Leo väntade i tre timmar. Nu: Leo mejlas innan något rättas (fixar_till_leo), "försök igen" startar mejl-version.yml direkt (workflow_dispatch), bygget får 25 min, och en vakt i inkorgen mejlar Leo och Niklas efter 45 min utan händelse och ber Leo kontakta Niklas efter 3 timmar. |
