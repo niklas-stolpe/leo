@@ -62,7 +62,7 @@ heltal "$varning" || varning=8
 # Byggtid (GitHub Actions-minuter): Leo får samma andel (kvot %) av organisationens minuter per månad – GitHub
 # räknar per kalendermånad. Räknas av körningarna som hör till hans mejl (claude.yml, mejl-version.yml, och
 # granskning/kravgrind/tavla på hans PR:er) med kommandot "minuter".
-min_budget="$(var LEO_ACTIONS_BUDGET 2000)"; heltal "$min_budget" || min_budget=2000
+min_budget="$(var LEO_ACTIONS_BUDGET 2000)"; heltal "$min_budget" || min_budget=2000   # 0 = ingen gräns (räknas ändå)
 min_var="LEO_MINUTER_$(date -u +%Y_%m)"
 min_anvant="$(var "$min_var" 0)"; heltal "$min_anvant" || min_anvant=0
 min_tak=$(( min_budget * kvot / 100 ))
@@ -104,7 +104,7 @@ case "${1:?status|lagg-till|saldo|veckostart}" in
     printf 'Leo har använt %s %% av budgeten i %s (kvot %s %%)\n' "$andel" "${manad#LEO_TOKENS_}" "$kvot" >&2
     if [ "$(var LEO_CLAUDE_AKTIV true)" = false ]; then echo pausad
     elif [ "$budget" -le 0 ] || awk -v a="$andel" -v k="$kvot" 'BEGIN { exit !(a >= k) }'; then echo slut
-    elif [ "$min_anvant" -ge "$min_tak" ]; then echo slut-byggtid
+    elif [ "$min_tak" -gt 0 ] && [ "$min_anvant" -ge "$min_tak" ]; then echo slut-byggtid
     else echo ok; fi
     printf 'Byggtid: %s av %s min i %s
 ' "$min_anvant" "$min_tak" "${min_var#LEO_MINUTER_}" >&2
@@ -161,7 +161,8 @@ case "${1:?status|lagg-till|saldo|veckostart}" in
     skriv_saldo "$anvant"
     ok "+$summa min byggtid → $min_anvant av $min_tak"
     vgrans=$(( min_budget * varning / 100 ))
-    if [ "$fore" -lt "$min_tak" ] && [ "$min_anvant" -ge "$min_tak" ]; then
+    if [ "$min_tak" -le 0 ]; then :   # ingen gräns – inga varningar
+    elif [ "$fore" -lt "$min_tak" ] && [ "$min_anvant" -ge "$min_tak" ]; then
       till_leo "$issue" "Hej Leo! Månadens byggtid är nu slut – den fylls på igen den 1:a nästa månad. Det du redan har fått finns kvar på versionssidan: $VERSIONER_URL. Hör av dig till Niklas om något brådskar."
     elif [ "$fore" -lt "$vgrans" ] && [ "$min_anvant" -ge "$vgrans" ]; then
       till_leo "$issue" "Hej Leo! En liten varning: det mesta av månadens byggtid är använd. Det räcker till någon ändring till – sedan fylls den på igen den 1:a nästa månad."
