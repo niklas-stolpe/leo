@@ -34,11 +34,10 @@ permissions:
 jobs:
   claude:
     # Bara @claude från en människa (inte bot → inga loopar med granskaren eller förhandsvisningen).
-    # Repot är publikt: bara medlemmar/medarbetare (Admin, och inkorgen som skriver med Admins nyckel) räknas.
+    # Repot är publikt: bara Admin (nstolpeflir) får skriva – och inkorgen skriver med Admins nyckel, så Leos mejl
+    # räknas. Alla andra, även organisationens medlemmar, kan bara läsa (Admin 2026-10-24).
     if: >
-      github.event.sender.type != 'Bot' &&
-      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'),
-        github.event.comment.author_association || github.event.review.author_association || github.event.issue.author_association) &&
+      github.event.sender.login == 'nstolpeflir' &&
       (
         (github.event_name == 'issues' && contains(github.event.issue.body, '@claude')) ||
         (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||

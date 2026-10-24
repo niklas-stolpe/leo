@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-10-24 | #48 (Admin): bara Admin och Claude får skriva i repot, alla andra läsa. Claude startar bara när Admins konto skriver @claude (inkorgen skriver med det kontot). |
 | 2026-10-24 | #48 (Admin): Leos gräns för byggtid borttagen – LEO_ACTIONS_BUDGET=0 betyder ingen gräns (minuterna räknas fortfarande, raden försvinner ur mejlen). Tokenkvoten per vecka gäller som förut. |
 | 2026-10-24 | #48 (Admin): repot är publikt (obegränsade Actions-minuter). Mejladresser borta ur filerna (TILLATNA på versionssidan är nu en secret), Claude startar bara för medlemmar/medarbetare. Leos mejl blir publika ärenden – godkänt av Admin. |
 | 2026-10-24 | #48 (Admin): personer på bild – andra än Leo går bra när ansiktet inte syns (t.ex. handen på nr-03/04/13–16); syns ett ansikte krävs Admins bekräftade samtycke. Alla 24 bilder granskade: bara Leo med ansikte (leo-vaggen.jpg, bekräftad). |
