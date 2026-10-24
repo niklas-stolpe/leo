@@ -34,8 +34,11 @@ permissions:
 jobs:
   claude:
     # Bara @claude från en människa (inte bot → inga loopar med granskaren eller förhandsvisningen).
+    # Repot är publikt: bara medlemmar/medarbetare (Admin, och inkorgen som skriver med Admins nyckel) räknas.
     if: >
       github.event.sender.type != 'Bot' &&
+      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'),
+        github.event.comment.author_association || github.event.review.author_association || github.event.issue.author_association) &&
       (
         (github.event_name == 'issues' && contains(github.event.issue.body, '@claude')) ||
         (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||

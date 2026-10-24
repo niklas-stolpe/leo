@@ -5,7 +5,8 @@
 // direkt hos Cloudflare: en ny deployment av Workern leo (prod) eller leo-demo (demo) med exakt den
 // version som redan finns – inget nytt bygge, sekunder.
 //
-// Konfiguration (versioner/wrangler.jsonc): vars ACCOUNT_ID, GOOGLE_CLIENT_ID, TILLATNA.
+// Konfiguration (versioner/wrangler.jsonc): vars ACCOUNT_ID, GOOGLE_CLIENT_ID. TILLATNA (adresserna, kommaseparerade)
+// är en secret – `wrangler secret put TILLATNA` – eftersom repot är publikt.
 // Secrets (sätts av Admin, se docs/processmall.md): GOOGLE_CLIENT_SECRET, SESSION_SECRET, CF_API_TOKEN.
 
 const WORKER = { prod: 'leo', demo: 'leo-demo' };
