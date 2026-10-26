@@ -9,10 +9,10 @@ const kappar = defineCollection({
   loader: glob({ pattern: '*/index.md', base: './src/content/kappar' }),
   schema: ({ image }) =>
     z.object({
-      // Löpnummer i samlingen – visas som romersk siffra (Nº XII) och styr ordningen.
+      // Löpnummer i samlingen – visas som Nº 12 och styr ordningen.
       nummer: z.number().int().positive(),
       // Grupp i samlingen efter handtagets form (#41) – Claudes förslag, Leo kan ändra.
-      grupp: z.enum(['krok', 'skulpterad', 't-handtag']),
+      grupp: z.enum(['dam', 'herr', 'ovriga']),
       titel: z.string().optional(),
       ar: z.number().int().optional(),
       // Material per del (#41): "Handtag och skaft" – masurbjörk (Betula pendula var. carelica).
