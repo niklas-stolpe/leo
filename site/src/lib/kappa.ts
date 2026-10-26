@@ -15,6 +15,7 @@ export async function allaKappar(): Promise<Kappa[]> {
 export const GRUPPER = [
   { id: 'dam', namn: 'Dam small/medium', text: 'Käppar i mindre storlek, passande dam.' },
   { id: 'herr', namn: 'Herr medium/large', text: 'Käppar i medium till large.' },
+  { id: 'galleri', namn: 'Galleri', text: 'Käppar ur Leos verkstad.' },
   { id: 'ovriga', namn: 'Fler käppar', text: 'Käppar där storleken ännu inte är angiven.' },
 ] as const;
 
