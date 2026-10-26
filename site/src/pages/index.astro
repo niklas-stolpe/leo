@@ -4,7 +4,7 @@
 import { Image, getImage } from 'astro:assets';
 import Bas from '../layouts/Bas.astro';
 import Ringar from '../components/Ringar.astro';
-import { allaKappar, kapparIGrupper, romersk, rubrik } from '../lib/kappa';
+import { allaKappar, kapparIGrupper, rubrik } from '../lib/kappa';
 import leoVaggen from '../assets/leo-vaggen.jpg';
 
 const kappar = await allaKappar();
@@ -50,7 +50,6 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
           widths={[480, 800, 1080]}
           sizes="(min-width: 60rem) 40vw, 100vw"
         />
-        <figcaption>Leo bland sina käppar</figcaption>
       </figure>
     </section>
 
@@ -58,7 +57,7 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
 
     <section id="samlingen" class="samlingen" aria-labelledby="samlingen-rubrik">
       <header class="samling-huvud">
-        <p class="versaler overrad">{romersk(kappar.length)} käppar</p>
+        <p class="versaler overrad">{kappar.length} käppar</p>
         <h2 id="samlingen-rubrik">Samlingen</h2>
         <nav class="grupplankar" aria-label="Grupper i samlingen">
           {grupper.map((g) => <a href={`#${g.id}`}>{g.namn} <span>{g.kappar.length}</span></a>)}
