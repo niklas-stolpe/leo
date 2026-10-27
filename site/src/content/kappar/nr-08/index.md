@@ -1,6 +1,6 @@
 ---
 nummer: 8
-grupp: ovriga
+grupp: masurbjork
 bilder:
   - ./bild.jpg
 alt: "Käpp med rundböjt krokhandtag i ljust mönstrat trä och ringar i mörkt och vitt."
