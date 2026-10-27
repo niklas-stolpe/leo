@@ -146,6 +146,24 @@ jobs:
           source scripts/lib.sh
           stopp_till_leo "$N" "Claudes körning misslyckades – se [körningen]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
 
+      # Claude får ibland inte köra gh pr create (behörighet nekad) – då finns ändringen bara på en gren och kedjan
+      # stannar. Har Claude pushat en ny claude/issue-N-*-gren för ärendet utan PR öppnar processen PR:en.
+      - name: Öppna PR för Claudes gren om den saknas
+        if: needs.claude.outputs.kvot == 'ok'
+        run: |
+          source scripts/lib.sh
+          for gren in $(git_nat ls-remote --heads origin "claude/issue-$N-*" | awk '{print $2}' | sed 's#refs/heads/##'); do
+            [ -z "$(gh pr list --repo "$REPO" --head "$gren" --state all --json number --jq '.[0].number // empty')" ] || continue
+            git_nat fetch -q --depth=50 origin "main:refs/remotes/origin/main" "$gren:refs/remotes/origin/$gren" || continue
+            [ "$(git rev-list --count "origin/main..origin/$gren")" -gt 0 ] || continue
+            # Bara nya grenar (senaste commit inom 2 timmar) – gamla övergivna grenar lämnas.
+            [ $(( $(date +%s) - $(git log -1 --format=%ct "origin/$gren") )) -lt 7200 ] || continue
+            titel="$(git log -1 --format=%s "origin/$gren" | cut -c1-100)"
+            gh pr create --repo "$REPO" --head "$gren" --base main --title "${titel:-Ändring från Leos mejl #$N}" \
+              --body "$(printf 'Closes #%s\n\nUppfyller: – justering\n\n(PR:en öppnad av processen: Claude fick inte öppna den själv.)' "$N")" \
+              && echo "Öppnade PR för $gren"
+          done
+
       # Claudes pushar startar varken granskningen eller mejl-version.yml (GitHub startar inga workflows av
       # en push med körningens egen nyckel). Saknar en PR för ärendet granskning på sin senaste commit pushar
       # processen en tom commit med PROCESS_TOKEN – då startar granskning, bygge och kedjan som vanligt.
