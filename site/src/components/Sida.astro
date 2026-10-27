@@ -3,7 +3,7 @@
 import Bas from '../layouts/Bas.astro';
 interface Props {
   titel: string;
-  overrad: string;
+  overrad?: string;
   beskrivning?: string;
 }
 const { titel, overrad, beskrivning } = Astro.props;
@@ -11,7 +11,7 @@ const { titel, overrad, beskrivning } = Astro.props;
 
 <Bas titel={`${titel} – Leo`} beskrivning={beskrivning}>
   <main class="sida">
-    <p class="versaler overrad">{overrad}</p>
+    {overrad && <p class="versaler overrad">{overrad}</p>}
     <h1>{titel}</h1>
     <div class="innehall"><slot /></div>
   </main>
