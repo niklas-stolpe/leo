@@ -13,8 +13,8 @@ export async function allaKappar(): Promise<Kappa[]> {
 
 /** Samlingens grupper i den ordning de visas (#41). Indelningen är ett förslag – Leo bestämmer. */
 export const GRUPPER = [
-  { id: 'dam', namn: 'Damkäppar small/medium', text: 'Käppar i mindre storlek, passande dam.' },
-  { id: 'herr', namn: 'Herr medium/large', text: 'Käppar i medium till large.' },
+  { id: 'dam', namn: 'small/medium', text: '' },
+  { id: 'herr', namn: 'medium/large', text: '' },
   { id: 'masurbjork', namn: 'Masurbjörk', text: 'Käppar i masurbjörk.' },
   { id: 'galleri', namn: 'Galleri', text: 'Käppar ur Leos verkstad.' },
 ] as const;
