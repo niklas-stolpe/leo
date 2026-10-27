@@ -141,8 +141,9 @@ function dmarcOk(m, fran) {
 function rensa(text) {
   const rader = [];
   const alla = text.split(/\r?\n/);
-  // "Den mån 19 okt. 2026 kl 23:28 skrev Claude <adress>:" – Gmail bryter ibland raden före adressen.
-  const citatRad = (r) => /^(Den|On) .*\d.*\b(skrev|wrote)\b.*:\s*$/.test(r);
+  // Gmails citatrad: "Den mån 19 okt. 2026 kl 23:28 skrev Claude <adress>:", "tis 27 okt. 2026 kl. 12:06 skrev
+  // Leo Lowejko <adress>:" eller "On Mon, … wrote:" – ett årtal och skrev/wrote. Gmail bryter ibland raden.
+  const citatRad = (r) => /\b(19|20)\d\d\b.*\b(skrev|wrote)\b.*:\s*$/.test(r);
   for (let i = 0; i < alla.length; i++) {
     const rad = alla[i];
     if (citatRad(rad) || citatRad(rad + ' ' + (alla[i + 1] || '')) || /^-{2,}\s*(Ursprungligt|Original) /i.test(rad)) break;

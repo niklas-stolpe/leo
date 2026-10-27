@@ -75,6 +75,8 @@ Skriv där på enkel svenska, kort och varmt, utan tekniska ord, länkar till Gi
    Informera först, fixa sedan. Skriv aldrig bara till Admin och låt Leo vänta.
    Lovar du Leo något senare, skriv **"du får ett mejl"** (eller "jag hör av mig") – inkorgens vakt känner igen
    det och säger till Leo och Niklas om löftet inte hålls inom 45 minuter.
+   `gh pr create` körs som *ett* kommando (inga `$(…)`, `&&` eller heredoc) – annars nekas det. Nekas det ändå
+   öppnar processen PR:en åt dig efter körningen.
 6. **Innan du svarar "Nu bygger jag":** kör `bash scripts/requirements-check.sh <pr>` – den ska vara grön. På
    `Uppfyller:` står bara krav som är `Klar` i PR:en; ett krav som väntar på Leos ögon nämns på en egen rad.
    Små justeringar (textstorlek, ordval) blir ingen ny kravrad: `Uppfyller: – justering`.
