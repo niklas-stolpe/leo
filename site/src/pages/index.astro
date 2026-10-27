@@ -67,7 +67,7 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
         grupper.map((g) => (
           <section id={g.id} class="grupp" aria-labelledby={`${g.id}-rubrik`}>
             <h3 id={`${g.id}-rubrik`}>{g.namn}</h3>
-            <p class="grupptext">{g.text}</p>
+            {g.text && <p class="grupptext">{g.text}</p>}
             <ol class="galleri">
               {g.kappar.map((k) => (
                 <li>
