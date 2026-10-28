@@ -22,6 +22,15 @@ const MENY = [
   { href: '/om/', text: 'Om Leo' },
   { href: '/kontakt/', text: 'Kontakt' },
 ];
+// Kontaktuppgifterna öppnas under "Kontakt" på datorn – uppe i huvudet och nere i foten.
+const uppgifter = [
+  'Leo Lowejko',
+  'Idelund1 Lommaryd',
+  '578 91 Aneby',
+  '070-2837645 (om ej svar - skicka sms)',
+  'lowejkoleo@gmail.com',
+  '#llcanes',
+];
 const ar = new Date().getFullYear();
 const bildUrl = delningsbild ? new URL(delningsbild, Astro.url).href : undefined;
 // Kanonisk adress (NF-04): samma sida kan nås på flera adresser (versionslänkar, stage) – den här räknas.
@@ -51,7 +60,14 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
     <header class:list={['huvud', { 'over-bild': overBild }]}>
       <a class="marke" href="/">llcanes</a>
       <nav class="bred" aria-label="Huvudmeny">
-        {MENY.map((m) => <a href={m.href}>{m.text}</a>)}
+        {MENY.map((m) => m.href === '/kontakt/' ? (
+          <details class="kontakt-ruta">
+            <summary>Kontakt</summary>
+            <address class="uppgifter">
+              {uppgifter.map((u) => u.includes('@') ? <a href={`mailto:${u}`}>{u}</a> : <span>{u}</span>)}
+            </address>
+          </details>
+        ) : <a href={m.href}>{m.text}</a>)}
       </nav>
       <details class="smal">
         <summary aria-label="Meny">Meny</summary>
@@ -64,10 +80,29 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
     <footer class="fot">
       <Ringar />
       <nav class="fotmeny" aria-label="Sidfot">
-        {MENY.map((m) => <a href={m.href}>{m.text}</a>)}
+        {MENY.map((m) => m.href === '/kontakt/' ? (
+          <>
+            <a class="kontakt-smal" href={m.href}>{m.text}</a>
+            <details class="kontakt-ruta kontakt-bred">
+              <summary>Kontakt</summary>
+              <address class="uppgifter">
+                {uppgifter.map((u) => u.includes('@') ? <a href={`mailto:${u}`}>{u}</a> : <span>{u}</span>)}
+              </address>
+            </details>
+          </>
+        ) : <a href={m.href}>{m.text}</a>)}
       </nav>
       <p>© Leo {ar}</p>
     </footer>
+    <script>
+      // Menyn på telefonen stängs av sig själv efter 8 sekunder.
+      const meny = document.querySelector<HTMLDetailsElement>('.smal');
+      let timer: number | undefined;
+      meny?.addEventListener('toggle', () => {
+        clearTimeout(timer);
+        if (meny.open) timer = window.setTimeout(() => (meny.open = false), 8000);
+      });
+    </script>
   </body>
 </html>
 
@@ -222,6 +257,64 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
   /* Menyn i huvudet större än i foten (#57) – foten behåller den lilla texten. */
   .huvud nav a {
     font-size: 1.07rem;
+  }
+  /* Kontakt på datorn: uppgifterna öppnas under ordet (huvudet) eller ovanför (foten). */
+  .kontakt-ruta {
+    position: relative;
+  }
+  .kontakt-ruta summary {
+    list-style: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    font-size: 1.07rem;
+    font-weight: var(--versal-vikt);
+    color: var(--dampad);
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  .kontakt-ruta summary::-webkit-details-marker {
+    display: none;
+  }
+  .kontakt-ruta summary:hover {
+    color: var(--elfenben);
+  }
+  .kontakt-ruta .uppgifter {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    font-style: normal;
+    text-align: left;
+    white-space: nowrap;
+    background: var(--yta);
+    border: 1px solid rgb(184 149 90 / 0.4);
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    color: var(--elfenben);
+  }
+  .fot .kontakt-ruta summary {
+    font-size: 0.8rem;
+  }
+  .fot .kontakt-ruta .uppgifter {
+    top: auto;
+    bottom: 100%;
+    right: 50%;
+    transform: translateX(50%);
+  }
+  .kontakt-bred {
+    display: none;
+  }
+  @media (min-width: 56rem) {
+    .kontakt-smal {
+      display: none;
+    }
+    .kontakt-bred {
+      display: block;
+    }
   }
   .fot {
     padding: 4rem 1rem 3rem;
