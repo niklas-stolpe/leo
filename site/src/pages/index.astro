@@ -81,7 +81,7 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
                           : '(min-width: 70rem) 22rem, (min-width: 40rem) 45vw, 92vw'
                       }
                     />
-                    <span class="bildtext">{rubrik(k)}</span>
+                    {g.id !== 'galleri' && <span class="bildtext">{rubrik(k)}</span>}
                   </a>
                 </li>
               ))}
