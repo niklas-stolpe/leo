@@ -139,6 +139,17 @@ jobs:
           ref: main
           persist-credentials: false
 
+      # Leos ärende: körs Claude från en kommentar på en PR är N PR-numret – mejlen till Leo ska till ärendet
+      # PR:en stänger (inkorgen bevakar ärendet, inte PR:en).
+      - name: Leos ärende
+        run: |
+          source scripts/lib.sh
+          arende="$N"
+          if gh pr view "$N" --repo "$REPO" >/dev/null 2>&1; then
+            s="$(pr_closes "$N" | head -1)"; [ -z "$s" ] || arende="$s"
+          fi
+          [[ "$arende" =~ ^[0-9]+$ ]] && echo "ARENDE=$arende" >> "$GITHUB_ENV"
+
       # Leo blir aldrig utan besked: kraschar Claudes körning på ett mejlärende får han förslag på vad han kan göra.
       - name: Besked till Leo om körningen misslyckades
         if: needs.claude.result == 'failure' && needs.claude.outputs.kvot == 'ok'
