@@ -19,6 +19,8 @@ Kopiera nyckeln – den används i steg 3 och ska inte klistras in någon annans
 1. Logga in i webbläsaren med **inkorgens** Gmail-konto (inte ditt eget).
 2. Gå till https://script.google.com → **Nytt projekt**. Döp det till `Leos inkorg`.
 3. Ta bort det som står i `Kod.gs` och klistra in hela [`Kod.gs`](Kod.gs) härifrån. Spara (Ctrl+S).
+   Det är bara en **startfil** – själva logiken ([`logik.js`](logik.js)) hämtas från repot varje gång och
+   körs bara om den är signerad (steg 3, `KOD_NYCKEL`).
 
 ## 3. Nyckeln i skriptet
 
@@ -26,6 +28,7 @@ Kugghjulet **Projektinställningar** → längst ned **Skriptegenskaper** → **
 
 - Egenskap: `GITHUB_TOKEN` · Värde: nyckeln från steg 1
 - Egenskap: `TILLATNA` · Värde: `<Leos adress>=Leo,<Admins adress>=Niklas` (vem som får mejla, med namn – adresserna står bara här, aldrig i repot, som är publikt)
+- Egenskap: `KOD_NYCKEL` · Värde: signaturnyckeln – innehållet i filen `~/.leo/inkorg-nyckel` på Admins dator (skapas av Claude; finns aldrig i repot)
 - **Spara skriptegenskaper**
 
 ## 4. Starta
@@ -78,4 +81,10 @@ går till Claude som vanligt.
 
 ## När koden ändras
 
-Kopiera in `Kod.gs` igen i script.google.com och spara. Utlösaren behöver inte göras om.
+Ingenting i Apps Script. Logiken ändras i [`logik.js`](logik.js) och signeras på Admins dator med
+`scripts/signera-inkorg.sh` (skriver `logik.sig`) i samma PR. `merge-pr.sh` mergar inte en osignerad ändring.
+Efter merge kör inkorgen den nya logiken inom cirka 10 minuter.
+
+Stämmer signaturen inte, eller går GitHub inte att nå, kör inkorgen inte alls och Niklas får mejlet
+"Leos inkorg står still" (högst var 6:e timme). Bara startfilen [`Kod.gs`](Kod.gs) klistras in för hand, och
+den ska aldrig behöva ändras.

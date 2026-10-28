@@ -20,6 +20,13 @@ head="$(pr_field "$pr" .headRefName)"; sha="$(pr_field "$pr" .headRefOid)"
 log "1/3 kravgrinden"
 "$here/requirements-check.sh" "$pr"
 
+# Inkorgens logik körs i Gmail-kontot bara om den är signerad (inkorg/Kod.gs). Osignerad ändring mergas inte –
+# signeringen kan bara göras på Admins dator, så en sådan PR mergas aldrig av sig själv i Actions.
+if gh api --paginate "repos/$REPO/pulls/$pr/files" --jq '.[].filename' | grep -qx 'inkorg/logik.js'; then
+  git_nat fetch -q origin "$sha" 2>/dev/null || git_nat fetch -q origin "$head"
+  bash "$here/signera-inkorg.sh" kolla "$sha"
+fi
+
 log "2/3 bygget ($BUILD_CHECK)"
 # Bygget körs av Cloudflare Workers Builds, inte GitHub Actions – fungerar även när Actions-minuterna
 # är slut. Kravgrinden i Actions (requirements-gate) räknas inte här: steg 1 körde samma script.

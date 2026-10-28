@@ -1,0 +1,341 @@
+/**
+ * Leos inkorg (F-46) – Google Apps Script som körs i inkorgens eget Gmail-konto.
+ *
+ * Var 5:e minut:
+ *  1. Nya mejl från tillåtna avsändare (TILLATNA, och bara om Gmail bekräftat avsändaren med DMARC)
+ *     blir ett issue i niklas-stolpe/leo med etiketten "mejl" – eller en kommentar på samma issue om
+ *     mejlet är ett svar i samma tråd. Texten börjar med "@claude", så Claude på GitHub tar över.
+ *     Bilder sparas i inkorgens Google Drive (läsbara via länk) och länkas i issuet.
+ *  2. Kommentarer på de issuena med text mellan [[till-leo]] och [[/till-leo]] skickas som
+ *     mejlsvar i samma tråd. Allt annat på GitHub (loggar, länkar, teknik) når aldrig Leo.
+ *
+ * Den här filen klistras INTE in i Apps Script. Startfilen (inkorg/Kod.gs) hämtar den från repots main var
+ * 5:e minut och kör den bara om signaturen i inkorg/logik.sig stämmer (scripts/signera-inkorg.sh, nyckeln
+ * finns bara hos Admin och i Skriptegenskapen KOD_NYCKEL). Ändras den här filen måste den signeras om.
+ *
+ * Inställningar: Projektinställningar → Skriptegenskaper (inte i koden – adresserna är personuppgifter):
+ *   GITHUB_TOKEN  fine-grained token med Issues: Read and write på niklas-stolpe/leo
+ *   TILLATNA      vem som får mejla, med namn: <Leos adress>=Leo,<Admins adress>=Niklas
+ *   KOD_NYCKEL    signaturnyckeln (startfilen)
+ * Uppsättning: inkorg/README.md.
+ */
+
+const REPO = 'niklas-stolpe/leo';
+const VERSIONSSIDAN = 'https://leo-versioner.niklasstolpe.workers.dev';
+const START = '[[till-leo]]';
+const SLUT = '[[/till-leo]]';
+const MAX_PER_KORNING = 5;
+// GitHub-konton vars kommentarer får mejlas till Leo: Claude-appen, workflows och Admin (PROCESS_TOKEN).
+const AVSANDARE_GITHUB = ['claude[bot]', 'github-actions[bot]', 'nstolpeflir'];
+
+/** Tillåtna avsändare: normaliserad adress → namn (Skriptegenskapen TILLATNA). */
+function tillatna() {
+  const lista = {};
+  String(PropertiesService.getScriptProperties().getProperty('TILLATNA') || '')
+    .split(',')
+    .map((x) => x.trim())
+    .filter(Boolean)
+    .forEach((x) => {
+      const [adr, namn] = x.split('=');
+      lista[normal(adr)] = (namn || adr).trim();
+    });
+  return lista;
+}
+
+/** En körning – anropas av startfilen (som håller låset). */
+function inkorgen() {
+  hamtaNyaMejl();
+  skickaUtskick();
+  skickaSvar();
+  vakta();
+}
+
+// ---------- in: mejl → GitHub ----------
+
+function hamtaNyaMejl() {
+  const egenskaper = PropertiesService.getScriptProperties();
+  const hanterad = GmailApp.getUserLabelByName('Hanterad') || GmailApp.createLabel('Hanterad');
+  const vilka = tillatna();
+  let antal = 0;
+  for (const trad of GmailApp.search('in:inbox is:unread', 0, 20)) {
+    for (const m of trad.getMessages()) {
+      if (!m.isUnread() || antal >= MAX_PER_KORNING) continue;
+      antal++;
+      const fran = adress(m.getFrom());
+      const namn = vilka[normal(fran)];
+      if (!namn || !dmarcOk(m, fran)) {
+        m.markRead(); // Okänd eller oäkta avsändare – ignoreras tyst.
+        continue;
+      }
+      const text = rensa(m.getPlainBody());
+      const bilder = m.getAttachments({ includeInlineImages: true })
+        .filter((a) => /^image\//.test(a.getContentType()))
+        .map(sparaBild);
+      const bildText = bilder.length
+        ? '\n\n**Bilder:**\n' + bilder.map((b, i) => `- Bild ${i + 1}: ${b.ladda} (${b.namn})`).join('\n')
+        : '';
+      const nyckel = 'trad:' + trad.getId();
+      const issue = egenskaper.getProperty(nyckel);
+      if (issue) {
+        // Leo svarar i en tråd vars ärende kan vara stängt sedan länge – bevaka det igen, annars når
+        // Claudes nästa svar aldrig fram.
+        egenskaper.setProperty('issue:' + issue, trad.getId());
+        github('POST', `/repos/${REPO}/issues/${issue}/comments`, {
+          body: `@claude\n\n**Svar från ${namn} via mejl:**\n\n${text}${bildText}`,
+        });
+      } else {
+        const ny = github('POST', `/repos/${REPO}/issues`, {
+          title: (m.getSubject() || 'Önskemål från Leo').slice(0, 120),
+          labels: ['mejl', 'önskemål'],
+          body: `@claude\n\n**Mejl från ${namn}** (${m.getDate().toISOString().slice(0, 10)}):\n\n${text}${bildText}\n\n<!-- mejl-trad: ${trad.getId()} -->`,
+        });
+        egenskaper.setProperty(nyckel, String(ny.number));
+        egenskaper.setProperty('issue:' + ny.number, trad.getId());
+      }
+      m.markRead();
+      trad.addLabel(hanterad);
+    }
+  }
+}
+
+function sparaBild(bilaga) {
+  const mapp = mappFor('Leo inkorg – bilder');
+  const fil = mapp.createFile(bilaga.copyBlob().setName(bilaga.getName() || 'bild.jpg'));
+  fil.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  return { namn: fil.getName(), ladda: `https://drive.google.com/uc?export=download&id=${fil.getId()}` };
+}
+
+function mappFor(namn) {
+  const finns = DriveApp.getFoldersByName(namn);
+  return finns.hasNext() ? finns.next() : DriveApp.createFolder(namn);
+}
+
+/**
+ * Gmail har kontrollerat att avsändaren är äkta (DMARC). Gmail lägger sin Authentication-Results-rad
+ * ÖVERST i huvudet; rader som avsändaren själv lagt in i mejlet hamnar under den. Därför räknas bara
+ * den översta raden – den måste vara Gmails ("mx.google.com;") och säga dmarc=pass för avsändarens
+ * domän. Annars kunde vem som helst förfalska Leos adress.
+ */
+function dmarcOk(m, fran) {
+  const huvud = m.getRawContent().split(/\r?\n\r?\n/)[0].replace(/\r?\n[ \t]+/g, ' ');
+  const doman = fran.split('@')[1].toLowerCase();
+  const overst = huvud.split(/\r?\n/).find((rad) => /^Authentication-Results:/i.test(rad)) || '';
+  return (
+    /^Authentication-Results:\s*mx\.google\.com;/i.test(overst) &&
+    /dmarc=pass\b/i.test(overst) &&
+    overst.toLowerCase().includes('header.from=' + doman)
+  );
+}
+
+/** Tar bort citerade tidigare mejl och signaturer, så att bara det nya kommer med. */
+function rensa(text) {
+  const rader = [];
+  const alla = text.split(/\r?\n/);
+  // Gmails citatrad: "Den mån 19 okt. 2026 kl 23:28 skrev Claude <adress>:", "tis 27 okt. 2026 kl. 12:06 skrev
+  // Leo Lowejko <adress>:" eller "On Mon, … wrote:" – ett årtal och skrev/wrote. Gmail bryter ibland raden.
+  const citatRad = (r) => /\b(19|20)\d\d\b.*\b(skrev|wrote)\b.*:\s*$/.test(r);
+  for (let i = 0; i < alla.length; i++) {
+    const rad = alla[i];
+    if (citatRad(rad) || citatRad(rad + ' ' + (alla[i + 1] || '')) || /^-{2,}\s*(Ursprungligt|Original) /i.test(rad)) break;
+    if (/^>/.test(rad)) continue;
+    if (/^Skickat från min /i.test(rad)) continue;
+    rader.push(rad);
+  }
+  return rader.join('\n').trim() || '(tomt mejl)';
+}
+
+// ---------- ut: GitHub → mejl ----------
+
+function skickaSvar() {
+  const egenskaper = PropertiesService.getScriptProperties();
+  const alla = egenskaper.getProperties();
+  for (const nyckel of Object.keys(alla).filter((k) => k.startsWith('issue:'))) {
+    const issue = nyckel.slice('issue:'.length);
+    const trad = GmailApp.getThreadById(alla[nyckel]);
+    if (!trad) continue;
+    const kommentarer = github('GET', `/repos/${REPO}/issues/${issue}/comments?per_page=100`);
+    for (const k of kommentarer) {
+      // Bara Claude, processens workflows och Admin får skriva till Leo – inte vem som helst på GitHub.
+      if (!AVSANDARE_GITHUB.includes(k.user && k.user.login)) continue;
+      const text = tillLeo(k.body || '');
+      if (!text) continue;
+      const hash = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, text));
+      if (egenskaper.getProperty('skickat:' + issue + ':' + k.id) === hash) continue;
+      // Svara på Leos senaste mejl i tråden – inte på vårt eget.
+      const vilka = tillatna();
+      const fran = trad.getMessages().filter((m) => vilka[normal(adress(m.getFrom()))]).pop();
+      if (fran) fran.reply(text + sidfot());
+      else {
+        // Tråden började med ett utskick från oss (mejl-ut) och Leo har inte svarat än – ett svar på vårt
+        // eget mejl skulle gå till oss själva, så skicka till mottagaren med samma ämne.
+        const till = egenskaper.getProperty('till:' + issue);
+        if (till) GmailApp.sendEmail(till, 'Re: ' + trad.getFirstMessageSubject(), text + sidfot());
+      }
+      egenskaper.setProperty('skickat:' + issue + ':' + k.id, hash);
+    }
+    // Stängt sedan länge → sluta bevaka.
+    const info = github('GET', `/repos/${REPO}/issues/${issue}`);
+    if (info.state === 'closed' && Date.now() - Date.parse(info.closed_at) > 7 * 864e5) {
+      // Sluta bevaka – och städa markeringarna för ärendet, så att skriptets lagring inte växer för evigt.
+      // (Svarar Leo i tråden igen bevakas ärendet på nytt; redan skickade kommentarer kan då skickas en
+      // gång till, vilket är bättre än att nya svar tappas.)
+      egenskaper.deleteProperty(nyckel);
+      egenskaper.deleteProperty('till:' + issue);
+      Object.keys(egenskaper.getProperties())
+        .filter((k) => k.startsWith('skickat:' + issue + ':') || k.startsWith('vakt:' + issue + ':'))
+        .forEach((k) => egenskaper.deleteProperty(k));
+    }
+  }
+}
+
+/**
+ * Nya mejl från oss (inte svar): ett öppet ärende med etiketten mejl-ut, med raden "Till: Leo" (namnet
+ * som i TILLATNA), ämnet som rubrik och texten mellan markörerna. Skickas en gång; ärendet får sedan
+ * etiketten mejl i stället, så att Leos svar i tråden hamnar där och går till Claude som vanligt.
+ * Bara ärenden som skapats av AVSANDARE_GITHUB skickas.
+ */
+function skickaUtskick() {
+  const egenskaper = PropertiesService.getScriptProperties();
+  const vilka = tillatna();
+  for (const arende of github('GET', `/repos/${REPO}/issues?labels=mejl-ut&state=open&per_page=20`)) {
+    if (!AVSANDARE_GITHUB.includes(arende.user && arende.user.login)) continue;
+    if (egenskaper.getProperty('utskick:' + arende.number)) continue;
+    const namn = ((arende.body || '').match(/^Till:\s*(.+?)\s*$/m) || [])[1];
+    const till = Object.keys(vilka).find((adr) => namn && vilka[adr].toLowerCase() === namn.toLowerCase());
+    const text = tillLeo(arende.body || '');
+    if (!till || !text) continue;
+    const trad = GmailApp.createDraft(till, arende.title, text + sidfot()).send().getThread();
+    egenskaper.setProperty('utskick:' + arende.number, 'skickat');
+    // Leos svar i tråden kopplas till ärendet, och Claudes svar på det går tillbaka i samma tråd.
+    egenskaper.setProperty('trad:' + trad.getId(), String(arende.number));
+    egenskaper.setProperty('issue:' + arende.number, trad.getId());
+    egenskaper.setProperty('till:' + arende.number, till);
+    github('POST', `/repos/${REPO}/issues/${arende.number}/labels`, { labels: ['mejl'] });
+    github('DELETE', `/repos/${REPO}/issues/${arende.number}/labels/mejl-ut`);
+  }
+}
+
+/**
+ * Vakten: Leo ska aldrig vänta i tystnad. Har han blivit lovad ett mejl ("du får ett mejl …") eller väntar hans
+ * senaste mejl på svar, och inget nytt har kommit:
+ *   efter 45 min (svar: 30 min) → Leo: det tar längre tid än vanligt; Niklas får ett mejl
+ *   efter 3 timmar              → Leo: jag kommer inte vidare, kontakta Niklas; Niklas får ett mejl
+ * Vaktens egna meddelanden lovar inget, så klockan startar inte om av dem.
+ */
+const VAKT = '(vakten)';
+// Ett löfte om mer: CLAUDE.md och processens meddelanden skriver "du får ett mejl" eller "hör av mig" när något återstår.
+const LOFTE = /du får (ett )?mejl|hör av mig/i;
+function vakta() {
+  const egenskaper = PropertiesService.getScriptProperties();
+  const vilka = tillatna();
+  const niklas = Object.keys(vilka).find((adr) => vilka[adr] === 'Niklas');
+  for (const nyckel of Object.keys(egenskaper.getProperties()).filter((k) => k.startsWith('issue:'))) {
+    const issue = nyckel.slice('issue:'.length);
+    const kommentarer = github('GET', `/repos/${REPO}/issues/${issue}/comments?per_page=100`);
+    const tillLeoKomm = kommentarer.filter(
+      (k) => AVSANDARE_GITHUB.includes(k.user && k.user.login) && tillLeo(k.body || '') && !(k.body || '').includes(VAKT)
+    );
+    const senaste = tillLeoKomm[tillLeoKomm.length - 1];
+    const leo = kommentarer.filter((k) => /^@claude\s/.test(k.body || '') && /\*\*Svar från /.test(k.body || '')).pop();
+    let fran = null;
+    let grans = 45;
+    let vantarPa = '';
+    // Obesvarat = Claude har inte svarat klart efter Leos mejl. Claude-actionens spårningskommentar skapas direkt
+    // ("arbetar …") och räknas först när den blivit "Claude finished" – ett svar utan mejl (t.ex. på "Tack!") räknas.
+    const claudeSenast = kommentarer
+      .filter((k) => k.user && k.user.login === 'claude[bot]' && /Claude finished|\[\[till-leo\]\]/.test(k.body || ''))
+      .pop();
+    if (leo && (!claudeSenast || Date.parse(leo.created_at) > Date.parse(claudeSenast.created_at))) {
+      fran = leo; grans = 30; vantarPa = 'svar från Claude på Leos mejl';
+    } else if (senaste && LOFTE.test(tillLeo(senaste.body))) {
+      fran = senaste; vantarPa = 'det Leo blivit lovad (version eller besked)';
+    }
+    if (!fran && !senaste) {
+      // Nytt ärende som Claude ännu inte svarat på alls.
+      const info = github('GET', `/repos/${REPO}/issues/${issue}`);
+      if (info.state === 'open') { fran = { id: 'nytt', created_at: info.created_at }; grans = 30; vantarPa = 'Claudes första svar'; }
+    }
+    if (!fran) continue;
+    const minuter = (Date.now() - Date.parse(fran.created_at)) / 60000;
+    const steg = minuter >= 180 ? 2 : minuter >= grans ? 1 : 0;
+    const vaktNyckel = 'vakt:' + issue + ':' + fran.id;
+    if (steg <= Number(egenskaper.getProperty(vaktNyckel) || 0)) continue;
+    const text = steg === 1
+      ? 'Hej Leo! Det tar längre tid än vanligt den här gången. Jag håller på, och Niklas har fått besked. Jag hör av mig så fort det är klart.'
+      : 'Hej Leo! Jag kommer tyvärr inte vidare med det här just nu. Kontakta Niklas, så hjälper han dig. Allt du redan har fått finns kvar på versionssidan.';
+    github('POST', `/repos/${REPO}/issues/${issue}/comments`, {
+      body: `Admin: ${VAKT} inget har hänt på ${Math.round(minuter)} min – väntar på ${vantarPa}.\n\n${START}\n${text}\n${SLUT}`,
+    });
+    if (niklas) {
+      GmailApp.sendEmail(niklas, `Leo väntar – ärende #${issue}`,
+        `Inget har hänt på ${Math.round(minuter)} min i ärende #${issue} – väntar på ${vantarPa}.\n` +
+        `Leo har fått besked: "${text}"\n\nhttps://github.com/${REPO}/issues/${issue}`);
+    }
+    egenskaper.setProperty(vaktNyckel, String(steg));
+  }
+}
+
+/** Sist i varje mejl: versionssidan och hur mycket av veckans utrymme för Claude som finns kvar. */
+function sidfot() {
+  let saldo = '';
+  try {
+    const arende = github('GET', `/repos/${REPO}/issues?labels=kvot&state=all&per_page=1`)[0];
+    const falt = (n) => ((arende && arende.body || '').match(new RegExp('^' + n + ':\\s*(\\S+)', 'm')) || [])[1];
+    const tak = Number(falt('tak'));
+    if (tak > 0) {
+      // Veckokvot: förbrukningen gäller fram till "nollstalls" (nästa onsdag 05:00 svensk tid) – därefter är allt kvar.
+      const anvant = Date.now() < Date.parse(falt('nollstalls') || '') ? Number(falt('anvant')) || 0 : 0;
+      const kvar = Math.max(0, tak - anvant);
+      saldo = `\nKvar av ditt utrymme för Claude den här veckan: ${kvar.toLocaleString('sv-SE')} av ${tak.toLocaleString('sv-SE')} tokens (${Math.floor((kvar * 100) / tak)} %)`;
+    }
+    // Byggtid (GitHub-minuter) räknas per månad.
+    const mtak = Number(falt('byggtid_tak'));
+    if (mtak > 0) {
+      const manad = new Date().toISOString().slice(0, 7);
+      const manv = falt('byggtid_manad') === manad ? Number(falt('byggtid_anvant')) || 0 : 0;
+      saldo += `\nByggtid kvar den här månaden: ${Math.max(0, mtak - manv)} av ${mtak} minuter`;
+    }
+  } catch (e) {
+    Logger.log('Kunde inte läsa saldot: ' + e);
+  }
+  return `\n\n—\nAlla versioner: ${VERSIONSSIDAN}${saldo}`;
+}
+
+function tillLeo(body) {
+  const a = body.indexOf(START);
+  const b = body.indexOf(SLUT, a + START.length);
+  if (a < 0 || b < 0) return '';
+  return body
+    .slice(a + START.length, b)
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1 ($2)')
+    .trim();
+}
+
+// ---------- hjälpare ----------
+
+function github(metod, vag, data) {
+  const svar = UrlFetchApp.fetch('https://api.github.com' + vag, {
+    method: metod,
+    contentType: 'application/json',
+    payload: data ? JSON.stringify(data) : undefined,
+    headers: {
+      Authorization: 'Bearer ' + PropertiesService.getScriptProperties().getProperty('GITHUB_TOKEN'),
+      Accept: 'application/vnd.github+json',
+    },
+    muteHttpExceptions: true,
+  });
+  if (svar.getResponseCode() >= 300) throw new Error(`GitHub ${metod} ${vag}: ${svar.getResponseCode()} ${svar.getContentText().slice(0, 200)}`);
+  return JSON.parse(svar.getContentText());
+}
+
+function adress(fran) {
+  const m = String(fran).match(/<([^>]+)>/);
+  return (m ? m[1] : String(fran)).trim();
+}
+
+// Gmail bryr sig inte om punkter eller versaler i adressens första del.
+function normal(e) {
+  const [namn, doman = ''] = e.trim().toLowerCase().split('@');
+  return (doman === 'gmail.com' || doman === 'googlemail.com' ? namn.replace(/\./g, '') : namn) + '@' + doman.replace('googlemail.com', 'gmail.com');
+}

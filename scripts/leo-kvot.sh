@@ -45,7 +45,7 @@ var() {
   else fail "kunde inte läsa $1: $svar"; fi
 }
 procent() { awk -v a="$1" -v b="$2" 'BEGIN { if (b <= 0) print 0; else printf "%.2f", a * 100 / b }'; }
-till_leo() {   # kommentar som Apps-scriptet i inkorgen mejlar till Leo (markörerna, se inkorg/Kod.gs)
+till_leo() {   # kommentar som Apps-scriptet i inkorgen mejlar till Leo (markörerna, se inkorg/logik.js)
   gh issue comment "$1" --repo "$REPO" --body "[[till-leo]]
 $2
 [[/till-leo]]" >/dev/null
@@ -68,7 +68,7 @@ min_anvant="$(var "$min_var" 0)"; heltal "$min_anvant" || min_anvant=0
 min_tak=$(( min_budget * kvot / 100 ))
 min_nollstalls="$(date -u -d "$(date -u +%Y-%m-01) +1 month" +%Y-%m-%dT00:00:00Z)"
 
-# Skriver saldot till ett stängt ärende med etiketten kvot – inkorgen (inkorg/Kod.gs) läser det och skriver
+# Skriver saldot till ett stängt ärende med etiketten kvot – inkorgen (inkorg/logik.js) läser det och skriver
 # "kvar den här veckan" längst ned i varje mejl till Leo. Inkorgens nyckel har bara Issues-behörighet.
 skriv_saldo() {
   local anv="$1" tak nr
