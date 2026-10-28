@@ -139,12 +139,23 @@ jobs:
           ref: main
           persist-credentials: false
 
+      # Leos ärende: körs Claude från en kommentar på en PR är N PR-numret – mejlen till Leo ska till ärendet
+      # PR:en stänger (inkorgen bevakar ärendet, inte PR:en).
+      - name: Leos ärende
+        run: |
+          source scripts/lib.sh
+          arende="$N"
+          if gh pr view "$N" --repo "$REPO" >/dev/null 2>&1; then
+            s="$(pr_closes "$N" | head -1)"; [ -z "$s" ] || arende="$s"
+          fi
+          [[ "$arende" =~ ^[0-9]+$ ]] && echo "ARENDE=$arende" >> "$GITHUB_ENV"
+
       # Leo blir aldrig utan besked: kraschar Claudes körning på ett mejlärende får han förslag på vad han kan göra.
       - name: Besked till Leo om körningen misslyckades
         if: needs.claude.result == 'failure' && needs.claude.outputs.kvot == 'ok'
         run: |
           source scripts/lib.sh
-          stopp_till_leo "$N" "Claudes körning misslyckades – se [körningen]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
+          stopp_till_leo "$ARENDE" "Claudes körning misslyckades – se [körningen]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
 
       # Claude får ibland inte köra gh pr create (behörighet nekad) – då finns ändringen bara på en gren och kedjan
       # stannar. Har Claude pushat en ny claude/issue-N-*-gren för ärendet utan PR öppnar processen PR:en.
@@ -184,12 +195,12 @@ jobs:
             if [ "$m" = CONFLICTING ]; then
               forsok="$(gh pr view "$pr" --repo "$REPO" --json comments --jq '[.comments[] | select(.body | startswith("@claude lös konflikten"))] | length')"
               if [ "$forsok" -lt 2 ]; then
-                fixar_till_leo "$N" "Din ändring krockade med en annan ändring som blev klar samtidigt – inget du har gjort."
+                fixar_till_leo "$ARENDE" "Din ändring krockade med en annan ändring som blev klar samtidigt – inget du har gjort."
                 # Etiketten mejl: körningen räknas mot Leos kvot och får jobbet "efter" (bygger om efter pushen).
                 gh pr edit "$pr" --repo "$REPO" --add-label mejl >/dev/null
                 gh pr comment "$pr" --repo "$REPO" --body "@claude lös konflikten: slå ihop origin/main i den här grenen (git merge origin/main), behåll både Leos tidigare ändringar och den här, kör npm run check och build i site/ och pusha. Är den här ändringen redan helt gjord på main, skriv det till Leo mellan markörerna."
               else
-                stopp_till_leo "$N" "PR #$pr krockar med main även efter två försök att slå ihop – titta på den."
+                stopp_till_leo "$ARENDE" "PR #$pr krockar med main även efter två försök att slå ihop – titta på den."
               fi
               continue
             fi
