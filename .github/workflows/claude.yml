@@ -178,6 +178,21 @@ jobs:
             # Sökningen är fritext – bara PR:en själv eller en PR som verkligen stänger ärendet räknas.
             [ "$pr" = "$N" ] || pr_closes "$pr" | grep -qx "$N" || continue
             sha="$(pr_field "$pr" .headRefOid)"
+            # Krock med main (två av Leos ändringar samtidigt): GitHub kör då inga kontroller alls. Claude slår ihop
+            # main i grenen (högst två gånger) – sedan stoppbesked till Leo.
+            for i in 1 2 3 4 5 6; do m="$(pr_field "$pr" .mergeable)"; [ "$m" = UNKNOWN ] || break; sleep 10; done
+            if [ "$m" = CONFLICTING ]; then
+              forsok="$(gh pr view "$pr" --repo "$REPO" --json comments --jq '[.comments[] | select(.body | startswith("@claude lös konflikten"))] | length')"
+              if [ "$forsok" -lt 2 ]; then
+                fixar_till_leo "$N" "Din ändring krockade med en annan ändring som blev klar samtidigt – inget du har gjort."
+                # Etiketten mejl: körningen räknas mot Leos kvot och får jobbet "efter" (bygger om efter pushen).
+                gh pr edit "$pr" --repo "$REPO" --add-label mejl >/dev/null
+                gh pr comment "$pr" --repo "$REPO" --body "@claude lös konflikten: slå ihop origin/main i den här grenen (git merge origin/main), behåll både Leos tidigare ändringar och den här, kör npm run check och build i site/ och pusha. Är den här ändringen redan helt gjord på main, skriv det till Leo mellan markörerna."
+              else
+                stopp_till_leo "$N" "PR #$pr krockar med main även efter två försök att slå ihop – titta på den."
+              fi
+              continue
+            fi
             granskad="$(gh api "repos/$REPO/commits/$sha/check-runs" --jq '[.check_runs[] | select(.name=="review")] | length')"
             # Ett fallerat Cloudflare-bygge ("försök igen" från Leo) behöver också ett nytt bygge, inte en omkörning.
             byggfel="$(gh api "repos/$REPO/commits/$sha/check-runs" --jq "[.check_runs[] | select(.name==\"$BUILD_CHECK\" and .conclusion==\"failure\")] | length")"
