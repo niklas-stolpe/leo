@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-10-28 | #48 (Admin): inkorgen klistras in en sista gång – Kod.gs är nu en startfil som hämtar logiken (inkorg/logik.js) från repot och kör den bara om HMAC-signaturen (inkorg/logik.sig) stämmer med KOD_NYCKEL. Signeras med scripts/signera-inkorg.sh på Admins dator; merge-pr.sh mergar inte osignerad logik. |
 | 2026-10-28 | #58 (Admin): Leos ändring #93 krockade med #92 (två ändringar samtidigt) – GitHub kör då inga kontroller och kedjan stod still. Nu ser jobbet efter i claude.yml konflikten, mejlar Leo och ber Claude slå ihop main i grenen (högst två gånger, sedan stoppbesked). |
 | 2026-10-28 | #58 (Admin): Leos ändring #92 fastnade när Cloudflare-bygget föll tillfälligt; "försök igen" körde om samma fallerade bygge och Claude bad Leo kontakta Niklas. Nu bygger mejl-version om automatiskt en gång (Leo mejlas först), och efter varje Claude-körning bygger processen om en PR vars bygge fallerat (lib.sh bygg_om). |
 | 2026-10-27 | #58 (Admin): två av Leos ändringar fastnade – Claude fick inte köra gh pr create, så ingen PR och ingen version; vakten sa till Leo att kontakta Niklas. Nu öppnar claude.yml (jobbet efter) PR:en själv för en ny claude/issue-N-gren utan PR. Inkorgen rensar också Gmails svenska citatrad ("tis 27 okt. 2026 … skrev Leo <adress>:"), som tidigare följde med och gjorde Leos adress publik. |

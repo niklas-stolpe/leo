@@ -57,7 +57,7 @@ jobs:
           cache: npm
           cache-dependency-path: site/package-lock.json
 
-      # Leos mejlärenden (F-46, F-47): issues med etiketten mejl skapas av inkorgen (inkorg/Kod.gs).
+      # Leos mejlärenden (F-46, F-47): issues med etiketten mejl skapas av inkorgen (inkorg/logik.js).
       # De körs med Admins val av modell och effort och räknas mot Leos tokenkvot (scripts/leo-kvot.sh).
       - name: Leos kvot
         id: kvot
