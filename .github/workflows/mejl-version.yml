@@ -131,6 +131,15 @@ jobs:
         run: |
           source scripts/lib.sh
           pr="${{ steps.pr.outputs.pr }}"
+          # Cloudflare-bygget föll eller blev inte klart (oftast tillfälligt) → nytt bygge av processen själv, en gång
+          # per PR. Leo mejlas först. Faller det igen går det vidare till stoppbeskedet nedan.
+          if grep -qE "$BUILD_CHECK: completed\|failure|$BUILD_CHECK blev inte klar" merge.log; then
+            forsok="$(gh pr view "$pr" --repo "$REPO" --json commits --jq '[.commits[] | select(.messageHeadline | startswith("Bygg om automatiskt"))] | length')"
+            if [ "$forsok" -lt 1 ]; then
+              fixar_till_leo "${{ steps.pr.outputs.issue }}" "Bygget av din ändring föll i ett tekniskt steg hos oss – inget du har gjort."
+              bygg_om "$pr" "Bygg om automatiskt (Cloudflare-bygget föll)" && exit 0
+            fi
+          fi
           # Kravgrinden röd (oftast fel på Uppfyller:-raden) → Claude rättar PR-texten och bygger om, högst två gånger.
           if ! grep -q 'Kravgrinden grön' merge.log; then
             forsok="$(gh pr view "$pr" --repo "$REPO" --json comments --jq '[.comments[] | select(.body | startswith("@claude rätta kravgrinden"))] | length')"

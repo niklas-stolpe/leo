@@ -136,3 +136,14 @@ git_nat() {
     git -c http.https://github.com/.extraheader= -c http.https://github.com/.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" "$@"
   else git "$@"; fi
 }
+
+# bygg_om <pr> <meddelande> – tom commit ovanpå PR:ens gren, pushad med processens nyckel (GH_TOKEN): startar
+# Cloudflare-bygget, granskningen och mejlkedjan på nytt. Bara metadata – grenens filer körs aldrig.
+bygg_om() {
+  local gren ny
+  gren="$(pr_field "$1" .headRefName)"
+  git_nat fetch -q origin "$gren" || { warn "kunde inte hämta $gren"; return 1; }
+  ny="$(git -c user.name=leo-process -c user.email=leo-process@users.noreply.github.com \
+    commit-tree "FETCH_HEAD^{tree}" -p FETCH_HEAD -m "$2")"
+  git_nat push -q origin "$ny:refs/heads/$gren"
+}

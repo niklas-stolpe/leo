@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-10-28 | #58 (Admin): Leos ändring #92 fastnade när Cloudflare-bygget föll tillfälligt; "försök igen" körde om samma fallerade bygge och Claude bad Leo kontakta Niklas. Nu bygger mejl-version om automatiskt en gång (Leo mejlas först), och efter varje Claude-körning bygger processen om en PR vars bygge fallerat (lib.sh bygg_om). |
 | 2026-10-27 | #58 (Admin): två av Leos ändringar fastnade – Claude fick inte köra gh pr create, så ingen PR och ingen version; vakten sa till Leo att kontakta Niklas. Nu öppnar claude.yml (jobbet efter) PR:en själv för en ny claude/issue-N-gren utan PR. Inkorgen rensar också Gmails svenska citatrad ("tis 27 okt. 2026 … skrev Leo <adress>:"), som tidigare följde med och gjorde Leos adress publik. |
 | 2026-10-24 | #48 (Admin): bara Admin och Claude får skriva i repot, alla andra läsa. Claude startar bara när Admins konto skriver @claude (inkorgen skriver med det kontot). |
 | 2026-10-24 | #48 (Admin): Leos gräns för byggtid borttagen – LEO_ACTIONS_BUDGET=0 betyder ingen gräns (minuterna räknas fortfarande, raden försvinner ur mejlen). Tokenkvoten per vecka gäller som förut. |
