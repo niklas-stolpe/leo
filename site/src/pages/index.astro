@@ -67,7 +67,7 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
           <section id={g.id} class="grupp" aria-labelledby={`${g.id}-rubrik`}>
             <h3 id={`${g.id}-rubrik`}>{g.namn}</h3>
             {g.text && <p class="grupptext">{g.text}</p>}
-            <ol class="galleri">
+            <ol class:list={['galleri', { oversikt: g.id === 'galleri' }]}>
               {g.kappar.map((k) => (
                 <li>
                   <a href={`/kappar/${k.id}/`}>
@@ -75,7 +75,11 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
                       src={k.data.bilder[0]}
                       alt={k.data.alt}
                       widths={[360, 540, 720]}
-                      sizes="(min-width: 70rem) 22rem, (min-width: 40rem) 45vw, 92vw"
+                      sizes={
+                        g.id === 'galleri'
+                          ? '(min-width: 40rem) 12rem, 45vw'
+                          : '(min-width: 70rem) 22rem, (min-width: 40rem) 45vw, 92vw'
+                      }
                     />
                     <span class="bildtext">{rubrik(k)}</span>
                   </a>
@@ -298,6 +302,18 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
   .galleri a:focus-visible img {
     border-color: var(--massing);
     filter: saturate(1.05);
+  }
+  /* Galleri (#58): små överblicksbilder, så att många ryms på en gång. */
+  .galleri.oversikt {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 9rem), 1fr));
+    gap: 1rem 0.75rem;
+  }
+  .galleri.oversikt img {
+    aspect-ratio: 1;
+  }
+  .galleri.oversikt .bildtext {
+    font-size: 0.95rem;
+    padding-top: 0.35rem;
   }
   .bildtext {
     display: block;
