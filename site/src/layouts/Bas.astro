@@ -57,6 +57,13 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
         <summary aria-label="Meny">Meny</summary>
         <nav aria-label="Huvudmeny">
           {MENY.map((m) => <a href={m.href}>{m.text}</a>)}
+          <address class="uppgifter">
+            <span>Leo Lowejko</span>
+            <span>Idelund1 Lommaryd, 578 91 Aneby</span>
+            <span>070-2837645 (om ej svar - skicka sms)</span>
+            <a href="mailto:lowejkoleo@gmail.com">lowejkoleo@gmail.com</a>
+            <span>#llcanes</span>
+          </address>
         </nav>
       </details>
     </header>
@@ -66,6 +73,13 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
       <nav class="fotmeny" aria-label="Sidfot">
         {MENY.map((m) => <a href={m.href}>{m.text}</a>)}
       </nav>
+      <address class="uppgifter">
+        <span>Leo Lowejko</span>
+        <span>Idelund1 Lommaryd, 578 91 Aneby</span>
+        <span>070-2837645 (om ej svar - skicka sms)</span>
+        <a href="mailto:lowejkoleo@gmail.com">lowejkoleo@gmail.com</a>
+        <span>#llcanes</span>
+      </address>
       <p>© Leo {ar}</p>
     </footer>
   </body>
@@ -222,6 +236,30 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
   /* Menyn i huvudet större än i foten (#57) – foten behåller den lilla texten. */
   .huvud nav a {
     font-size: 1.07rem;
+  }
+  /* Kontaktuppgifter (#58) i menyn och i foten. */
+  .uppgifter {
+    display: flex;
+    flex-direction: column;
+    font-style: normal;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--dampad);
+  }
+  .smal .uppgifter {
+    padding: 0.5rem 0 0.75rem;
+    border-top: 1px solid rgb(184 149 90 / 0.25);
+  }
+  .huvud nav .uppgifter a {
+    min-height: 0;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: inherit;
+    font-weight: inherit;
+  }
+  .fot .uppgifter {
+    margin-top: 1.5rem;
+    align-items: center;
   }
   .fot {
     padding: 4rem 1rem 3rem;
