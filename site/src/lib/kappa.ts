@@ -16,7 +16,7 @@ export const GRUPPER = [
   { id: 'dam', namn: 'small/medium', text: '' },
   { id: 'herr', namn: 'medium/large', text: '' },
   { id: 'masurbjork', namn: 'Masurbjörk', text: 'Käppar i masurbjörk.' },
-  { id: 'galleri', namn: 'Galleri', text: 'Käppar ur Leos verkstad.' },
+  { id: 'galleri', namn: 'Galleri', text: '' },
 ] as const;
 
 export function kapparIGrupper(kappar: Kappa[]) {
