@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-10-29 | #102 (Leo via mejl): ny rad F-52 – bilderna i Galleri blandas om vid varje besök. |
 | 2026-10-28 | #48 (Admin): inkorgen klistras in en sista gång – Kod.gs är nu en startfil som hämtar logiken (inkorg/logik.js) från repot och kör den bara om HMAC-signaturen (inkorg/logik.sig) stämmer med KOD_NYCKEL. Signeras med scripts/signera-inkorg.sh på Admins dator; merge-pr.sh mergar inte osignerad logik. |
 | 2026-10-28 | #58 (Admin): Leos ändring #93 krockade med #92 (två ändringar samtidigt) – GitHub kör då inga kontroller och kedjan stod still. Nu ser jobbet efter i claude.yml konflikten, mejlar Leo och ber Claude slå ihop main i grenen (högst två gånger, sedan stoppbesked). |
 | 2026-10-28 | #58 (Admin): Leos ändring #92 fastnade när Cloudflare-bygget föll tillfälligt; "försök igen" körde om samma fallerade bygge och Claude bad Leo kontakta Niklas. Nu bygger mejl-version om automatiskt en gång (Leo mejlas först), och efter varje Claude-körning bygger processen om en PR vars bygge fallerat (lib.sh bygg_om). |
@@ -149,6 +150,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | F-49 | Varje mejl Leo får från Claude slutar med hur mycket av veckans utrymme han har kvar. Claude kan också skicka ett nytt mejl till Leo (inte bara svara), t.ex. en introduktion till hur han pratar med Claude. | Ett mejl till Leo visar saldot; introduktionsmejlet har kommit fram och Leos svar på det når Claude. | v1 | Pågår | – | Admin (chatt, #48) 2026-10-19 |
 | F-50 | Överst på sidan: "llcanes" uppe till vänster på alla sidor (leder till startsidan). Startsidans stora rubrik är "Leo Lowejko" med "Käppmakare" under i samma stil men mindre, sedan "Handgjorda och unika käppar i exklusiva träslag" och knappen "Se käpparna". Menyn i huvudet har lite större text än i foten (en tredjedel mindre än första versionen) på både mobil och dator. Ordet "beställningsverk" heter "beställning av käpp" överallt på sidan. På mobil är bilden överst lägre och toningen ljusare, så att mer av käppen syns. | Texterna syns som ovan; ingen horisontell scroll vid 360 px. | v1 | Pågår | – | Leo via mejl (#57) 2026-10-21 |
 | F-51 | Leo blir aldrig stående utan besked. Han får mejl *innan* något rättas, och fastnar hans ändring får han ett mejl i enkla ord med förslag (vänta, "försök igen" eller ändra önskemålet); Niklas får orsaken. Händer inget på 45 min får Leo veta att det dröjer och Niklas ett mejl; efter 3 timmar ska Leo kontakta Niklas. | Varje stopp i mejlkedjan (granskning, kravgrind, bygge, Admins yta, krasch) ger ett mejl till Leo med förslag. | v1 | Pågår | – | Admin (chatt, #57) 2026-10-21 |
+| F-52 | Bilderna i Galleri hamnar i ny, slumpad ordning varje gång någon öppnar startsidan. | Två besök efter varandra ger olika ordning; utan JavaScript syns bilderna i vanlig ordning; ingen horisontell scroll vid 360 px. | v1 | Pågår | – | Leo via mejl (#102) 2026-10-29 |
 
 ## Icke-funktionella krav
 
