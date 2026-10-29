@@ -207,8 +207,14 @@ jobs:
             granskad="$(gh api "repos/$REPO/commits/$sha/check-runs" --jq '[.check_runs[] | select(.name=="review")] | length')"
             # Ett fallerat Cloudflare-bygge ("försök igen" från Leo) behöver också ett nytt bygge, inte en omkörning.
             byggfel="$(gh api "repos/$REPO/commits/$sha/check-runs" --jq "[.check_runs[] | select(.name==\"$BUILD_CHECK\" and .conclusion==\"failure\")] | length")"
-            [ "$granskad" -eq 0 ] || [ "$byggfel" -gt 0 ] || continue
-            bygg_om "$pr" "Starta granskning och bygge (Claudes push startar dem inte)" && echo "Startade granskning och bygge för #$pr"
+            if [ "$granskad" -eq 0 ] || [ "$byggfel" -gt 0 ]; then
+              bygg_om "$pr" "Starta granskning och bygge (Claudes push startar dem inte)" && echo "Startade granskning och bygge för #$pr"
+            else
+              # Granskad och byggd, men Claude kan ha rättat PR-texten (kravgrinden) – och Claude får inte starta
+              # mejl-version själv. Starta den här; den mergar bara om allt är grönt och stannar annars med besked.
+              gh workflow run mejl-version.yml --repo "$REPO" -f gren="$(pr_field "$pr" .headRefName)" \
+                && echo "Startade mejl-version för #$pr"
+            fi
           done
 
       - name: Räkna Leos byggtid

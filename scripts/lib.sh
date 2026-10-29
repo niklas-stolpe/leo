@@ -99,7 +99,7 @@ board_set() {
 pr_field() { gh pr view "$1" --repo "$REPO" --json number,title,body,headRefName,headRefOid,baseRefName,state,mergeable,url --jq "$2"; }
 
 # pr_closes <pr> – issuenummer som PR-texten stänger (Closes/Fixes/Resolves #n).
-pr_closes() { pr_field "$1" .body | grep -oiE '(closes|fixes|resolves) #[0-9]+' | grep -oE '[0-9]+' | sort -u || true; }
+pr_closes() { pr_field "$1" .body | grep -oiE '(closes|fixes|resolves):? +#?[0-9]+' | grep -oE '[0-9]+' | sort -u || true; }   # "Closes 102" utan # räknas också
 
 # pr_visible <pr> – lyckas om PR:en ändrar något som syns på webbplatsen (VISIBLE_PATH).
 pr_visible() { gh api --paginate "repos/$REPO/pulls/$1/files" --jq '.[].filename' | grep -qE "$VISIBLE_PATH"; }

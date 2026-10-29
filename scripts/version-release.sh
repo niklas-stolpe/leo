@@ -36,8 +36,16 @@ else
     printf 'Cloudflare-version: %s\n' "$cf"
     [ -z "$demo" ] || printf 'Demo-version: %s\n' "$demo"
   } > "${TMPDIR:-/tmp}/rel-$$.md"
-  git tag "v$n" "$sha"
-  git_nat push -q origin "v$n"
+  # Två ändringar som blir klara samtidigt kan räkna fram samma nummer – den som kommer andra tar nästa lediga.
+  for forsok in 1 2 3; do
+    git tag -f "v$n" "$sha" >/dev/null
+    git_nat push -q origin "v$n" 2>/dev/null && break
+    git tag -d "v$n" >/dev/null
+    [ "$forsok" -lt 3 ] || fail "kunde inte skapa en ledig versionstagg (v$n upptagen)"
+    git_nat fetch -q --tags origin
+    n=$(( $(git tag -l 'v[0-9]*' --sort=-v:refname | head -1 | tr -d v) + 1 ))
+    warn "versionsnumret var upptaget – försöker med v$n"
+  done
   gh release create "v$n" --repo "$REPO" --title "Version $n – $titel" --notes-file "${TMPDIR:-/tmp}/rel-$$.md" >/dev/null
   rm -f "${TMPDIR:-/tmp}/rel-$$.md"
   ok "Version $n – $titel ($(version_url "$cf"))"

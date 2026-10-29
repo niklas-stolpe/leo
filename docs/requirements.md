@@ -14,6 +14,8 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-10-29 | #102: två ändringar blev klara samtidigt och båda räknade fram version 41 – den andra fick ingen version (skapades för hand som 42). version-release.sh tar nu nästa lediga nummer om taggen redan finns. |
+| 2026-10-29 | #102 (Admin): två av Leos ändringar fastnade – #106 hade "Closes 102" utan # (processen hittade inget ärende) och #107:s kravgrind rättades av Claude, som sedan inte fick starta om kedjan. Nu räknas "Closes 102" också, och jobbet efter i claude.yml startar mejl-version för ärendets granskade PR efter varje Claude-körning. |
 | 2026-10-29 | #102 (Leo via mejl): ny rad F-52 – bilderna i Galleri blandas om vid varje besök. |
 | 2026-10-28 | #48 (Admin): inkorgen klistras in en sista gång – Kod.gs är nu en startfil som hämtar logiken (inkorg/logik.js) från repot och kör den bara om HMAC-signaturen (inkorg/logik.sig) stämmer med KOD_NYCKEL. Signeras med scripts/signera-inkorg.sh på Admins dator; merge-pr.sh mergar inte osignerad logik. |
 | 2026-10-28 | #58 (Admin): Leos ändring #93 krockade med #92 (två ändringar samtidigt) – GitHub kör då inga kontroller och kedjan stod still. Nu ser jobbet efter i claude.yml konflikten, mejlar Leo och ber Claude slå ihop main i grenen (högst två gånger, sedan stoppbesked). |
