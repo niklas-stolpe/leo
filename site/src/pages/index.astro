@@ -91,6 +91,19 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
       }
     </section>
 
+    <script is:inline>
+      // F-52 (#102): Galleriets bilder blandas om vid varje besök. Utan JavaScript ligger de i vanlig ordning.
+      const lista = document.querySelector('#galleri ol');
+      if (lista) {
+        const rutor = Array.from(lista.children);
+        for (let i = rutor.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [rutor[i], rutor[j]] = [rutor[j], rutor[i]];
+        }
+        rutor.forEach((r) => lista.appendChild(r));
+      }
+    </script>
+
     <section class="vidare" aria-label="Mer om Leo">
       <a class="kort" href="/bestallning/">
         <span class="kort-rubrik">Kontakt och beställning av käpp</span>
