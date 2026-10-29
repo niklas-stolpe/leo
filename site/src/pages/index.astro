@@ -91,7 +91,7 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
       }
     </section>
 
-    <script>
+    <script is:inline>
       // F-52 (#102): Galleriets bilder blandas om vid varje besök. Utan JavaScript ligger de i vanlig ordning.
       const lista = document.querySelector('#galleri ol');
       if (lista) {
