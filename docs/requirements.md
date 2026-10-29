@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-10-29 | #102 (Admin): två av Leos ändringar fastnade – #106 hade "Closes 102" utan # (processen hittade inget ärende) och #107:s kravgrind rättades av Claude, som sedan inte fick starta om kedjan. Nu räknas "Closes 102" också, och jobbet efter i claude.yml startar mejl-version för ärendets granskade PR efter varje Claude-körning. |
 | 2026-10-28 | #48 (Admin): inkorgen klistras in en sista gång – Kod.gs är nu en startfil som hämtar logiken (inkorg/logik.js) från repot och kör den bara om HMAC-signaturen (inkorg/logik.sig) stämmer med KOD_NYCKEL. Signeras med scripts/signera-inkorg.sh på Admins dator; merge-pr.sh mergar inte osignerad logik. |
 | 2026-10-28 | #58 (Admin): Leos ändring #93 krockade med #92 (två ändringar samtidigt) – GitHub kör då inga kontroller och kedjan stod still. Nu ser jobbet efter i claude.yml konflikten, mejlar Leo och ber Claude slå ihop main i grenen (högst två gånger, sedan stoppbesked). |
 | 2026-10-28 | #58 (Admin): Leos ändring #92 fastnade när Cloudflare-bygget föll tillfälligt; "försök igen" körde om samma fallerade bygge och Claude bad Leo kontakta Niklas. Nu bygger mejl-version om automatiskt en gång (Leo mejlas först), och efter varje Claude-körning bygger processen om en PR vars bygge fallerat (lib.sh bygg_om). |

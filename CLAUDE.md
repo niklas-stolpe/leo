@@ -70,10 +70,9 @@ Skriv där på enkel svenska, kort och varmt, utan tekniska ord, länkar till Gi
    förslag på vad han kan göra. Har hans ändring fastnat (öppen PR men ingen version): säg det i enkla ord, och
    föreslå *vänta*, *svara "försök igen"* eller *ändra önskemålet*. Svarar han "försök igen": **mejla först**
    att du försöker igen, läs varför det stoppade (`gh run list/view --workflow mejl-version.yml`), rätta det
-   (oftast PR-texten, se 6) och kör `gh workflow run mejl-version.yml -f gren=<PR:ens branch>` – aldrig en tom
-   commit (dina pushar startar ingen granskning). Föll Cloudflare-bygget behöver du inte göra något: efter din
-   körning bygger processen om PR:en själv (och mejl-version gör det en gång av sig själv) – skriv till Leo att
-   du har startat ett nytt försök och att han får ett mejl. Kommer du inte vidare: mejla att han ska **kontakta Niklas**.
+   (oftast PR-texten, se 6) – aldrig en tom commit. Du behöver inte starta om kedjan själv (det får du inte):
+   efter din körning startar processen den, eller bygger om PR:en om bygget föll. Skriv till Leo att ett nytt
+   försök är på väg och att han får ett mejl. PR-texten ska ha `Closes #<issue>` – med #. Kommer du inte vidare: mejla att han ska **kontakta Niklas**.
    Informera först, fixa sedan. Skriv aldrig bara till Admin och låt Leo vänta.
    Lovar du Leo något senare, skriv **"du får ett mejl"** (eller "jag hör av mig") – inkorgens vakt känner igen
    det och säger till Leo och Niklas om löftet inte hålls inom 45 minuter.
