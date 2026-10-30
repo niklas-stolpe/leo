@@ -47,6 +47,9 @@ jobs:
         id: pr
         run: |
           source scripts/lib.sh
+          # Bara Claudes grenar för Leos mejl – en processändring som bara nämner Leos ärende (t.ex. "Closes 102"
+          # i texten) är ingen ändring från Leo och får aldrig mejla honom (29/10).
+          case "$GREN" in claude/issue-*) ;; *) echo "$GREN är ingen gren för Leos mejl"; exit 0 ;; esac
           pr="$(gh pr list --repo "$REPO" --head "$GREN" --state open --json number --jq '.[0].number // empty')"
           [ -n "$pr" ] || { echo "Ingen öppen PR för $GREN"; exit 0; }
           issue="$(pr_closes "$pr" | head -1)"

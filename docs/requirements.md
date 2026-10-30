@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-10-30 | #102: en processändring vars text nämnde Leos ärende ("Closes 102") togs för Leos ändring, och Leo fick ett felaktigt "din ändring har fastnat". mejl-version.yml tar nu bara Claudes grenar för Leos mejl (claude/issue-…). |
 | 2026-10-29 | #102: två ändringar blev klara samtidigt och båda räknade fram version 41 – den andra fick ingen version (skapades för hand som 42). version-release.sh tar nu nästa lediga nummer om taggen redan finns. |
 | 2026-10-29 | #102 (Admin): två av Leos ändringar fastnade – #106 hade "Closes 102" utan # (processen hittade inget ärende) och #107:s kravgrind rättades av Claude, som sedan inte fick starta om kedjan. Nu räknas "Closes 102" också, och jobbet efter i claude.yml startar mejl-version för ärendets granskade PR efter varje Claude-körning. |
 | 2026-10-29 | #102 (Leo via mejl): ny rad F-52 – bilderna i Galleri blandas om vid varje besök. |
