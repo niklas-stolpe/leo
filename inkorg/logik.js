@@ -250,7 +250,8 @@ function vakta() {
     } else if (senaste && LOFTE.test(tillLeo(senaste.body))) {
       fran = senaste; vantarPa = 'det Leo blivit lovad (version eller besked)';
     }
-    if (!fran && !senaste) {
+    // Ett utskick från oss (mejl-ut) väntar inte på något svar från Claude – bara Leos egna mejl gör det.
+    if (!fran && !senaste && !egenskaper.getProperty('utskick:' + issue)) {
       // Nytt ärende som Claude ännu inte svarat på alls.
       const info = github('GET', `/repos/${REPO}/issues/${issue}`);
       if (info.state === 'open') { fran = { id: 'nytt', created_at: info.created_at }; grans = 30; vantarPa = 'Claudes första svar'; }
