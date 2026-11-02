@@ -13,7 +13,7 @@ material:
     latin: Acacia melanoxylon
   - del: Halsband
     namn: Älghorn, amboyna, mässing och ebenholts
-status: tillgänglig
+status: såld
 ---
 
 Denna käpp har handtag i Burmesisk Teak (Tectona grandis). Till skillnad mot Teak odlad på plantage är denna art som även kallas Myanmar Teak vildväxande och i långsam takt. Denna art är väldigt sällsynt och högt aktad för alla goda egenskaper och utseende. Ej listad (CITES).
