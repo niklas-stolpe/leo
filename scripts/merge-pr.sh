@@ -27,7 +27,7 @@ if gh api --paginate "repos/$REPO/pulls/$pr/files" --jq '.[].filename' | grep -q
   bash "$here/signera-inkorg.sh" kolla "$sha"
 fi
 
-# Inkorgen mot kraven F-53 och F-54 – körs när startfilen eller logiken ändras (Drive-felet 2026-11-04).
+# Inkorgen mot kraven F-53–F-59 – körs när startfilen eller logiken ändras (Drive-felet 2026-11-04).
 if gh api --paginate "repos/$REPO/pulls/$pr/files" --jq '.[].filename' | grep -q '^inkorg/'; then
   git_nat fetch -q origin "$sha" 2>/dev/null || git_nat fetch -q origin "$head"
   node "$here/inkorg-test.js" "$sha" || fail "inkorgens test föll – se ovan"

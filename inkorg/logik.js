@@ -58,7 +58,7 @@ function inkorgen() {
   throw new Error(fel.join('; '));
 }
 
-/** Nekas en behörighet ska Niklas få veta det direkt – inte först när Leo skickar något som behöver den (F-54). */
+/** Nekas en behörighet ska Niklas få veta det direkt – inte först när Leo skickar något som behöver den (F-57). */
 function kollaBehorigheter() {
   DriveApp.getFoldersByName('Leo inkorg – bilder').hasNext();
 }
