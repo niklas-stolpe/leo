@@ -1,6 +1,13 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 
 export type Kappa = CollectionEntry<'kappar'>;
+export type KappaEn = CollectionEntry<'kapparEn'>;
+
+/** Käppens engelska text (en.md) per käpp-id, om den finns (F-65). */
+export async function engelska(): Promise<Map<string, KappaEn>> {
+  const alla = await getCollection('kapparEn');
+  return new Map(alla.map((e) => [e.id.replace(/\/en$/, '').replace(/\/index$/, ''), e]));
+}
 
 /** "Nº 12" – eller käppens egen titel om Leo gett den en. */
 export function rubrik(k: Kappa): string {

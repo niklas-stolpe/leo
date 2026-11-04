@@ -1,0 +1,123 @@
+// Språk (F-63–F-67): svenska är grundspråket och ligger i roten, engelska under /en/.
+// Alla texter som inte är käpparnas egna står här, så att sidmallarna är gemensamma för båda språken.
+export type Sprak = 'sv' | 'en';
+
+export const prefix = (sprak: Sprak) => (sprak === 'en' ? '/en' : '');
+
+/** Samma sida på det andra språket. */
+export function motsvarande(pathname: string, sprak: Sprak): string {
+  if (sprak === 'sv') return `/en${pathname}`;
+  return pathname.replace(/^\/en(?=\/|$)/, '') || '/';
+}
+
+const uppgifterSv = ['Leo Lowejko', 'Idelund1 Lommaryd', '578 91 Aneby', '070-2837645 (om ej svar - skicka sms)', 'lowejkoleo@gmail.com', '@llcanes'];
+const uppgifterEn = ['Leo Lowejko', 'Idelund1 Lommaryd', '578 91 Aneby, Sweden', '+46 70 283 76 45 (if there is no answer, send a text message)', 'lowejkoleo@gmail.com', '@llcanes'];
+
+export const T = {
+  sv: {
+    lang: 'sv',
+    beskrivning: 'Handgjorda käppar av Leo Lowejko – konsthantverk i exklusiva träslag, gjorda för att användas.',
+    meny: { kappar: 'Käpparna', om: 'Om Leo', kontakt: 'Kontakt', knapp: 'Meny' },
+    sprakKnapp: 'English',
+    sprakKnappLang: 'en',
+    huvudmeny: 'Huvudmeny',
+    sidfot: 'Sidfot',
+    uppgifter: uppgifterSv,
+    startTitel: 'Leo – käppar',
+    kappmakare: 'Käppmakare',
+    ingress: 'Handgjorda och unika käppar i exklusiva träslag',
+    seKapparna: 'Se käpparna',
+    valkommen: 'Välkommen',
+    halsning:
+      'Leo Lowejko är möbelsnickaren som blev käppmakare. Han har själv använt käpp i över tjugo år. Käpparna är unika och handgjorda i exklusiva träslag. Han erbjuder en stor variation för olika händer och anpassar käppens längd efter bärarens behov.',
+    leoVaggenAlt: 'Leo sitter framför en vägg med upphängda käppar i trä, med handtag i olika former.',
+    kapparAntal: (n: number) => `${n} käppar`,
+    samlingen: 'Samlingen',
+    grupperISamlingen: 'Grupper i samlingen',
+    merOmLeo: 'Mer om Leo',
+    kontaktBestallning: 'Kontakt och beställning av käpp',
+    grupper: { dam: 'small/medium', herr: 'medium/large', masurbjork: 'Masurbjörk', galleri: 'Galleri' } as Record<string, string>,
+    grupptexter: { masurbjork: 'Käppar i masurbjörk.' } as Record<string, string>,
+    status: { tillgänglig: 'Tillgänglig', såld: 'Såld', beställningsverk: 'Beställning av käpp', privat: 'Privat – inte till salu' } as Record<string, string>,
+    langd: 'Längd',
+    ar: 'År',
+    fragaOmKappan: 'Fråga om käppen',
+    visaHelbild: 'Visa bilden i helbild',
+    flerBilder: 'Fler bilder',
+    visaBild: (n: number) => `Visa bild ${n}`,
+    bildN: (titel: string, n: number) => `${titel}, bild ${n}`,
+    flerKappar: 'Fler käppar',
+    tips: 'Tryck på bilden för helbild · svep åt sidan för nästa käpp',
+    helbildAria: 'Bilden i helbild',
+    stang: 'Stäng',
+    stangAria: 'Stäng helbilden',
+    kappTitel: (t: string) => `${t} – Leo`,
+    kappBeskrivning: (t: string, alt: string) => `${t} ur Leos samling. ${alt}`,
+    omTitel: 'Om Leo',
+    omOverrad: 'Käppmakaren',
+    omBeskrivning: 'Leo Lowejko – möbelsnickaren som blev käppmakare.',
+    kontaktTitel: 'Kontakt',
+    kontaktOverrad: 'Hör av dig',
+    kontaktBeskrivning: 'Kontakta Leo Lowejko om en käpp eller en beställning av käpp.',
+    kontaktText: 'Personlig kontakt är viktig, om möjligheten finns. Hör av dig genom kontaktformuläret – det går även bra att skicka ett mejl eller ringa.',
+    duFragarOm: (k: string) => `Du frågar om ${k}.`,
+    bestTitel: 'Kontakt och beställning av käpp',
+    bestBeskrivning: 'Så beställer du en handgjord käpp av Leo Lowejko.',
+    bestText:
+      'Om du/ni inte har möjlighet att komma till min verkstad går det bra att beställa en käpp och jag skickar den mot fraktkostnad (120 Sek). Det går också bra att beställa en käpp utefter önskemål om möjlighet att tillmötesgå finns. Väntetiden varierar men ungefär sex veckor för leverans.',
+    kontaktRubrik: 'Kontakt:',
+  },
+  en: {
+    lang: 'en',
+    beskrivning: 'Handmade walking sticks by Leo Lowejko – fine craftsmanship in exclusive woods, made to be used.',
+    meny: { kappar: 'The canes', om: 'About Leo', kontakt: 'Contact', knapp: 'Menu' },
+    sprakKnapp: 'Svenska',
+    sprakKnappLang: 'sv',
+    huvudmeny: 'Main menu',
+    sidfot: 'Footer',
+    uppgifter: uppgifterEn,
+    startTitel: 'Leo – walking sticks',
+    kappmakare: 'Cane maker',
+    ingress: 'Handmade, unique walking sticks in exclusive woods',
+    seKapparna: 'See the canes',
+    valkommen: 'Welcome',
+    halsning:
+      'Leo Lowejko is the furniture maker who became a cane maker. He has used a walking stick himself for over twenty years. The canes are unique and handmade in exclusive woods. He offers a wide variety for different hands and adapts the length of the cane to the needs of the person using it.',
+    leoVaggenAlt: 'Leo sits in front of a wall of hanging wooden canes with handles in different shapes.',
+    kapparAntal: (n: number) => `${n} canes`,
+    samlingen: 'The collection',
+    grupperISamlingen: 'Groups in the collection',
+    merOmLeo: 'More about Leo',
+    kontaktBestallning: 'Contact and ordering a cane',
+    grupper: { dam: 'small/medium', herr: 'medium/large', masurbjork: 'Masur birch', galleri: 'Gallery' } as Record<string, string>,
+    grupptexter: { masurbjork: 'Canes in masur birch.' } as Record<string, string>,
+    status: { tillgänglig: 'Available', såld: 'Sold', beställningsverk: 'Made to order', privat: 'Private – not for sale' } as Record<string, string>,
+    langd: 'Length',
+    ar: 'Year',
+    fragaOmKappan: 'Ask about this cane',
+    visaHelbild: 'Show the picture full size',
+    flerBilder: 'More pictures',
+    visaBild: (n: number) => `Show picture ${n}`,
+    bildN: (titel: string, n: number) => `${titel}, picture ${n}`,
+    flerKappar: 'More canes',
+    tips: 'Tap the picture for full size · swipe sideways for the next cane',
+    helbildAria: 'The picture full size',
+    stang: 'Close',
+    stangAria: 'Close the full-size picture',
+    kappTitel: (t: string) => `${t} – Leo`,
+    kappBeskrivning: (t: string, alt: string) => `${t} from Leo's collection. ${alt}`,
+    omTitel: 'About Leo',
+    omOverrad: 'The cane maker',
+    omBeskrivning: 'Leo Lowejko – the furniture maker who became a cane maker.',
+    kontaktTitel: 'Contact',
+    kontaktOverrad: 'Get in touch',
+    kontaktBeskrivning: 'Contact Leo Lowejko about a cane or to order one.',
+    kontaktText: 'Personal contact is important, when possible. Get in touch through the contact form – you are also welcome to send an email or call.',
+    duFragarOm: (k: string) => `You are asking about ${k}.`,
+    bestTitel: 'Contact and ordering a cane',
+    bestBeskrivning: 'How to order a handmade cane from Leo Lowejko.',
+    bestText:
+      'If you are not able to come to my workshop, you can order a cane and I will send it for a shipping cost (120 SEK). You can also order a cane to your own wishes, if I am able to meet them. The waiting time varies, but delivery takes about six weeks.',
+    kontaktRubrik: 'Contact:',
+  },
+} as const;

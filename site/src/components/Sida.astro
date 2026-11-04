@@ -5,11 +5,12 @@ interface Props {
   titel: string;
   overrad?: string;
   beskrivning?: string;
+  sprak?: 'sv' | 'en';
 }
-const { titel, overrad, beskrivning } = Astro.props;
+const { titel, overrad, beskrivning, sprak = 'sv' } = Astro.props;
 ---
 
-<Bas titel={`${titel} – Leo`} beskrivning={beskrivning}>
+<Bas titel={`${titel} – Leo`} beskrivning={beskrivning} sprak={sprak}>
   <main class="sida">
     {overrad && <p class="versaler overrad">{overrad}</p>}
     <h1>{titel}</h1>

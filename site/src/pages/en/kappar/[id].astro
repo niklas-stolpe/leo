@@ -1,0 +1,22 @@
+---
+// Engelsk sida per käpp (F-63, F-65). Samma mall som den svenska.
+import Kapp from '../../../components/Kapp.astro';
+import { allaKappar, type Kappa } from '../../../lib/kappa';
+
+export async function getStaticPaths() {
+  const kappar = await allaKappar();
+  return kappar.map((k, i) => ({
+    params: { id: k.id },
+    props: { kappa: k, forra: kappar[i - 1], nasta: kappar[i + 1] },
+  }));
+}
+
+interface Props {
+  kappa: Kappa;
+  forra?: Kappa;
+  nasta?: Kappa;
+}
+const { kappa, forra, nasta } = Astro.props;
+---
+
+<Kapp kappa={kappa} forra={forra} nasta={nasta} sprak="en" />
