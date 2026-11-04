@@ -6,8 +6,13 @@ import '@fontsource/jost/300.css';
 import '@fontsource/jost/400.css';
 import Ringar from '../components/Ringar.astro';
 import { appNamn, arProd, favicon, ikon, temafarg } from '../lib/miljo';
+import { T, prefix, motsvarande, type Sprak } from '../lib/sprak';
 
 interface Props {
+  /** Språk (F-63): svenska i roten, engelska under /en/. */
+  sprak?: Sprak;
+  /** Visa knappen till andra språket (false på sidan "finns inte"). */
+  sprakLank?: boolean;
   titel: string;
   beskrivning?: string;
   /** Bild som visas när länken delas (F-30). Absolut eller rot-relativ URL. */
@@ -15,30 +20,31 @@ interface Props {
   /** Huvudet ligger ovanpå sidans första bild (startsidan, #41). */
   overBild?: boolean;
 }
-const { titel, beskrivning = 'Handgjorda käppar av Leo Lowejko – konsthantverk i exklusiva träslag, gjorda för att användas.', delningsbild, overBild = false } = Astro.props;
+const { sprak = 'sv', titel, delningsbild, overBild = false, sprakLank = true } = Astro.props;
+const t = T[sprak];
+const { beskrivning = t.beskrivning } = Astro.props;
+const pre = prefix(sprak);
 // Menyn (#41, #57): få, tydliga sidor – samma i huvudet och foten. Beställningssidan nås från startsidan.
+// Sist en knapp till andra språket (F-63).
+const andraSprak = motsvarande(Astro.url.pathname, sprak);
 const MENY = [
-  { href: '/#samlingen', text: 'Käpparna' },
-  { href: '/om/', text: 'Om Leo' },
-  { href: '/kontakt/', text: 'Kontakt' },
+  { href: `${pre}/#samlingen`, text: t.meny.kappar },
+  { href: `${pre}/om/`, text: t.meny.om },
+  { href: `${pre}/kontakt/`, text: t.meny.kontakt },
 ];
+const SPRAKLANK = { href: andraSprak, text: t.sprakKnapp, lang: t.sprakKnappLang };
 // Kontaktuppgifterna öppnas under "Kontakt" på datorn – uppe i huvudet och nere i foten.
-const uppgifter = [
-  'Leo Lowejko',
-  'Idelund1 Lommaryd',
-  '578 91 Aneby',
-  '070-2837645 (om ej svar - skicka sms)',
-  'lowejkoleo@gmail.com',
-  '@llcanes',
-];
+const uppgifter = t.uppgifter;
 const ar = new Date().getFullYear();
 const bildUrl = delningsbild ? new URL(delningsbild, Astro.url).href : undefined;
 // Kanonisk adress (NF-04): samma sida kan nås på flera adresser (versionslänkar, stage) – den här räknas.
 const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
 ---
 
-<html lang="sv">
+<html lang={t.lang}>
   <head>
+    {sprakLank && <link rel="alternate" hreflang={t.sprakKnappLang} href={new URL(andraSprak, Astro.site).href} />}
+    {sprakLank && <link rel="alternate" hreflang={t.lang} href={kanonisk} />}
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={beskrivning} />
@@ -58,39 +64,42 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
   </head>
   <body>
     <header class:list={['huvud', { 'over-bild': overBild }]}>
-      <a class="marke" href="/">llcanes</a>
-      <nav class="bred" aria-label="Huvudmeny">
-        {MENY.map((m) => m.href === '/kontakt/' ? (
+      <a class="marke" href={`${pre}/`}>llcanes</a>
+      <nav class="bred" aria-label={t.huvudmeny}>
+        {MENY.map((m) => m.href === `${pre}/kontakt/` ? (
           <details class="kontakt-ruta">
-            <summary>Kontakt</summary>
+            <summary>{t.meny.kontakt}</summary>
             <address class="uppgifter">
               {uppgifter.map((u) => u.includes('@') ? <a href={`mailto:${u}`}>{u}</a> : <span>{u}</span>)}
             </address>
           </details>
         ) : <a href={m.href}>{m.text}</a>)}
+        {sprakLank && <a class="sprak" href={SPRAKLANK.href} hreflang={SPRAKLANK.lang} lang={SPRAKLANK.lang}>{SPRAKLANK.text}</a>}
       </nav>
       <details class="smal">
-        <summary aria-label="Meny">Meny</summary>
-        <nav aria-label="Huvudmeny">
+        <summary aria-label={t.meny.knapp}>{t.meny.knapp}</summary>
+        <nav aria-label={t.huvudmeny}>
           {MENY.map((m) => <a href={m.href}>{m.text}</a>)}
+          {sprakLank && <a class="sprak" href={SPRAKLANK.href} hreflang={SPRAKLANK.lang} lang={SPRAKLANK.lang}>{SPRAKLANK.text}</a>}
         </nav>
       </details>
     </header>
     <slot />
     <footer class="fot">
       <Ringar />
-      <nav class="fotmeny" aria-label="Sidfot">
-        {MENY.map((m) => m.href === '/kontakt/' ? (
+      <nav class="fotmeny" aria-label={t.sidfot}>
+        {MENY.map((m) => m.href === `${pre}/kontakt/` ? (
           <>
             <a class="kontakt-smal" href={m.href}>{m.text}</a>
             <details class="kontakt-ruta kontakt-bred">
-              <summary>Kontakt</summary>
+              <summary>{t.meny.kontakt}</summary>
               <address class="uppgifter">
                 {uppgifter.map((u) => u.includes('@') ? <a href={`mailto:${u}`}>{u}</a> : <span>{u}</span>)}
               </address>
             </details>
           </>
         ) : <a href={m.href}>{m.text}</a>)}
+        {sprakLank && <a class="sprak" href={SPRAKLANK.href} hreflang={SPRAKLANK.lang} lang={SPRAKLANK.lang}>{SPRAKLANK.text}</a>}
       </nav>
       <p>© Leo {ar}</p>
     </footer>

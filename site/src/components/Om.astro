@@ -1,0 +1,79 @@
+---
+import { Image } from 'astro:assets';
+import Sida from '../components/Sida.astro';
+import { T, type Sprak } from '../lib/sprak';
+import hus from '../assets/verkstad-4.jpg';
+import verkstad1 from '../assets/verkstad-1.jpg';
+import verkstad5 from '../assets/verkstad-5.jpg';
+import verkstad6 from '../assets/verkstad-6.jpg';
+import hyvel from '../assets/verkstad-2.jpg';
+import hyvel2 from '../assets/verkstad-9.jpg';
+import bandsag from '../assets/verkstad-7.jpg';
+import maskin from '../assets/verkstad-3.jpg';
+import bordssag from '../assets/verkstad-8.jpg';
+
+// Bilder på miljön Leo beskriver (F-62). Alt-text beskriver bilden för den som inte ser den (NF-02).
+interface Props {
+  sprak?: Sprak;
+}
+const { sprak = 'sv' } = Astro.props;
+const t = T[sprak];
+const en = sprak === 'en';
+const bilder = [
+  { src: hus, alt: en ? 'The yellow wooden house with red corners and windows, Idelund furniture factory, on an autumn day with yellow leaves on the tree in front.' : 'Det gula trähuset med röda knutar och fönster, Idelunds möbelfabrik, en höstdag med gula löv på trädet framför.' },
+  { src: verkstad1, alt: en ? 'The workshop machine hall with sunlight through the windows, old machines and drive belts under the ceiling.' : 'Verkstadens maskinsal med solljus genom fönstren, gamla maskiner och drivremmar under taket.' },
+  { src: verkstad5, alt: en ? 'The workshop planing benches with a screw clamp and wooden mallets on the floor, sunlight through the windows.' : 'Verkstadens hyvelbänkar med skruvtving och träklubbor på golvet, solljus genom fönstren.' },
+  { src: verkstad6, alt: en ? 'Workshop with a workbench in the middle, shelves with pieces of wood and a large band saw in the background.' : 'Verkstad med hyvelbänk i mitten, hyllor med träbitar och en stor bandsåg i bakgrunden.' },
+  { src: hyvel, alt: en ? 'A large black planing machine from Tranås Mekaniska Verkstad in front of shelves with timber.' : 'Stor svart hyvelmaskin från Tranås Mekaniska Verkstad framför hyllor med virke.' },
+  { src: hyvel2, alt: en ? 'The same old black planing machine seen from the side, with timber on shelves behind it.' : 'Samma gamla svarta hyvelmaskin sedd från sidan, med virke på hyllor bakom.' },
+  { src: bandsag, alt: en ? 'A large old wooden band saw with a saw table, sunlight through the window on the right.' : 'Stor gammal bandsåg i trä med sågbord, solljus genom fönstret till höger.' },
+  { src: maskin, alt: en ? 'An old machine with a handle and a wheel, by a window in the workshop.' : 'Gammal maskin med handtag och ratt, vid ett fönster i verkstaden.' },
+  { src: bordssag, alt: en ? 'An old band saw and a bench machine with tools on shelves and a wooden crate marked Helsingborgs Galoscher.' : 'Gammal bandsåg och en bordsmaskin med verktyg i hyllor och en trälåda märkt Helsingborgs Galoscher.' },
+];
+---
+
+<Sida titel={t.omTitel} overrad={t.omOverrad} beskrivning={t.omBeskrivning} sprak={sprak}>
+  {en ? (
+    <>
+      <p>Leo Lowejko is the furniture maker who became a cane maker. He trained at the furniture department of Carl Malmsten's Capellagården, where he had the chance to work and study with skilled craftsmen from Japan. They opened his eyes to the Japanese tradition of exquisite woodwork and deep knowledge of tools. Leo also travelled to Japan to immerse himself in Japanese traditions of woodcraft and its philosophy. It is an experience he has carried with him, and it has shaped his whole working life as a craftsman.</p>
+      <p>He now has over twenty years of experience of using a cane and has experimented with many different materials and techniques. He buys his material from different parts of the world where beautiful wood and exciting burls are available – mainly from Indonesia and Tasmania, but also from other parts of the world. Today Leo's cane workshop is in the old listed building "Idelund furniture factory" in Lommaryd, in Aneby municipality. The factory is Sweden's oldest best-preserved furniture factory and was built in 1910. With fixtures, tools and working machines from the 1910s, Leo has the environment and the inspiration he needs to create the unique canes he makes.</p>
+    </>
+  ) : (
+    <>
+      <p>Leo Lowejko är möbelsnickaren som blev käppmakare. Utbildad på Carl Malmstens Capellagårdens möbelavdelning. Där fick han möjligheten att arbeta och studera med skickliga hantverkare från Japan. De öppnade hans ögon för den japanska traditionen med utsökta träarbeten och djup verktygskunskap. Leo reste även till Japan för att fördjupa sig i japanska traditioner inom trähantverk och dess filosofi. En erfarenhet som han burit med sig och som påverkat hela hans yrkesliv som konsthantverkare.</p>
+      <p>Han har nu över tjugo års erfarenhet av att använda käpp och har experimenterat med många olika material och tekniker. Han köper sitt material från olika delar av världen där vackert trä och spännande vrilar finns att tillgå. Främst från Indonesien och Tasmanien men även från andra delar av världen. Idag finns Leos käppmakarverkstad i det gamla byggnadsminnet “Idelunds möbelfabrik” i Lommaryd i Aneby kommun. Fabriken är Sveriges äldsta bäst bevarade möbelindustri och uppfördes 1910. Med inventarier, verktyg och fungerande maskiner från 1910-talet erbjuds Leo den miljö och den inspiration han behöver för att kunna skapa de unika käppar han tillverkar.</p>
+    </>
+  )}
+  <ul class="miljo">
+    {bilder.map((b) => (
+      <li>
+        <Image src={b.src} alt={b.alt} widths={[400, 700, 1000]} sizes="(min-width: 44rem) 21rem, 100vw" loading="lazy" />
+      </li>
+    ))}
+  </ul>
+</Sida>
+
+<style>
+  .miljo {
+    list-style: none;
+    margin: 2rem 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  @media (min-width: 44rem) {
+    .miljo {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .miljo li {
+    margin: 0;
+  }
+  .miljo :global(img) {
+    display: block;
+    width: 100%;
+    height: 16rem;
+    object-fit: cover;
+  }
+</style>

@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-11-04 | #112 (Leo via mejl): sidan finns på engelska (F-63–F-67) – knapp "English" i menyn, engelska sidor under `/en/` och översatta käpptexter (`en.md` bredvid `index.md`), knapp "Svenska" tillbaka. Sidmallarna är nu gemensamma för båda språken (`components/`), texterna står i `lib/sprak.ts`. Översättningen är gjord av Claude och Leo har inte läst den än. |
 | 2026-11-04 | #112 (Leo via mejl): två nya käppar – nr 37 (handtag i Surren wood, medium/large, 3 200 kr) och nr 38 (franskt valnötsträ, small/medium, 3 800 kr) – och bilder på verkstaden under presentationen på Om Leo (F-62). Av Leos 12 bilder användes 9: två var dubbletter och en var käppen nr 37. |
 | 2026-11-04 | #112: när Leos väntande mejl kom in samtidigt startade bara det sista Claude (GitHub håller bara en körning i kö), och Claude kunde inte hämta bilder till `/tmp`. Krav F-60 (öppna bilder) och F-61 (alla mejl besvaras). Bilder hämtas nu till `mejlbilder/`, och Claude läser alla mejl sedan sitt senaste svar. |
 | 2026-11-04 | Admin: kravet på inkorgens filer saknades, så Drive-felet kunde inte fångas. Nya krav F-53–F-59 (atomära: bild, film, länk, startfilens tjänster, larm, utgående mejl, oläst mejl), med test `scripts/inkorg-test.js` i `merge-pr.sh` och en behörighetskontroll i varje körning. Filmer tappades tidigare tyst. |
@@ -169,6 +170,11 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | F-60 | Claude kan öppna varje bild som Leo har mejlat. | Claude beskriver bilden i sitt svar på ett riktigt mejl, utan att ha fått nekat. | v1 | Pågår | – | Admin (chatt) 2026-11-04 |
 | F-61 | Varje mejl från Leo besvaras, även när flera kommer på en gång. | Efter flera mejl i rad nämner Claudes svar vad som stod i vart och ett av dem. | v1 | Pågår | – | Admin (chatt) 2026-11-04 |
 | F-62 | Under presentationen på "Om Leo" visas bilder på verkstaden och huset som Leo beskriver. | Nio bilder syns under texten, med bildbeskrivning; en kolumn vid 360 px utan horisontell scroll. | v1 | Pågår | – | Leo via mejl (#112) 2026-11-04 |
+| F-63 | I menyn finns en knapp "English" som öppnar sidan på engelska. | Knappen syns i huvudet, i mobilmenyn och i foten på varje sida och leder till samma sida under `/en/`. | v1 | Pågår | – | Leo via mejl (#112) 2026-11-04 |
+| F-64 | Startsidan, Om Leo, Kontakt och Kontakt och beställning av käpp finns på engelska. | `/en/`, `/en/om/`, `/en/kontakt/` och `/en/bestallning/` visar all text på engelska, även menyn, knappar och bildbeskrivningar. | v1 | Pågår | – | Leo via mejl (#112) 2026-11-04 |
+| F-65 | Varje käpps sida finns på engelska, med Leos text översatt så nära som möjligt. | `/en/kappar/<nr>/` visar översatt text, material, status och bildbeskrivningar för alla käppar; saknas en översättning visas den svenska texten. | v1 | Pågår | – | Leo via mejl (#112) 2026-11-04 |
+| F-66 | På den engelska sidan finns en knapp "Svenska" som går tillbaka till samma sida på svenska. | Knappen syns på alla engelska sidor och leder till motsvarande svenska sida. | v1 | Pågår | – | Leo via mejl (#112) 2026-11-04 |
+| F-67 | Sökmotorer vet att de svenska och engelska sidorna hör ihop. | Varje sida pekar ut sin motsvarighet på andra språket; sitemap.xml listar alla sidor på båda språken. | v1 | Pågår | – | Leo via mejl (#112) 2026-11-04 |
 
 ## Icke-funktionella krav
 

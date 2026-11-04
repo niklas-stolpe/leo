@@ -3,7 +3,9 @@ import type { APIRoute } from 'astro';
 import { allaKappar } from '../lib/kappa';
 
 export const GET: APIRoute = async ({ site }) => {
-  const sidor = ['/', ...(await allaKappar()).map((k) => `/kappar/${k.id}/`)];
+  const svenska = ['/', '/om/', '/kontakt/', '/bestallning/', ...(await allaKappar()).map((k) => `/kappar/${k.id}/`)];
+  // Engelska sidor (F-63): samma sidor under /en/.
+  const sidor = [...svenska, ...svenska.map((s) => `/en${s}`)];
   const xml =
     '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +

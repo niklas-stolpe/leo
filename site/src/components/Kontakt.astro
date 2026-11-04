@@ -1,0 +1,41 @@
+---
+// Kontakt (#41): Leos egna ord. Formulär, mejl och telefon kommer när Leo har gett uppgifterna och
+// formulärtjänsten är vald (F-13, Q-03). Inget formulär som dyker upp av sig självt.
+import Sida from '../components/Sida.astro';
+import { T, type Sprak } from '../lib/sprak';
+interface Props {
+  sprak?: Sprak;
+}
+const { sprak = 'sv' } = Astro.props;
+const t = T[sprak];
+---
+
+<Sida titel={t.kontaktTitel} overrad={t.kontaktOverrad} beskrivning={t.kontaktBeskrivning} sprak={sprak}>
+  <p class="fraga" hidden data-mall={t.duFragarOm('{kapp}')}></p>
+  <p>{t.kontaktText}</p>
+  <address class="uppgifter">
+    {t.uppgifter.map((u) => u.includes('@') && u.includes('.') ? <a href={`mailto:${u}`}>{u}</a> : <span>{u}</span>)}
+  </address>
+</Sida>
+
+<script>
+  // Kommer besökaren från "Fråga om käppen" står käppen här, så att den inte behöver skrivas igen.
+  const kapp = new URLSearchParams(location.search).get('kapp');
+  const rad = document.querySelector<HTMLElement>('.fraga')!;
+  if (kapp) {
+    rad.textContent = (rad.dataset.mall ?? 'Du frågar om {kapp}.').replace('{kapp}', kapp);
+    rad.hidden = false;
+  }
+</script>
+
+<style>
+  .uppgifter {
+    display: flex;
+    flex-direction: column;
+    font-style: normal;
+  }
+  .fraga {
+    color: var(--massing-ljus);
+    font-style: var(--kursiv);
+  }
+</style>

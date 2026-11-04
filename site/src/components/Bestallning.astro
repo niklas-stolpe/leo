@@ -1,0 +1,21 @@
+---
+import Sida from '../components/Sida.astro';
+import { T, type Sprak } from '../lib/sprak';
+interface Props {
+  sprak?: Sprak;
+}
+const { sprak = 'sv' } = Astro.props;
+const t = T[sprak];
+---
+
+<Sida titel={t.bestTitel} beskrivning={t.bestBeskrivning} sprak={sprak}>
+  <p>{t.bestText}</p>
+  <p>
+    {t.kontaktRubrik}<br />
+    {t.uppgifter.map((u) => (
+      <>
+        {u.includes('@') && u.includes('.') ? <a href={`mailto:${u}`}>{u}</a> : u}<br />
+      </>
+    ))}
+  </p>
+</Sida>

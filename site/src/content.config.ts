@@ -33,4 +33,16 @@ const kappar = defineCollection({
     }),
 });
 
-export const collections = { kappar };
+// Engelska texter (F-65): en.md bredvid index.md. Saknas filen visas käppen med de svenska texterna.
+// Latinska namn och bilder hämtas från index.md.
+const kapparEn = defineCollection({
+  loader: glob({ pattern: '*/en.md', base: './src/content/kappar' }),
+  schema: z.object({
+    alt: z.string().min(10),
+    bildtexter: z.array(z.string().min(10)).default([]),
+    // Samma ordning och antal som `material` i index.md: bara del och namn översätts.
+    material: z.array(z.object({ del: z.string(), namn: z.string() })).default([]),
+  }),
+});
+
+export const collections = { kappar, kapparEn };
