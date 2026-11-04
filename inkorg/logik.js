@@ -46,7 +46,7 @@ function tillatna() {
 function inkorgen() {
   // Varje steg för sig: ett mejl som inte går att ta emot får aldrig stoppa det som ska ut till Leo.
   const fel = [];
-  for (const steg of [hamtaNyaMejl, skickaUtskick, skickaSvar, vakta]) {
+  for (const steg of [kollaBehorigheter, hamtaNyaMejl, skickaUtskick, skickaSvar, vakta]) {
     try {
       steg();
     } catch (e) {
@@ -56,6 +56,11 @@ function inkorgen() {
   if (!fel.length) return;
   if (typeof larma === 'function') larma(fel.join('; '));
   throw new Error(fel.join('; '));
+}
+
+/** Nekas en behörighet ska Niklas få veta det direkt – inte först när Leo skickar något som behöver den (F-54). */
+function kollaBehorigheter() {
+  DriveApp.getFoldersByName('Leo inkorg – bilder').hasNext();
 }
 
 // ---------- in: mejl → GitHub ----------
@@ -77,10 +82,10 @@ function hamtaNyaMejl() {
       }
       const text = rensa(m.getPlainBody());
       const bilder = m.getAttachments({ includeInlineImages: true })
-        .filter((a) => /^image\//.test(a.getContentType()))
+        .filter((a) => /^(image|video)\//.test(a.getContentType()))
         .map(sparaBild);
       const bildText = bilder.length
-        ? '\n\n**Bilder:**\n' + bilder.map((b, i) => `- Bild ${i + 1}: ${b.ladda} (${b.namn})`).join('\n')
+        ? '\n\n**Bilder och filmer:**\n' + bilder.map((b, i) => `- Fil ${i + 1}: ${b.ladda} (${b.namn})`).join('\n')
         : '';
       const nyckel = 'trad:' + trad.getId();
       const issue = egenskaper.getProperty(nyckel);
