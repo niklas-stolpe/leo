@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Test av inkorgen mot kraven F-53 (filer i Leos mejl) och F-54 (startfilens behörigheter). Googles tjänster är
+// Test av inkorgen mot kraven F-53–F-59. Googles tjänster är
 // låtsade, så testet kör bara logiken; den riktiga behörigheten kontrolleras av kollaBehorigheter() i varje körning.
 //   node scripts/inkorg-test.js [ref]   (utan ref: filerna som de ligger på disk)
 const { execFileSync } = require('child_process');
@@ -67,31 +67,48 @@ function inkorg({ bilagor = [], driveFel = false }) {
 
 const test = (namn, f) => { f(); console.log('✓ ' + namn); };
 
-test('F-54: varje Google-tjänst som logiken använder står i startfilen', () => {
+test('F-56: varje Google-tjänst som logiken använder står i startfilen', () => {
   const tjanster = (kod) => new Set(kod.match(/\b[A-Z][A-Za-z]*(App|Service)\b/g) || []);
   const saknas = [...tjanster(logik)].filter((t) => !tjanster(start).has(t));
   assert.deepStrictEqual(saknas, [], 'saknas i inkorg/Kod.gs: ' + saknas.join(', '));
 });
 
-test('F-53: bilder och filmer sparas på Drive och länkas i ärendet', () => {
-  const { kor, logg } = inkorg({ bilagor: [bilaga('kapp.jpg', 'image/jpeg'), bilaga('kapp.mp4', 'video/mp4')] });
+const bild = bilaga('kapp.jpg', 'image/jpeg');
+const film = bilaga('kapp.mp4', 'video/mp4');
+
+test('F-53: en bild sparas på Drive', () => {
+  const { kor, logg } = inkorg({ bilagor: [bild] });
   kor();
-  assert.deepStrictEqual(logg.sparade, ['kapp.jpg', 'kapp.mp4']);
-  assert.match(logg.issues[0], /kapp\.jpg/);
-  assert.match(logg.issues[0], /kapp\.mp4/);
-  assert.strictEqual(logg.lasta, 1);
+  assert.deepStrictEqual(logg.sparade, ['kapp.jpg']);
 });
 
-test('F-54: nekad Drive stoppar inte körningen, mejlet ligger kvar och Niklas larmas', () => {
-  const { kor, logg } = inkorg({ bilagor: [bilaga('kapp.jpg', 'image/jpeg')], driveFel: true });
-  assert.throws(kor);
-  assert.strictEqual(logg.lasta, 0, 'mejlet ska förbli oläst så att det tas om hand när felet är rättat');
-  assert.ok(logg.anrop > 0, 'stegen efter mottagningen ska ändå köras');
-  assert.strictEqual(logg.larm.length, 1);
+test('F-54: en film sparas på Drive', () => {
+  const { kor, logg } = inkorg({ bilagor: [film] });
+  kor();
+  assert.deepStrictEqual(logg.sparade, ['kapp.mp4']);
 });
 
-test('F-54: nekad Drive upptäcks i varje körning, även utan mejl med bilder', () => {
+test('F-55: varje sparad fil har en länk i ärendet', () => {
+  const { kor, logg } = inkorg({ bilagor: [bild, film] });
+  kor();
+  assert.match(logg.issues[0], /id=id1\b.*kapp\.jpg/);
+  assert.match(logg.issues[0], /id=id2\b.*kapp\.mp4/);
+});
+
+test('F-57: nekad Drive larmar Niklas även utan mejl från Leo', () => {
   const { kor, logg } = inkorg({ driveFel: true });
   assert.throws(kor);
   assert.strictEqual(logg.larm.length, 1);
+});
+
+test('F-58: nekad Drive stoppar inte det som ska ut till Leo', () => {
+  const { kor, logg } = inkorg({ bilagor: [bild], driveFel: true });
+  assert.throws(kor);
+  assert.ok(logg.anrop > 0, 'stegen efter mottagningen ska ändå köras');
+});
+
+test('F-59: ett mejl som inte gick att ta emot ligger kvar oläst', () => {
+  const { kor, logg } = inkorg({ bilagor: [bild], driveFel: true });
+  assert.throws(kor);
+  assert.strictEqual(logg.lasta, 0);
 });

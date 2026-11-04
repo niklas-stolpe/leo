@@ -6,7 +6,7 @@ Krav: `docs/requirements.md` · Process: `docs/process.md` · Leos guide: `READM
 ## Regler
 
 1. **`docs/requirements.md` är sanningen** för vad sidan ska göra och om det är klart. Läs den vid start. `B-`-raderna är låsta beslut – relitigera inte utan att fråga Admin.
-2. **Nya krav = ny rad, direkt.** Ett önskemål från Leo som är nytt beteende blir en F-rad i samma PR som bygger det. Skriv kravet så att Leo förstår det.
+2. **Nya krav = ny rad, direkt.** Ett önskemål från Leo som är nytt beteende blir en F-rad i samma PR som bygger det. Skriv kravet så att Leo förstår det. Varje krav är **atomärt**: en sak, som går att verifiera för sig – innehåller det "och" blir det två rader.
 3. **En PR som levererar ett krav flippar dess status till `Klar`** och skriver `Uppfyller: F-xx` i PR-texten. Inget krav (ny käpp, docs, process): `Uppfyller: – <skäl>`. Rör PR:en Admins yta (`.github/`, `scripts/`, `site/wrangler.jsonc`, `site/package*.json`): rad `Säkerhet:`. Verifiering `leo` betyder att Admin eller Leo har tittat på versionen.
 4. **Merga bara via `scripts/merge-pr.sh`.** Aldrig `gh pr merge`, aldrig GitHub-knappen. En merge publicerar inte – den blir en ny version på versionssidan.
 5. **Prod ändras bara när Admin eller Leo väljer en version (B-06).** Claude publicerar aldrig på eget initiativ – bara när någon av dem uttryckligen säger "publicera version N" (chatt, issue, knappen på versionssidan).
