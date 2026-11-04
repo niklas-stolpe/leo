@@ -44,10 +44,18 @@ function tillatna() {
 
 /** En körning – anropas av startfilen (som håller låset). */
 function inkorgen() {
-  hamtaNyaMejl();
-  skickaUtskick();
-  skickaSvar();
-  vakta();
+  // Varje steg för sig: ett mejl som inte går att ta emot får aldrig stoppa det som ska ut till Leo.
+  const fel = [];
+  for (const steg of [hamtaNyaMejl, skickaUtskick, skickaSvar, vakta]) {
+    try {
+      steg();
+    } catch (e) {
+      fel.push(steg.name + ': ' + e.message);
+    }
+  }
+  if (!fel.length) return;
+  if (typeof larma === 'function') larma(fel.join('; '));
+  throw new Error(fel.join('; '));
 }
 
 // ---------- in: mejl → GitHub ----------
