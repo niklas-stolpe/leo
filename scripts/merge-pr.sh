@@ -27,6 +27,12 @@ if gh api --paginate "repos/$REPO/pulls/$pr/files" --jq '.[].filename' | grep -q
   bash "$here/signera-inkorg.sh" kolla "$sha"
 fi
 
+# Inkorgen mot kraven F-53 och F-54 – körs när startfilen eller logiken ändras (Drive-felet 2026-11-04).
+if gh api --paginate "repos/$REPO/pulls/$pr/files" --jq '.[].filename' | grep -q '^inkorg/'; then
+  git_nat fetch -q origin "$sha" 2>/dev/null || git_nat fetch -q origin "$head"
+  node "$here/inkorg-test.js" "$sha" || fail "inkorgens test föll – se ovan"
+fi
+
 log "2/3 bygget ($BUILD_CHECK)"
 # Bygget körs av Cloudflare Workers Builds, inte GitHub Actions – fungerar även när Actions-minuterna
 # är slut. Kravgrinden i Actions (requirements-gate) räknas inte här: steg 1 körde samma script.
