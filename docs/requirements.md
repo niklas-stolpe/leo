@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-11-04 | #112 (Leo via mejl): två nya käppar – nr 37 (handtag i Surren wood, medium/large, 3 200 kr) och nr 38 (franskt valnötsträ, small/medium, 3 800 kr) – och bilder på verkstaden under presentationen på Om Leo (F-62). Av Leos 12 bilder användes 9: två var dubbletter och en var käppen nr 37. |
 | 2026-11-04 | #112: när Leos väntande mejl kom in samtidigt startade bara det sista Claude (GitHub håller bara en körning i kö), och Claude kunde inte hämta bilder till `/tmp`. Krav F-60 (öppna bilder) och F-61 (alla mejl besvaras). Bilder hämtas nu till `mejlbilder/`, och Claude läser alla mejl sedan sitt senaste svar. |
 | 2026-11-04 | Admin: kravet på inkorgens filer saknades, så Drive-felet kunde inte fångas. Nya krav F-53–F-59 (atomära: bild, film, länk, startfilens tjänster, larm, utgående mejl, oläst mejl), med test `scripts/inkorg-test.js` i `merge-pr.sh` och en behörighetskontroll i varje körning. Filmer tappades tidigare tyst. |
 | 2026-11-04 | #112: startfilen visade inte Drive, så Google gav inte inkorgen rätt att spara Leos bilder och mejl med bilder fastnade. Startfilen nämner nu Drive, och inkorgens steg körs var för sig – ett mejl som inte går att ta emot stoppar inte det som ska ut till Leo, och Niklas får ett mejl om felet. |
@@ -167,6 +168,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | F-59 | Ett mejl som inte gick att ta emot ligger kvar oläst och tas om hand när felet är rättat. | Testet i `scripts/inkorg-test.js` är grönt. | v1 | Klar | claude | Admin (chatt) 2026-11-04 |
 | F-60 | Claude kan öppna varje bild som Leo har mejlat. | Claude beskriver bilden i sitt svar på ett riktigt mejl, utan att ha fått nekat. | v1 | Pågår | – | Admin (chatt) 2026-11-04 |
 | F-61 | Varje mejl från Leo besvaras, även när flera kommer på en gång. | Efter flera mejl i rad nämner Claudes svar vad som stod i vart och ett av dem. | v1 | Pågår | – | Admin (chatt) 2026-11-04 |
+| F-62 | Under presentationen på "Om Leo" visas bilder på verkstaden och huset som Leo beskriver. | Nio bilder syns under texten, med bildbeskrivning; en kolumn vid 360 px utan horisontell scroll. | v1 | Pågår | – | Leo via mejl (#112) 2026-11-04 |
 
 ## Icke-funktionella krav
 

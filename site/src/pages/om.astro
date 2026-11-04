@@ -1,8 +1,63 @@
 ---
+import { Image } from 'astro:assets';
 import Sida from '../components/Sida.astro';
+import hus from '../assets/verkstad-4.jpg';
+import verkstad1 from '../assets/verkstad-1.jpg';
+import verkstad5 from '../assets/verkstad-5.jpg';
+import verkstad6 from '../assets/verkstad-6.jpg';
+import hyvel from '../assets/verkstad-2.jpg';
+import hyvel2 from '../assets/verkstad-9.jpg';
+import bandsag from '../assets/verkstad-7.jpg';
+import maskin from '../assets/verkstad-3.jpg';
+import bordssag from '../assets/verkstad-8.jpg';
+
+// Bilder på miljön Leo beskriver (F-62). Alt-text beskriver bilden för den som inte ser den (NF-02).
+const bilder = [
+  { src: hus, alt: 'Det gula trähuset med röda knutar och fönster, Idelunds möbelfabrik, en höstdag med gula löv på trädet framför.' },
+  { src: verkstad1, alt: 'Verkstadens maskinsal med solljus genom fönstren, gamla maskiner och drivremmar under taket.' },
+  { src: verkstad5, alt: 'Verkstadens hyvelbänkar med skruvtving och träklubbor på golvet, solljus genom fönstren.' },
+  { src: verkstad6, alt: 'Verkstad med hyvelbänk i mitten, hyllor med träbitar och en stor bandsåg i bakgrunden.' },
+  { src: hyvel, alt: 'Stor svart hyvelmaskin från Tranås Mekaniska Verkstad framför hyllor med virke.' },
+  { src: hyvel2, alt: 'Samma gamla svarta hyvelmaskin sedd från sidan, med virke på hyllor bakom.' },
+  { src: bandsag, alt: 'Stor gammal bandsåg i trä med sågbord, solljus genom fönstret till höger.' },
+  { src: maskin, alt: 'Gammal maskin med handtag och ratt, vid ett fönster i verkstaden.' },
+  { src: bordssag, alt: 'Gammal bandsåg och en bordsmaskin med verktyg i hyllor och en trälåda märkt Helsingborgs Galoscher.' },
+];
 ---
 
 <Sida titel="Om Leo" overrad="Käppmakaren" beskrivning="Leo Lowejko – möbelsnickaren som blev käppmakare.">
   <p>Leo Lowejko är möbelsnickaren som blev käppmakare. Utbildad på Carl Malmstens Capellagårdens möbelavdelning. Där fick han möjligheten att arbeta och studera med skickliga hantverkare från Japan. De öppnade hans ögon för den japanska traditionen med utsökta träarbeten och djup verktygskunskap. Leo reste även till Japan för att fördjupa sig i japanska traditioner inom trähantverk och dess filosofi. En erfarenhet som han burit med sig och som påverkat hela hans yrkesliv som konsthantverkare.</p>
   <p>Han har nu över tjugo års erfarenhet av att använda käpp och har experimenterat med många olika material och tekniker. Han köper sitt material från olika delar av världen där vackert trä och spännande vrilar finns att tillgå. Främst från Indonesien och Tasmanien men även från andra delar av världen. Idag finns Leos käppmakarverkstad i det gamla byggnadsminnet “Idelunds möbelfabrik” i Lommaryd i Aneby kommun. Fabriken är Sveriges äldsta bäst bevarade möbelindustri och uppfördes 1910. Med inventarier, verktyg och fungerande maskiner från 1910-talet erbjuds Leo den miljö och den inspiration han behöver för att kunna skapa de unika käppar han tillverkar.</p>
+  <ul class="miljo">
+    {bilder.map((b) => (
+      <li>
+        <Image src={b.src} alt={b.alt} widths={[400, 700, 1000]} sizes="(min-width: 44rem) 21rem, 100vw" loading="lazy" />
+      </li>
+    ))}
+  </ul>
 </Sida>
+
+<style>
+  .miljo {
+    list-style: none;
+    margin: 2rem 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  @media (min-width: 44rem) {
+    .miljo {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .miljo li {
+    margin: 0;
+  }
+  .miljo :global(img) {
+    display: block;
+    width: 100%;
+    height: 16rem;
+    object-fit: cover;
+  }
+</style>
