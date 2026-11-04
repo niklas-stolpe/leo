@@ -28,6 +28,10 @@ if gh api --paginate "repos/$REPO/pulls/$pr/files" --jq '.[].filename' | grep -q
 fi
 
 # Inkorgen mot kraven F-53–F-59 – körs när startfilen eller logiken ändras (Drive-felet 2026-11-04).
+if gh api --paginate "repos/$REPO/pulls/$pr/files" --jq '.[].filename' | grep -qE '^(scripts/claude-gransen|scripts/lib\.sh$|\.github/workflows/claude\.yml$)'; then
+  echo "Testar beskedet om Claudes gräns (F-68–F-70)"
+  node "$here/claude-gransen-test.js" || fail "testet av beskedet om Claudes gräns föll – se ovan"
+fi
 if gh api --paginate "repos/$REPO/pulls/$pr/files" --jq '.[].filename' | grep -q '^inkorg/'; then
   git_nat fetch -q origin "$sha" 2>/dev/null || git_nat fetch -q origin "$head"
   node "$here/inkorg-test.js" "$sha" || fail "inkorgens test föll – se ovan"
