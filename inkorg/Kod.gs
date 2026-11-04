@@ -64,6 +64,9 @@ function larma(varfor) {
 function installera() {
   ScriptApp.getProjectTriggers().forEach((t) => ScriptApp.deleteTrigger(t));
   ScriptApp.newTrigger('korInkorg').timeBased().everyMinutes(5).create();
+  // Google ger skriptet bara de behörigheter som syns i den här filen. Logiken i repot sparar Leos bilder
+  // i Drive – utan raden nedan får den inte det.
+  DriveApp.getRootFolder();
   GmailApp.createLabel('Hanterad');
   Logger.log('Klart: inkorgen läses var 5:e minut.');
 }

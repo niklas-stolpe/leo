@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-11-04 | #112: startfilen visade inte Drive, så Google gav inte inkorgen rätt att spara Leos bilder och mejl med bilder fastnade. Startfilen nämner nu Drive, och inkorgens steg körs var för sig – ett mejl som inte går att ta emot stoppar inte det som ska ut till Leo, och Niklas får ett mejl om felet. |
 | 2026-11-01 | #110: inkorgens vakt tog ett utskick till Leo (mejl-ut) för ett obesvarat mejl från Leo och köade "Kontakta Niklas" (togs bort innan det skickades). Vakten hoppar nu över utskick. Inkorgen hade också stått still 29/10–1/11: KOD_NYCKEL saknades efter ny inklistring av startfilen. |
 | 2026-10-30 | #102: en processändring vars text nämnde Leos ärende ("Closes 102") togs för Leos ändring, och Leo fick ett felaktigt "din ändring har fastnat". mejl-version.yml tar nu bara Claudes grenar för Leos mejl (claude/issue-…). |
 | 2026-10-29 | #102: två ändringar blev klara samtidigt och båda räknade fram version 41 – den andra fick ingen version (skapades för hand som 42). version-release.sh tar nu nästa lediga nummer om taggen redan finns. |
