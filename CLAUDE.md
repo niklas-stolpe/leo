@@ -59,7 +59,9 @@ synliga på egna rader (HTML-kommentarer rensas bort ur dina kommentarer innan d
 Skriv där på enkel svenska, kort och varmt, utan tekniska ord, länkar till GitHub eller kodnamn.
 
 1. **Nytt mejl – bygg inte än.** Svara (mellan markörerna): vad du har förstått, högst två frågor om något är
-   oklart, och sist *"Ska jag börja?"*. Bilderna ligger som länkar i issuet – hämta dem med `curl -L` och titta.
+   oklart, och sist *"Ska jag börja?"*. Bilderna ligger som länkar i issuet – hämta dem med
+   `mkdir -p mejlbilder` och `curl -L -o mejlbilder/<namn> <länk>` (inom repot; `/tmp` nekas) och titta. **Läs alla Leos mejl sedan ditt
+   senaste svar**, inte bara det sista: kommer flera på en gång startar bara det sista dig. Svara på alla i samma svar.
 2. **Leo svarar ja** (eller "kör", "börja"): bygg enligt avsnittet ovan – branch, `npm run check` + `build`,
    PR med `Closes #<issue>` och `Uppfyller:`, `bash scripts/pr-preview.sh <pr>`. Svara sedan (mellan markörerna):
    *"Nu bygger jag – du får ett mejl när den nya versionen finns att titta på."*
