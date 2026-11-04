@@ -128,6 +128,20 @@ Hör du inget från mig inom ett par timmar – kontakta Niklas.
 [[/till-leo]]" >/dev/null
 }
 
+# grans_till_leo <issue> <text till Admin> – Claude-abonnemangets gräns är nådd (F-68, F-69). Ett nytt försök
+# nu går inte: det stoppas på samma sätt.
+grans_till_leo() {
+  gh issue comment "$1" --repo "$REPO" --body "Admin: $2
+
+[[till-leo]]
+Hej Leo! Din ändring har inte blivit gjord, för Claude har nått sin gräns för hur mycket som kan göras just nu. Det är inget du har gjort.
+
+Det brukar gå igång igen inom några timmar. Svara då \"försök igen\" på det här mejlet. Vill du ändra något i önskemålet, skriv det samtidigt.
+
+Går det ändå inte – kontakta Niklas.
+[[/till-leo]]" >/dev/null
+}
+
 # git_nat <git-argument…> – git mot GitHub. I Actions skickas nyckeln (GH_TOKEN) bara med just det anropet,
 # aldrig via .git/config – bygget av en ändring körs i en worktree som delar den (persist-credentials: false).
 git_nat() {

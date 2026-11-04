@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-11-04 | #112: abonnemangets gräns stoppade Claude två gånger, och Leo fick svaret att "försök igen" skulle gå direkt, vilket inte gick. Felet syntes inte i loggen. Krav F-68 (eget besked), F-69 (när han kan försöka igen), F-70 (orsaken i loggen), med test i `scripts/claude-gransen-test.js`. |
 | 2026-11-04 | #112 (Leo via mejl): sidan finns på engelska (F-63–F-67) – knapp "English" i menyn, engelska sidor under `/en/` och översatta käpptexter (`en.md` bredvid `index.md`), knapp "Svenska" tillbaka. Sidmallarna är nu gemensamma för båda språken (`components/`), texterna står i `lib/sprak.ts`. Översättningen är gjord av Claude och Leo har inte läst den än. |
 | 2026-11-04 | #112 (Leo via mejl): två nya käppar – nr 37 (handtag i Surren wood, medium/large, 3 200 kr) och nr 38 (franskt valnötsträ, small/medium, 3 800 kr) – och bilder på verkstaden under presentationen på Om Leo (F-62). Av Leos 12 bilder användes 9: två var dubbletter och en var käppen nr 37. |
 | 2026-11-04 | #112: när Leos väntande mejl kom in samtidigt startade bara det sista Claude (GitHub håller bara en körning i kö), och Claude kunde inte hämta bilder till `/tmp`. Krav F-60 (öppna bilder) och F-61 (alla mejl besvaras). Bilder hämtas nu till `mejlbilder/`, och Claude läser alla mejl sedan sitt senaste svar. |
@@ -175,6 +176,9 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | F-65 | Varje käpps sida finns på engelska, med Leos text översatt så nära som möjligt. | `/en/kappar/<nr>/` visar översatt text, material, status och bildbeskrivningar för alla käppar; saknas en översättning visas den svenska texten. | v1 | Pågår | – | Leo via mejl (#112) 2026-11-04 |
 | F-66 | På den engelska sidan finns en knapp "Svenska" som går tillbaka till samma sida på svenska. | Knappen syns på alla engelska sidor och leder till motsvarande svenska sida. | v1 | Pågår | – | Leo via mejl (#112) 2026-11-04 |
 | F-67 | Sökmotorer vet att de svenska och engelska sidorna hör ihop. | Varje sida pekar ut sin motsvarighet på andra språket; sitemap.xml listar alla sidor på båda språken. | v1 | Pågår | – | Leo via mejl (#112) 2026-11-04 |
+| F-68 | När Claudes gräns är nådd får Leo ett besked som säger just det. | Testet: en körning som stoppas av gränsen ger beskedet om gränsen, inte det vanliga. | v1 | Klar | claude | Admin (chatt) 2026-11-04 |
+| F-69 | Beskedet om gränsen säger när Leo kan försöka igen. | Testet: beskedet säger "inom några timmar" och lovar inget nytt försök direkt. | v1 | Klar | claude | Admin (chatt) 2026-11-04 |
+| F-70 | Orsaken till att Claude stoppades syns i körningens logg. | Testet: felet från Claude skrivs ut i loggen. | v1 | Klar | claude | Admin (chatt) 2026-11-04 |
 
 ## Icke-funktionella krav
 

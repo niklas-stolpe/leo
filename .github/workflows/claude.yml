@@ -116,9 +116,16 @@ jobs:
             console.log('antal=' + ((u.input_tokens ?? 0) + (u.output_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0)));
           " "${{ steps.claude.outputs.execution_file }}" >> "$GITHUB_OUTPUT"
 
+      # F-68, F-70: abonnemangets gräns ger ett eget besked till Leo, och orsaken syns i loggen.
+      - name: Claudes gräns
+        id: grans
+        if: always() && steps.claude.outputs.execution_file != ''
+        run: node scripts/claude-gransen.js "${{ steps.claude.outputs.execution_file }}" >> "$GITHUB_OUTPUT"
+
     outputs:
       kvot: ${{ steps.kvot.outputs.status }}
       tokens: ${{ steps.tokens.outputs.antal }}
+      grans: ${{ steps.grans.outputs.grans }}
 
   # Allt som behöver PROCESS_TOKEN efter Claude körs i ett eget jobb med en ren checkout av main: Claudes
   # arbetskatalog (som ett mejl kan ha styrt – ändrade skript, git-hooks, GITHUB_ENV) når aldrig nyckeln.
@@ -151,8 +158,14 @@ jobs:
           [[ "$arende" =~ ^[0-9]+$ ]] && echo "ARENDE=$arende" >> "$GITHUB_ENV"
 
       # Leo blir aldrig utan besked: kraschar Claudes körning på ett mejlärende får han förslag på vad han kan göra.
+      - name: Besked till Leo om Claudes gräns är nådd
+        if: needs.claude.result == 'failure' && needs.claude.outputs.kvot == 'ok' && needs.claude.outputs.grans == 'ja'
+        run: |
+          source scripts/lib.sh
+          grans_till_leo "$ARENDE" "Claude-abonnemangets gräns är nådd – se [körningen]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
+
       - name: Besked till Leo om körningen misslyckades
-        if: needs.claude.result == 'failure' && needs.claude.outputs.kvot == 'ok'
+        if: needs.claude.result == 'failure' && needs.claude.outputs.kvot == 'ok' && needs.claude.outputs.grans != 'ja'
         run: |
           source scripts/lib.sh
           stopp_till_leo "$ARENDE" "Claudes körning misslyckades – se [körningen]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
