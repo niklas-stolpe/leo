@@ -1,4 +1,24 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import vaggMedKappar from '../assets/galleri/vagg-med-kappar.jpg';
+import kappstall from '../assets/galleri/kappstall.jpg';
+
+/** Fria bilder i Galleriet (F-71): visas bara som bilder, utan egen sida. */
+export const GALLERIBILDER = [
+  {
+    src: vaggMedKappar,
+    alt: {
+      sv: 'Många käppar med handtag i ljust och mörkare trä hänger på rad på en mörk vägg.',
+      en: 'Many canes with handles in light and darker wood hang in a row on a dark wall.',
+    },
+  },
+  {
+    src: kappstall,
+    alt: {
+      sv: 'Ett ställ i trä med sex käppar i olika träslag mot en svart tygbakgrund.',
+      en: 'A wooden stand holding six canes in different woods against a black cloth backdrop.',
+    },
+  },
+];
 
 export type Kappa = CollectionEntry<'kappar'>;
 export type KappaEn = CollectionEntry<'kapparEn'>;

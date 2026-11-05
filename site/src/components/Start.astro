@@ -4,7 +4,7 @@
 import { Image, getImage } from 'astro:assets';
 import Bas from '../layouts/Bas.astro';
 import Ringar from '../components/Ringar.astro';
-import { allaKappar, engelska, kapparIGrupper, rubrik } from '../lib/kappa';
+import { GALLERIBILDER, allaKappar, engelska, kapparIGrupper, rubrik } from '../lib/kappa';
 import { T, prefix, type Sprak } from '../lib/sprak';
 import leoVaggen from '../assets/leo-vaggen.jpg';
 
@@ -64,7 +64,7 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
         <p class="versaler overrad">{t.kapparAntal(kappar.length)}</p>
         <h2 id="samlingen-rubrik">{t.samlingen}</h2>
         <nav class="grupplankar" aria-label={t.grupperISamlingen}>
-          {grupper.map((g) => <a href={`#${g.id}`}>{t.grupper[g.id]} <span>{g.kappar.length}</span></a>)}
+          {grupper.map((g) => <a href={`#${g.id}`}>{t.grupper[g.id]} <span>{g.kappar.length + (g.id === 'galleri' ? GALLERIBILDER.length : 0)}</span></a>)}
         </nav>
       </header>
       {
@@ -91,6 +91,12 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
                   </a>
                 </li>
               ))}
+              {g.id === 'galleri' &&
+                GALLERIBILDER.map((b) => (
+                  <li>
+                    <Image src={b.src} alt={b.alt[sprak]} widths={[360, 540, 720]} sizes="(min-width: 40rem) 12rem, 45vw" />
+                  </li>
+                ))}
             </ol>
           </section>
         ))
@@ -333,6 +339,15 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
   }
   .galleri.oversikt img {
     aspect-ratio: 1;
+  }
+  .galleri li > img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border: 1px solid rgb(184 149 90 / 0.18);
+    background: var(--svart);
+    filter: saturate(0.92);
   }
   .galleri.oversikt .bildtext {
     font-size: 0.95rem;

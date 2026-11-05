@@ -17,6 +17,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | 2026-11-05 | #112 (Leo via mejl): tio nya käppar, nr 39–48, med Leos texter och priser, översatta till engelska, och med stående bilder visade hela i rutan på startsidan. Inget nytt krav – de följer F-10 och F-65. |
 | 2026-11-04 | #112: abonnemangets gräns stoppade Claude två gånger, och Leo fick svaret att "försök igen" skulle gå direkt, vilket inte gick. Felet syntes inte i loggen. Krav F-68 (eget besked), F-69 (när han kan försöka igen), F-70 (orsaken i loggen), med test i `scripts/claude-gransen-test.js`. |
 | 2026-11-04 | #112 (Leo via mejl): sidan finns på engelska (F-63–F-67) – knapp "English" i menyn, engelska sidor under `/en/` och översatta käpptexter (`en.md` bredvid `index.md`), knapp "Svenska" tillbaka. Sidmallarna är nu gemensamma för båda språken (`components/`), texterna står i `lib/sprak.ts`. Översättningen är gjord av Claude och Leo har inte läst den än. |
+| 2026-11-05 | #112 (Leo via mejl): ny käpp nr 49 (masurbjörk, samma text som nr 10, 8 900 kr) och två bilder som bara visas i Galleriet (F-71). |
 | 2026-11-04 | #112 (Leo via mejl): två nya käppar – nr 37 (handtag i Surren wood, medium/large, 3 200 kr) och nr 38 (franskt valnötsträ, small/medium, 3 800 kr) – och bilder på verkstaden under presentationen på Om Leo (F-62). Av Leos 12 bilder användes 9: två var dubbletter och en var käppen nr 37. |
 | 2026-11-04 | #112: när Leos väntande mejl kom in samtidigt startade bara det sista Claude (GitHub håller bara en körning i kö), och Claude kunde inte hämta bilder till `/tmp`. Krav F-60 (öppna bilder) och F-61 (alla mejl besvaras). Bilder hämtas nu till `mejlbilder/`, och Claude läser alla mejl sedan sitt senaste svar. |
 | 2026-11-04 | Admin: kravet på inkorgens filer saknades, så Drive-felet kunde inte fångas. Nya krav F-53–F-59 (atomära: bild, film, länk, startfilens tjänster, larm, utgående mejl, oläst mejl), med test `scripts/inkorg-test.js` i `merge-pr.sh` och en behörighetskontroll i varje körning. Filmer tappades tidigare tyst. |
@@ -180,6 +181,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | F-68 | När Claudes gräns är nådd får Leo ett besked som säger just det. | Testet: en körning som stoppas av gränsen ger beskedet om gränsen, inte det vanliga. | v1 | Klar | claude | Admin (chatt) 2026-11-04 |
 | F-69 | Beskedet om gränsen säger när Leo kan försöka igen. | Testet: beskedet säger "inom några timmar" och lovar inget nytt försök direkt. | v1 | Klar | claude | Admin (chatt) 2026-11-04 |
 | F-70 | Orsaken till att Claude stoppades syns i körningens logg. | Testet: felet från Claude skrivs ut i loggen. | v1 | Klar | claude | Admin (chatt) 2026-11-04 |
+| F-71 | Två bilder – många käppar på en vägg och ett käppställ – visas i Galleriet som bilder, utan egen sida. | Båda syns i Galleriet på svenska och engelska startsidan, med bildbeskrivning, och räknas med i gruppens antal; ingen länk; ingen horisontell scroll vid 360 px. | v1 | Pågår | – | Leo via mejl (#112) 2026-11-05 |
 
 ## Icke-funktionella krav
 
