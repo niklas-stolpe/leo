@@ -1,0 +1,22 @@
+---
+nummer: 49
+grupp: herr
+ocksaGrupp: [masurbjork]
+bilder:
+  - ./bild.jpg
+alt: "Närbild av ett handtag i ljust, fläckigt mönstrat trä med en sväng, vita ringar och ett brunt band mot svart bakgrund."
+material:
+  - del: Handtag och skaft
+    namn: Masurbjörk
+    latin: Betula pendula var. carelica
+  - del: Halsband
+    namn: Älghorn och Red Mallee
+---
+
+Denna käpp har både handtag och skaft i masurbjörk (Betula Pendula var. carelica) som har sin växtplats främst i Finland, Ryssland och norra delarna av Sverige och Norge. Upptäcktes på Karelska näset och fick där sitt latinska namn. Det karaktäristiska utseendet uppstår genom en kombination av genetiska, fysiologiska och miljömässiga faktorer. Masurbjörk är ett relativt hårt träslag men också segt och med hög klyv hållfasthet.
+
+Halsbandet är i en kombination av älghorn och Red Mallee.
+
+Storlek: Large
+
+Pris: 8900 Sek
