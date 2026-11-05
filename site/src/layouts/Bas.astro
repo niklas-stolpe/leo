@@ -104,12 +104,12 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
       <p>© Leo {ar}</p>
     </footer>
     <script>
-      // Menyn på telefonen stängs av sig själv efter 8 sekunder.
+      // Menyn på telefonen stängs av sig själv efter 6 sekunder.
       const meny = document.querySelector<HTMLDetailsElement>('.smal');
       let timer: number | undefined;
       meny?.addEventListener('toggle', () => {
         clearTimeout(timer);
-        if (meny.open) timer = window.setTimeout(() => (meny.open = false), 8000);
+        if (meny.open) timer = window.setTimeout(() => (meny.open = false), 6000);
       });
     </script>
   </body>
