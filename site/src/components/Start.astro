@@ -79,7 +79,7 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
                     <Image
                       src={k.data.bilder[0]}
                       alt={altFor(k)}
-                      class:list={{ helbild: [37, 38].includes(k.data.nummer) }}
+                      class:list={{ helbild: k.data.nummer >= 37 && k.data.nummer <= 48 }}
                       widths={[360, 540, 720]}
                       sizes={
                         g.id === 'galleri'
@@ -317,7 +317,7 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
     transition: border-color 0.4s, filter 0.4s;
     filter: saturate(0.92);
   }
-  /* Stående bilder (nr 37, 38) visas hela i rutan i stället för beskurna. */
+  /* Stående bilder (nr 37–48) visas hela i rutan i stället för beskurna. */
   .galleri img.helbild {
     object-fit: contain;
   }

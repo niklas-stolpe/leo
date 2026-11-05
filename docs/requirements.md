@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-11-05 | #112 (Leo via mejl): tio nya käppar, nr 39–48, med Leos texter och priser, översatta till engelska, och med stående bilder visade hela i rutan på startsidan. Inget nytt krav – de följer F-10 och F-65. |
 | 2026-11-04 | #112: abonnemangets gräns stoppade Claude två gånger, och Leo fick svaret att "försök igen" skulle gå direkt, vilket inte gick. Felet syntes inte i loggen. Krav F-68 (eget besked), F-69 (när han kan försöka igen), F-70 (orsaken i loggen), med test i `scripts/claude-gransen-test.js`. |
 | 2026-11-04 | #112 (Leo via mejl): sidan finns på engelska (F-63–F-67) – knapp "English" i menyn, engelska sidor under `/en/` och översatta käpptexter (`en.md` bredvid `index.md`), knapp "Svenska" tillbaka. Sidmallarna är nu gemensamma för båda språken (`components/`), texterna står i `lib/sprak.ts`. Översättningen är gjord av Claude och Leo har inte läst den än. |
 | 2026-11-04 | #112 (Leo via mejl): två nya käppar – nr 37 (handtag i Surren wood, medium/large, 3 200 kr) och nr 38 (franskt valnötsträ, small/medium, 3 800 kr) – och bilder på verkstaden under presentationen på Om Leo (F-62). Av Leos 12 bilder användes 9: två var dubbletter och en var käppen nr 37. |
