@@ -88,8 +88,7 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site).href;
     <footer class="fot">
       <Ringar />
       <nav class="fotmeny" aria-label={t.sidfot}>
-        {MENY.filter((m) => m.href !== `${pre}/kontakt/`).map((m) => <a href={m.href}>{m.text}</a>)}
-        {sprakLank && <a class="sprak" href={SPRAKLANK.href} hreflang={SPRAKLANK.lang} lang={SPRAKLANK.lang}>{SPRAKLANK.text}</a>}
+        {MENY.map((m) => <a href={m.href}>{m.text}</a>)}
       </nav>
       <p>© Leo {ar}</p>
     </footer>
