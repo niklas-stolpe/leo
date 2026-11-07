@@ -1,4 +1,4 @@
-﻿# CLAUDE.md – Leo
+# CLAUDE.md – Leo
 
 Webbplats för Leos käppar – konsthantverk som används (aldrig "konst", B-10). Astro (statisk) → Cloudflare Workers.
 Krav: `docs/requirements.md` · Process: `docs/process.md` · Leos guide: `README.md` · Roadmap: issue #1.

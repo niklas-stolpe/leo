@@ -1,4 +1,4 @@
-﻿# Leo – krav
+# Leo – krav
 
 **Version 2026-09-25.** Ett krav per rad. Status flippas i den PR som levererar kravet
 (granskaren kontrollerar). Referera ID:n i issues och PR-texter (`Uppfyller: F-10`).
