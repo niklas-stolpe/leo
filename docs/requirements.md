@@ -1,4 +1,4 @@
-# Leo – krav
+﻿# Leo – krav
 
 **Version 2026-09-25.** Ett krav per rad. Status flippas i den PR som levererar kravet
 (granskaren kontrollerar). Referera ID:n i issues och PR-texter (`Uppfyller: F-10`).
@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-11-07 | Admin: **allt i Leo-projektet skrivs på svenska** – nytt låst beslut B-11. Bakgrunden är att Eaves bytte till engelska (dess B-14/B-17), och utan raden kan någon ta det för en regel som gäller båda projekten. Beslutet rör arbetet – krav, process, kod, mejlen till Leo – inte sidans språk för besökaren, som är både svenska och engelska sedan F-63 till F-67. |
 | 2026-11-05 | #112 (Leo via mejl): tio nya käppar, nr 39–48, med Leos texter och priser, översatta till engelska, och med stående bilder visade hela i rutan på startsidan. Inget nytt krav – de följer F-10 och F-65. |
 | 2026-11-04 | #112: abonnemangets gräns stoppade Claude två gånger, och Leo fick svaret att "försök igen" skulle gå direkt, vilket inte gick. Felet syntes inte i loggen. Krav F-68 (eget besked), F-69 (när han kan försöka igen), F-70 (orsaken i loggen), med test i `scripts/claude-gransen-test.js`. |
 | 2026-11-04 | #112 (Leo via mejl): sidan finns på engelska (F-63–F-67) – knapp "English" i menyn, engelska sidor under `/en/` och översatta käpptexter (`en.md` bredvid `index.md`), knapp "Svenska" tillbaka. Sidmallarna är nu gemensamma för båda språken (`components/`), texterna står i `lib/sprak.ts`. Översättningen är gjord av Claude och Leo har inte läst den än. |
@@ -103,6 +104,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | B-08 | **Webbplatsen är navet.** Instagram och Facebook länkar hit; ingen Facebook-app. | Admin 2026-09-25 |
 | B-09 | **Konton startar hos Admin** – Claude-prenumerationen och GitHub (Admin godkänner i Leos ställe) – och flyttas till Leo när han har egna. | Admin 2026-09-25 |
 | B-10 | **Konsthantverk, inte konst.** Leo kallar inte käpparna konst – "jävligt bra konsthantverk" med en viktig funktion för brukaren. Ordet konst (konstverk, konstnär) används inte på sidan. | Leo via Admin 2026-10-19 |
+| B-11 | **Allt i Leo-projektet skrivs på svenska.** Kraven, processen, ändringsloggen, kommentarerna i koden, namnen i koden, commit- och PR-texterna, svaren till Leo och svaren till Admin om Leo – allt på svenska. Raden finns för att **Eaves gick åt andra hållet** och är helt på engelska sedan 2026-10-27: de två projekten följer inte varandra, och ingen ska "harmonisera" Leo i efterhand. Det gäller **arbetet**, inte vad besökaren ser: sidan finns både på svenska och på engelska för besökare (F-63 till F-67, Leos eget önskemål), och det är oförändrat. | Admin 2026-11-07 |
 
 ## Funktionella krav
 
