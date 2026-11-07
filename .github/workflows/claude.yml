@@ -126,6 +126,7 @@ jobs:
       kvot: ${{ steps.kvot.outputs.status }}
       tokens: ${{ steps.tokens.outputs.antal }}
       grans: ${{ steps.grans.outputs.grans }}
+      aterstalls: ${{ steps.grans.outputs.aterstalls }}
 
   # Allt som behöver PROCESS_TOKEN efter Claude körs i ett eget jobb med en ren checkout av main: Claudes
   # arbetskatalog (som ett mejl kan ha styrt – ändrade skript, git-hooks, GITHUB_ENV) når aldrig nyckeln.
@@ -160,9 +161,23 @@ jobs:
       # Leo blir aldrig utan besked: kraschar Claudes körning på ett mejlärende får han förslag på vad han kan göra.
       - name: Besked till Leo om Claudes gräns är nådd
         if: needs.claude.result == 'failure' && needs.claude.outputs.kvot == 'ok' && needs.claude.outputs.grans == 'ja'
+        env:
+          ATERSTALLS: ${{ needs.claude.outputs.aterstalls }}
         run: |
           source scripts/lib.sh
-          grans_till_leo "$ARENDE" "Claude-abonnemangets gräns är nådd – se [körningen]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
+          # F-73: gransen-igen.yml kör om den här körningen när gränsen har släppt. Tiden kommer från Claudes
+          # arbetskatalog och godtas bara som en ren UTC-tid.
+          tid=""
+          if [[ "$ATERSTALLS" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]] && \
+             gh variable set "LEO_IGEN_$ARENDE" --repo "$REPO" --body "$ATERSTALLS $GITHUB_RUN_ID"; then
+            tid="$ATERSTALLS"
+          fi
+          grans_till_leo "$ARENDE" "Claude-abonnemangets gräns är nådd – se [körningen]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)." "$tid"
+
+      # F-76: har Claude svarat görs inget planerat nytt försök.
+      - name: Inget nytt försök när Claude har svarat
+        if: needs.claude.result == 'success' && needs.claude.outputs.kvot == 'ok'
+        run: gh variable delete "LEO_IGEN_$ARENDE" --repo "$GITHUB_REPOSITORY" 2>/dev/null || true
 
       - name: Besked till Leo om körningen misslyckades
         if: needs.claude.result == 'failure' && needs.claude.outputs.kvot == 'ok' && needs.claude.outputs.grans != 'ja'
