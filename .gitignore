@@ -21,3 +21,6 @@ mejlbilder/
 Thumbs.db
 .idea/
 .vscode/
+
+# Claude Codes lokala körkonfiguration – hör till datorn, inte till repot.
+.claude/

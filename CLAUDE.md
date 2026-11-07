@@ -12,7 +12,7 @@ Krav: `docs/requirements.md` · Process: `docs/process.md` · Leos guide: `READM
 5. **Prod ändras bara när Admin eller Leo väljer en version (B-06).** Claude publicerar aldrig på eget initiativ – bara när någon av dem uttryckligen säger "publicera version N" (chatt, issue, knappen på versionssidan).
 6. **En granskning är inte klar förrän fynden är fixade.** Fixa, pusha, svara i tråden, resolve:a.
 7. **Gratis (B-01), ingen kassa (B-04).** Inga betaltjänster, inga nya konton utan Admin.
-8. **Allt i det här projektet skrivs på svenska** (B-11, Admin 2026-11-07). Kraven, processen, kommentarerna och namnen i koden, commit- och PR-texterna, svaren till Leo och svaren till Admin om Leo. **Eaves är helt på engelska** sedan 2026-10-27 – de två projekten följer inte varandra, och den här raden står här just för att det ska gälla mellan sessioner. Beslutet rör arbetet, inte sidans språk för besökaren: sidan finns på svenska och engelska (F-63 till F-67).
+8. **Allt i det här projektet skrivs på svenska** (B-11, Admin 2026-11-07). Kraven, processen, kommentarerna och de namn vi hittar på själva, commit- och PR-texterna, svaren till Leo och svaren till Admin om Leo. Tekniktermer står på engelska som förut (se "Till Admin" nedan), och det som verktygen bestämmer – kommandon, filnamn, konfignycklar – rörs inte. **Eaves är helt på engelska** sedan 2026-10-27 – de två projekten följer inte varandra, och den här raden står här just för att det ska gälla mellan sessioner. Beslutet rör arbetet, inte sidans språk för besökaren: sidan finns på svenska och engelska (F-63 till F-67).
 
 ## Två sätt att prata – välj efter mottagare
 
