@@ -112,3 +112,46 @@ test('F-59: ett mejl som inte gick att ta emot ligger kvar oläst', () => {
   assert.throws(kor);
   assert.strictEqual(logg.lasta, 0);
 });
+
+// Vakten (vakta) mot ett ärende där gränsen har stoppat Claude: Leos mejl, Claudes felkommentar och beskedet om gränsen.
+function vakt(kommentarer, nu) {
+  const logg = { larm: [], mejl: [] };
+  const miljo = {
+    console, Error, Object, String, Number, JSON, RegExp, Math, isNaN,
+    Date: class extends Date { constructor(...a) { super(...(a.length ? a : [nu])); } static now() { return nu; } },
+    PropertiesService: {
+      getScriptProperties: () => ({
+        getProperty: (k) => (k === 'TILLATNA' ? 'niklas@exempel.se=Niklas' : null),
+        setProperty() {},
+        getProperties: () => ({ 'issue:112': 't1' }),
+      }),
+    },
+    GmailApp: { sendEmail: (till, amne) => logg.mejl.push(amne) },
+    UrlFetchApp: {
+      fetch: (url, val) => {
+        if (val.method === 'POST') logg.larm.push(JSON.parse(val.payload).body);
+        const svar = /comments/.test(url) ? kommentarer : { state: 'closed', created_at: '2026-11-01T00:00:00Z' };
+        return { getResponseCode: () => 200, getContentText: () => JSON.stringify(svar) };
+      },
+    },
+  };
+  vm.createContext(miljo);
+  vm.runInContext(logik, miljo);
+  vm.runInContext('vakta()', miljo);
+  return logg;
+}
+
+test('F-75: vakten larmar inte innan det nya försöket efter gränsen har gjorts', () => {
+  const k = (id, login, created_at, body) => ({ id, user: { login }, created_at, body });
+  const kommentarer = [
+    k(1, 'nstolpeflir', '2026-11-06T19:51:48Z', '@claude\n\n**Svar från Leo via mejl:**\n\nTa bort kontakt'),
+    k(2, 'claude[bot]', '2026-11-06T19:52:25Z', '**Claude encountered an error after 0s**'),
+    k(3, 'nstolpeflir', '2026-11-06T19:52:54Z', 'Admin: gränsen\nnytt-forsok: 2026-11-06T21:00:00Z\n\n[[till-leo]]\nHej Leo! Jag försöker igen själv kl 22:05. Du får ett mejl när jag har gjort det.\n[[/till-leo]]'),
+  ];
+  // 70 minuter efter Leos mejl men före försöket: tyst.
+  assert.deepStrictEqual(vakt(kommentarer, Date.parse('2026-11-06T21:01:00Z')).larm, []);
+  // En timme efter den planerade tiden utan svar: larm.
+  assert.strictEqual(vakt(kommentarer, Date.parse('2026-11-06T22:01:00Z')).larm.length, 1);
+  // Utan planerat försök larmar vakten som förut efter 30 minuter.
+  assert.strictEqual(vakt(kommentarer.slice(0, 2), Date.parse('2026-11-06T20:25:00Z')).larm.length, 1);
+});

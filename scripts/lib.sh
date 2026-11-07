@@ -128,19 +128,31 @@ Hör du inget från mig inom ett par timmar – kontakta Niklas.
 [[/till-leo]]" >/dev/null
 }
 
-# grans_till_leo <issue> <text till Admin> – Claude-abonnemangets gräns är nådd (F-68, F-69). Ett nytt försök
-# nu går inte: det stoppas på samma sätt.
+# grans_till_leo <issue> <text till Admin> [<UTC-tid>] – Claude-abonnemangets gräns är nådd (F-68). Med tiden då
+# gränsen släpper försöker processen igen själv (F-73), och Leo får veta när (F-74). Raden "nytt-forsok:" läser
+# inkorgens vakt, så att den inte larmar före försöket (F-75). Utan tid: Leo får försöka igen själv (F-69).
 grans_till_leo() {
-  gh issue comment "$1" --repo "$REPO" --body "Admin: $2
+  local admin="Admin: $2" nar text
+  if [ -n "${3:-}" ] && nar="$(svensk_tid "$3")"; then
+    admin="$admin
+nytt-forsok: $3"
+    text="Jag försöker igen själv $nar. Du behöver inte göra något – du får ett mejl när jag har gjort det. Vill du ändra något i önskemålet, skriv det, så tar jag med det."
+  else
+    text="Det brukar gå igång igen inom några timmar. Svara då \"försök igen\" på det här mejlet. Vill du ändra något i önskemålet, skriv det samtidigt."
+  fi
+  gh issue comment "$1" --repo "$REPO" --body "$admin
 
 [[till-leo]]
-Hej Leo! Din ändring har inte blivit gjord, för Claude har nått sin gräns för hur mycket som kan göras just nu. Det är inget du har gjort.
+Hej Leo! Din ändring har inte blivit gjord än, för Claude har nått sin gräns för hur mycket som kan göras just nu. Det är inget du har gjort.
 
-Det brukar gå igång igen inom några timmar. Svara då \"försök igen\" på det här mejlet. Vill du ändra något i önskemålet, skriv det samtidigt.
+$text
 
 Går det ändå inte – kontakta Niklas.
 [[/till-leo]]" >/dev/null
 }
+
+# svensk_tid <UTC-tid> – "kl 22:05" samma dag, annars "den 8 november kl 05:05" (svensk tid). Fem minuters marginal.
+svensk_tid() { node "$(dirname "${BASH_SOURCE[0]}")/claude-gransen.js" --svensk-tid "$1"; }
 
 # git_nat <git-argument…> – git mot GitHub. I Actions skickas nyckeln (GH_TOKEN) bara med just det anropet,
 # aldrig via .git/config – bygget av en ändring körs i en worktree som delar den (persist-credentials: false).

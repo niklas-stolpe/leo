@@ -260,6 +260,14 @@ function vakta() {
       .pop();
     if (leo && (!claudeSenast || Date.parse(leo.created_at) > Date.parse(claudeSenast.created_at))) {
       fran = leo; grans = 30; vantarPa = 'svar från Claude på Leos mejl';
+      // F-75: har gränsen stoppat Claude och ett nytt försök är planerat räknas tiden från försöket, med marginal
+      // för att det schemalagda försöket kan starta sent.
+      const igen = kommentarer
+        .filter((k) => AVSANDARE_GITHUB.includes(k.user && k.user.login) && Date.parse(k.created_at) > Date.parse(leo.created_at))
+        .map((k) => ((k.body || '').match(/^nytt-forsok: (\S+)$/m) || [])[1])
+        .filter((t) => t && !isNaN(Date.parse(t)))
+        .pop();
+      if (igen) { fran = { id: leo.id + '-igen-' + igen, created_at: igen }; grans = 60; vantarPa = 'Claudes nya försök efter gränsen'; }
     } else if (senaste && LOFTE.test(tillLeo(senaste.body))) {
       fran = senaste; vantarPa = 'det Leo blivit lovad (version eller besked)';
     }

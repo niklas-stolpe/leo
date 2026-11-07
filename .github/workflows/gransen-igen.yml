@@ -1,0 +1,28 @@
+name: gransen-igen
+
+# F-73: när Claude-abonnemangets gräns har stoppat Claude på ett av Leos mejl körs den stoppade körningen om
+# när gränsen har släppt (scripts/grans-igen.sh). Tiden sätts av claude.yml i repo-variabeln LEO_IGEN_<ärende>.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gransen-igen
+  cancel-in-progress: false
+
+jobs:
+  igen:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PROCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          persist-credentials: false
+      - run: bash scripts/grans-igen.sh
