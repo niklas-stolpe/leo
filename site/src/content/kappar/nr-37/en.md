@@ -1,5 +1,7 @@
 ---
 alt: "Cane with a curved handle in flame-figured reddish-brown wood against a black background, with white dots, black and white rings and a light brown shaft."
+bildtexter:
+  - "The same cane in a portrait photo."
 material:
   - del: Handle
     namn: Surren wood

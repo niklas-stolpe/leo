@@ -3,6 +3,9 @@ nummer: 40
 grupp: herr
 bilder:
   - ./bild.jpg
+  - ./bild-staende.jpg
+bildtexter:
+  - "Samma käpp på en stående bild."
 alt: "Käpp med ett snirkligt handtag i mönstrat orangebrunt trä, ljusa ringar med mässingsnitar och ett mörkbrunt skaft mot svart bakgrund."
 material:
   - del: Handtag

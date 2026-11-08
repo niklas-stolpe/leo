@@ -3,6 +3,9 @@ nummer: 48
 grupp: herr
 bilder:
   - ./bild.jpg
+  - ./bild-staende.jpg
+bildtexter:
+  - "Samma käpp på en stående bild."
 alt: "Käpp med ett handtag i flammigt, mönstrat brunt trä, en ring med silver- och rödbruna linjer och ett skaft med tydliga svarta och bruna ränder mot svart tygbakgrund."
 material:
   - del: Handtag

@@ -1,5 +1,7 @@
 ---
 alt: "Cane with a handle in pale, mottled masur birch, a narrow dark collar with gold lines and a smooth reddish-brown shaft against a black background."
+bildtexter:
+  - "The same cane in a portrait photo."
 material:
   - del: Handle
     namn: Masur birch

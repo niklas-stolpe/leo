@@ -3,6 +3,9 @@ nummer: 43
 grupp: dam
 bilder:
   - ./bild.jpg
+  - ./bild-staende.jpg
+bildtexter:
+  - "Samma käpp på en stående bild."
 alt: "Käpp med ett handtag i ljust, fläckigt masurbjörk, en smal mörk ring med guldlinjer och ett slätt rödbrunt skaft mot svart bakgrund."
 material:
   - del: Handtag

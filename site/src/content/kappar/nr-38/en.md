@@ -1,5 +1,7 @@
 ---
 alt: "Cane with a shimmering walnut handle, a purple collar ring with a small cross, and a pale maple shaft."
+bildtexter:
+  - "The same cane in a portrait photo."
 material:
   - del: Handle
     namn: French walnut

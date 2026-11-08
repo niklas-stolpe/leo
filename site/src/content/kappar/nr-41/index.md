@@ -3,6 +3,9 @@ nummer: 41
 grupp: herr
 bilder:
   - ./bild.jpg
+  - ./bild-staende.jpg
+bildtexter:
+  - "Samma käpp på en stående bild."
 alt: "Käpp med ett kraftigt krökt handtag i mörkt, flammigt valnötsträ, en ljus ring med blågrå mönster och ett skaft i samma mönstrade trä mot svart bakgrund."
 material:
   - del: Handtag och skaft

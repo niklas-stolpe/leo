@@ -3,6 +3,9 @@ nummer: 47
 grupp: herr
 bilder:
   - ./bild.jpg
+  - ./bild-staende.jpg
+bildtexter:
+  - "Samma käpp på en stående bild."
 alt: "Käpp med ett vinklat handtag i guldbrunt, tätt mönstrat vrilträ, två ljusa ringar och ett glänsande rödbrunt skaft mot svart bakgrund."
 material:
   - del: Handtag

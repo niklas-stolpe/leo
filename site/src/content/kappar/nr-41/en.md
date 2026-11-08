@@ -1,5 +1,7 @@
 ---
 alt: "Cane with a strongly curved handle in dark, flamed walnut, a pale ring with blue-grey patterns and a shaft in the same patterned wood against a black background."
+bildtexter:
+  - "The same cane in a portrait photo."
 material:
   - del: Handle and shaft
     namn: French walnut

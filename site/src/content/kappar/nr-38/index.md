@@ -3,6 +3,9 @@ nummer: 38
 grupp: dam
 bilder:
   - ./bild.jpg
+  - ./bild-staende.jpg
+bildtexter:
+  - "Samma käpp på en stående bild."
 alt: "Käpp med skimrande valnötshandtag, en lila halsring med ett litet kors och ett ljust lönnskaft."
 material:
   - del: Handtag

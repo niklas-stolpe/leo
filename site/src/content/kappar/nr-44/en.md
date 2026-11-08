@@ -1,5 +1,7 @@
 ---
 alt: "Cane with a curved handle and shaft in pale maple, a red ring with black edges and two small red dots against a black background."
+bildtexter:
+  - "The same cane in a portrait photo."
 material:
   - del: Handle and shaft
     namn: Maple

@@ -1,5 +1,7 @@
 ---
 alt: "Cane with a straight handle in orange-brown pear wood, a narrow collar with a small dragonfly and a pale shaft with distinct brown stripes against a black background."
+bildtexter:
+  - "The same cane in a portrait photo."
 material:
   - del: Handle
     namn: Swiss pear wood

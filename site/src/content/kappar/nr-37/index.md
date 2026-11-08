@@ -3,6 +3,9 @@ nummer: 37
 grupp: herr
 bilder:
   - ./bild.jpg
+  - ./bild-staende.jpg
+bildtexter:
+  - "Samma käpp på en stående bild."
 alt: "Käpp med böjt handtag i flammigt rödbrunt trä mot svart bakgrund, med vita prickar, svarta och vita ringar och ett ljusbrunt skaft."
 material:
   - del: Handtag

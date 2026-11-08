@@ -3,6 +3,9 @@ nummer: 39
 grupp: herr
 bilder:
   - ./bild.jpg
+  - ./bild-staende.jpg
+bildtexter:
+  - "Samma käpp på en stående bild."
 alt: "Käpp med ett rakt handtag i orangebrunt päronträ, en smal ring med liten trollslända och ett ljust skaft med tydliga bruna ränder mot svart bakgrund."
 material:
   - del: Handtag
