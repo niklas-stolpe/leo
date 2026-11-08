@@ -1,5 +1,7 @@
 ---
 alt: "Cane with a handle in golden-brown, closely patterned burl wood, a black ring with gold lines and a vivid purple shaft against a dark background."
+bildtexter:
+  - "The same cane in a portrait photo."
 material:
   - del: Handle
     namn: Amboyna

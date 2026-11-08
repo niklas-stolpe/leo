@@ -3,6 +3,9 @@ nummer: 45
 grupp: herr
 bilder:
   - ./bild.jpg
+  - ./bild-staende.jpg
+bildtexter:
+  - "Samma käpp på en stående bild."
 alt: "Käpp med ett svepande handtag och ett skaft i vågigt, brunt och ljust mangoträ, en ring med silverfärgade linjer och två små silverprickar mot svart bakgrund."
 material:
   - del: Handtag och skaft

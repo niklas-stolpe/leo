@@ -1,5 +1,7 @@
 ---
 alt: "Cane with a handle in mottled brown wood, a collar with silver and reddish-brown lines and a shaft with distinct black and brown stripes against a black cloth background."
+bildtexter:
+  - "The same cane in a portrait photo."
 material:
   - del: Handle
     namn: Batik mango

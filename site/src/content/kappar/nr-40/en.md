@@ -1,5 +1,7 @@
 ---
 alt: "Cane with a sweeping handle in patterned orange-brown wood, pale rings with brass pins and a dark brown shaft against a black background."
+bildtexter:
+  - "The same cane in a portrait photo."
 material:
   - del: Handle
     namn: Amboyna

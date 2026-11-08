@@ -3,6 +3,9 @@ nummer: 46
 grupp: herr
 bilder:
   - ./bild.jpg
+  - ./bild-staende.jpg
+bildtexter:
+  - "Samma käpp på en stående bild."
 alt: "Käpp med ett kraftigt krökt handtag och skaft i rödbrunt, ådrigt trä, en ljus ring i masurbjörk med svarta kanter och två ljusa prickar mot svart bakgrund."
 material:
   - del: Handtag och skaft

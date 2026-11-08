@@ -3,6 +3,9 @@ nummer: 44
 grupp: dam
 bilder:
   - ./bild.jpg
+  - ./bild-staende.jpg
+bildtexter:
+  - "Samma käpp på en stående bild."
 alt: "Käpp med ett böjt handtag och ett skaft i ljust lönnträ, en röd ring med svarta kanter och två små röda prickar mot svart bakgrund."
 material:
   - del: Handtag och skaft
