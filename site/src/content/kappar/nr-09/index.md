@@ -3,7 +3,10 @@ nummer: 9
 grupp: herr
 bilder:
   - ./bild.jpg
+  - ./bild-2.jpg
 alt: "Käpp med rundat krokhandtag i glänsande brunt trä och rödbrunt skaft."
+bildtexter:
+  - "Hela käppen sedd framifrån: ett rundat krokhandtag i glänsande brunt trä, vita ringar vid halsen och ett rödbrunt skaft mot mörk bakgrund."
 material:
   - del: Handtag (Raptors klo)
     namn: Amboyna

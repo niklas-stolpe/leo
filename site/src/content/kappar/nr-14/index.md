@@ -3,7 +3,10 @@ nummer: 14
 grupp: dam
 bilder:
   - ./bild.jpg
+  - ./bild-2.jpg
 alt: "En hand håller en käpp med handtag i brunt trä och ljus hals med vita ringar."
+bildtexter:
+  - "Hela käppen sedd framifrån: handtag i rödbrunt, ådrigt trä, ljus hals med vita ringar och ett ljust, mönstrat skaft mot mörk bakgrund."
 material:
   - del: Handtag
     namn: Surren wood (Indonesisk eller vietnamesisk mahogny)

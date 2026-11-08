@@ -3,7 +3,10 @@ nummer: 20
 grupp: dam
 bilder:
   - ./bild.jpg
+  - ./bild-2.jpg
 alt: "Käpp med T-handtag i ljust, ådrigt trä och en blå ring."
+bildtexter:
+  - "Hela käppen sedd framifrån: handtag i ljust, fläckigt trä, två ljusa ringar vid halsen och ett mörkbrunt skaft med ett kopparfärgat märke mot mörk bakgrund."
 material:
   - del: Handtag
     namn: Masurbjörk

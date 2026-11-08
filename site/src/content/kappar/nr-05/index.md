@@ -3,7 +3,10 @@ nummer: 5
 grupp: herr
 bilder:
   - ./bild.jpg
+  - ./bild-2.jpg
 alt: "Käpp med T-handtag i djupt purpurrött trä och ett runt märke på halsen."
+bildtexter:
+  - "Hela käppen sedd framifrån: handtag i purpurrött trä, ringar av ljust trä vid halsen och ett ljusbrunt skaft mot mörk bakgrund."
 material:
   - del: Handtag
     namn: Purple Heart

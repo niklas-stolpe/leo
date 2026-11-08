@@ -3,7 +3,10 @@ nummer: 18
 grupp: herr
 bilder:
   - ./bild.jpg
+  - ./bild-2.jpg
 alt: "Käpp med T-handtag i ljust gult, mönstrat trä och en blå ring vid halsen."
+bildtexter:
+  - "Hela käppen sedd framifrån: T-handtag i gult, mönstrat trä, mörka ringar vid halsen och ett brunt, mönstrat skaft mot mörk bakgrund."
 material:
   - del: Handtag
     namn: Amboyna
