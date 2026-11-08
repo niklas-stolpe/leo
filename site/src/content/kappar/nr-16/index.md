@@ -3,7 +3,10 @@ nummer: 16
 grupp: dam
 bilder:
   - ./bild.jpg
+  - ./bild-2.jpg
 alt: "En hand håller en käpp med handtag i ljust, randigt trä och en blå ring."
+bildtexter:
+  - "Hela käppen sedd framifrån: handtag i ljust, randigt trä, mörka och ljusa ringar med ett litet märke vid halsen och ett brunt skaft mot mörk bakgrund."
 material:
   - del: Handtag
     namn: Curly Mindi

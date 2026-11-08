@@ -4,7 +4,10 @@ grupp: herr
 ocksaGrupp: [masurbjork]
 bilder:
   - ./bild.jpg
+  - ./bild-2.jpg
 alt: "Käpp med T-handtag i ljust, fläckigt mönstrat trä och en bred vit ring."
+bildtexter:
+  - "Hela käppen sedd framifrån: ljust, fläckigt mönstrat trä i handtag och skaft, en bred vit ring och två vita runda märken mot mörk bakgrund."
 material:
   - del: Handtag och skaft
     namn: Masurbjörk

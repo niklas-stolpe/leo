@@ -3,7 +3,10 @@ nummer: 13
 grupp: dam
 bilder:
   - ./bild.jpg
+  - ./bild-2.jpg
 alt: "En hand håller en käpp med böjt handtag i purpurrött trä och en vit ände."
+bildtexter:
+  - "Hela käppen sedd framifrån: böjt handtag i purpurrött trä med vit ände, ett litet hjärtformat märke och ett ljusbrunt skaft mot mörk bakgrund."
 material:
   - del: Pistolgrepp
     namn: Purple Heart

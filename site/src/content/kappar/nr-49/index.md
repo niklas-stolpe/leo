@@ -4,7 +4,10 @@ grupp: herr
 ocksaGrupp: [masurbjork]
 bilder:
   - ./bild.jpg
+  - ./bild-2.jpg
 alt: "Närbild av ett handtag i ljust, fläckigt mönstrat trä med en sväng, vita ringar och ett brunt band mot svart bakgrund."
+bildtexter:
+  - "Hela käppen sedd framifrån: ett kraftigt svängt handtag i ljust, fläckigt trä, vita ringar och ett brunt band vid halsen och ett ljust skaft mot mörk bakgrund."
 material:
   - del: Handtag och skaft
     namn: Masurbjörk
