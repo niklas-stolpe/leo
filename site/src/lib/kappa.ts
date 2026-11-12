@@ -2,9 +2,12 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import vaggMedKappar from '../assets/galleri/vagg-med-kappar.jpg';
 import kappstall from '../assets/galleri/kappstall.jpg';
 
-/** Fria bilder i Galleriet (F-71): visas bara som bilder, utan egen sida. */
+/** Bilder i Galleriet utan käppnummer (F-71, F-77): var och en har egen sida under /galleri/<id>/. */
 export const GALLERIBILDER = [
   {
+    id: 'vagg-med-kappar',
+    titel: { sv: 'Käppar på väggen', en: 'Canes on the wall' },
+    passning: 'cover',
     src: vaggMedKappar,
     alt: {
       sv: 'Många käppar med handtag i ljust och mörkare trä hänger på rad på en mörk vägg.',
@@ -12,6 +15,10 @@ export const GALLERIBILDER = [
     },
   },
   {
+    id: 'kappstall',
+    titel: { sv: 'Käppstället', en: 'The cane stand' },
+    // Stående bild: hela ställer ska synas mitt i den lilla rutan i Galleriet (F-78).
+    passning: 'contain',
     src: kappstall,
     alt: {
       sv: 'Ett ställ i trä med sex käppar i olika träslag mot en svart tygbakgrund.',

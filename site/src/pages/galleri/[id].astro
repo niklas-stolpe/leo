@@ -1,0 +1,12 @@
+---
+// En sida per bild i Galleriet som saknar käppnummer (F-77).
+import Galleribild from '../../components/Galleribild.astro';
+import { GALLERIBILDER } from '../../lib/kappa';
+
+export function getStaticPaths() {
+  return GALLERIBILDER.map((b) => ({ params: { id: b.id }, props: { bild: b } }));
+}
+const { bild } = Astro.props;
+---
+
+<Galleribild bild={bild} />
