@@ -29,7 +29,7 @@ export const T = {
     seKapparna: 'Se käpparna',
     valkommen: 'Välkommen',
     halsning:
-      'Leo Lowejko är möbelsnickaren som blev käppmakare. Han har själv använt käpp i över tjugo år. Käpparna är unika och handgjorda i exklusiva träslag. Han erbjuder en stor variation för olika händer och anpassar käppens längd efter bärarens behov.',
+      'Leo Lowejko är möbelsnickaren som blev käppmakare. Alla käppar är unika och handgjorda i exklusiva träslag och erbjuder en stor variation för olika händer. Käppens längd anpassas efter bärarens behov. Leo har själv 20 års erfarenhet av att gå med käpp.',
     leoVaggenAlt: 'Leo sitter framför en vägg med upphängda käppar i trä, med handtag i olika former.',
     kapparAntal: (n: number) => `${n} käppar`,
     samlingen: 'Samlingen',
@@ -82,7 +82,7 @@ export const T = {
     seKapparna: 'See the canes',
     valkommen: 'Welcome',
     halsning:
-      'Leo Lowejko is the furniture maker who became a cane maker. He has used a walking stick himself for over twenty years. The canes are unique and handmade in exclusive woods. He offers a wide variety for different hands and adapts the length of the cane to the needs of the person using it.',
+      'Leo Lowejko is the furniture maker who became a cane maker. All the canes are unique and handmade in exclusive woods, and offer a wide variety for different hands. The length of the cane is adapted to the needs of the person using it. Leo himself has 20 years of experience of walking with a cane.',
     leoVaggenAlt: 'Leo sits in front of a wall of hanging wooden canes with handles in different shapes.',
     kapparAntal: (n: number) => `${n} canes`,
     samlingen: 'The collection',

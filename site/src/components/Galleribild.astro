@@ -1,0 +1,67 @@
+---
+// En egen sida för en bild i Galleriet som saknar käppnummer (F-77). Gemensam för svenska och engelska.
+import { Image, getImage } from 'astro:assets';
+import Bas from '../layouts/Bas.astro';
+import { GALLERIBILDER } from '../lib/kappa';
+import { T, prefix, type Sprak } from '../lib/sprak';
+
+interface Props {
+  bild: (typeof GALLERIBILDER)[number];
+  sprak?: Sprak;
+}
+const { bild, sprak = 'sv' } = Astro.props;
+const t = T[sprak];
+const pre = prefix(sprak);
+const titel = bild.titel[sprak];
+const alt = bild.alt[sprak];
+const delningsbild = await getImage({ src: bild.src, width: 1200, format: 'jpg' });
+---
+
+<Bas titel={t.kappTitel(titel)} beskrivning={t.kappBeskrivning(titel, alt)} delningsbild={delningsbild.src} sprak={sprak}>
+  <main>
+    <p class="tillbaka"><a class="versaler" href={`${pre}/#galleri`}>← {t.grupper.galleri}</a></p>
+    <h1>{titel}</h1>
+    <figure class="ram">
+      <Image src={bild.src} alt={alt} widths={[540, 900, 1400]} sizes="(min-width: 64rem) 40rem, 100vw" loading="eager" />
+    </figure>
+  </main>
+</Bas>
+
+<style>
+  main {
+    max-width: 52rem;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 4vw, 3rem) 4rem;
+  }
+  .tillbaka {
+    margin: 2rem 0;
+  }
+  .tillbaka a {
+    text-decoration: none;
+    color: var(--dampad);
+  }
+  .tillbaka a:hover {
+    color: var(--elfenben);
+  }
+  h1 {
+    font-family: var(--rubrik);
+    font-weight: var(--rubrik-vikt);
+    font-style: var(--rubrik-stil);
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    line-height: 1;
+    margin: 0 0 1.5rem;
+  }
+  .ram {
+    margin: 0;
+    padding: clamp(0.5rem, 1.5vw, 0.9rem);
+    border: 1px solid rgb(184 149 90 / 0.5);
+    outline: 1px solid rgb(184 149 90 / 0.2);
+    outline-offset: 6px;
+    background: var(--yta);
+  }
+  .ram :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+</style>

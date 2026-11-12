@@ -1,9 +1,9 @@
 // Alla sidor för sökmotorer (NF-04, #27). Byggs från samma käpp-mappar som galleriet.
 import type { APIRoute } from 'astro';
-import { allaKappar } from '../lib/kappa';
+import { GALLERIBILDER, allaKappar } from '../lib/kappa';
 
 export const GET: APIRoute = async ({ site }) => {
-  const svenska = ['/', '/om/', '/kontakt/', '/bestallning/', ...(await allaKappar()).map((k) => `/kappar/${k.id}/`)];
+  const svenska = ['/', '/om/', '/kontakt/', '/bestallning/', ...(await allaKappar()).map((k) => `/kappar/${k.id}/`), ...GALLERIBILDER.map((b) => `/galleri/${b.id}/`)];
   // Engelska sidor (F-63): samma sidor under /en/.
   const sidor = [...svenska, ...svenska.map((s) => `/en${s}`)];
   const xml =

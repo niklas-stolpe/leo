@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-11-12 | #132 (Leo via mejl): ny hälsningstext på startsidan (svenska ord för ord, engelska översatt av Claude); de två onumrerade galleribilderna får egen sida (F-77, ändrar F-71 som sa "utan egen sida") och käppstället visas hela mitt i rutan (F-78). |
 | 2026-11-07 | Admin: gränsen stoppade Leo i fredags kl 20:52–21:02, och han fick vänta till morgonen. Nu försöker processen igen själv när gränsen släpper (F-72–F-76): tiden läses ur felet, Leo får veta klockslaget, vakten väntar in försöket, och inget försök görs om Claude redan svarat. |
 | 2026-11-07 | Admin: **allt i Leo-projektet skrivs på svenska** – nytt låst beslut B-11. Bakgrunden är att Eaves bytte till engelska (dess B-14/B-17), och utan raden kan någon ta det för en regel som gäller båda projekten. Beslutet rör arbetet – krav, process, kod, mejlen till Leo – inte sidans språk för besökaren, som är både svenska och engelska sedan F-63 till F-67. |
 | 2026-11-05 | #112 (Leo via mejl): tio nya käppar, nr 39–48, med Leos texter och priser, översatta till engelska, och med stående bilder visade hela i rutan på startsidan. Inget nytt krav – de följer F-10 och F-65. |
@@ -184,7 +185,9 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | F-68 | När Claudes gräns är nådd får Leo ett besked som säger just det. | Testet: en körning som stoppas av gränsen ger beskedet om gränsen, inte det vanliga. | v1 | Klar | claude | Admin (chatt) 2026-11-04 |
 | F-69 | Beskedet om gränsen säger när Leo kan försöka igen. | Testet: beskedet säger "inom några timmar" och lovar inget nytt försök direkt. | v1 | Klar | claude | Admin (chatt) 2026-11-04 |
 | F-70 | Orsaken till att Claude stoppades syns i körningens logg. | Testet: felet från Claude skrivs ut i loggen. | v1 | Klar | claude | Admin (chatt) 2026-11-04 |
-| F-71 | Två bilder – många käppar på en vägg och ett käppställ – visas i Galleriet som bilder, utan egen sida. | Båda syns i Galleriet på svenska och engelska startsidan, med bildbeskrivning, och räknas med i gruppens antal; ingen länk; ingen horisontell scroll vid 360 px. | v1 | Pågår | – | Leo via mejl (#112) 2026-11-05 |
+| F-71 | Två bilder – många käppar på en vägg och ett käppställ – visas i Galleriet utan käppnummer. | Båda syns i Galleriet på svenska och engelska startsidan, med bildbeskrivning, och räknas med i gruppens antal; ingen horisontell scroll vid 360 px. | v1 | Pågår | – | Leo via mejl (#112) 2026-11-05 |
+| F-77 | Varje bild i Galleriet som saknar käppnummer (väggen med käppar, käppstället) har en egen sida, som man kommer till genom att trycka på bilden i Galleriet. | Tryck på bilden i Galleriet öppnar `/galleri/<namn>/` (och `/en/galleri/<namn>/`) med bilden stor, rubrik och bildbeskrivning, och en länk tillbaka till Galleriet; sidorna finns i sitemap. | v1 | Pågår | – | Leo via mejl (#132) 2026-11-12 |
+| F-78 | Den stående bilden på käppstället visas hel och mitt i sin lilla ruta i Galleriet, så att käppstället syns. | I Galleriet syns hela käppstället mitt i rutan, på svenska och engelska startsidan. | v1 | Pågår | – | Leo via mejl (#132) 2026-11-12 |
 | F-72 | Tiden när Claudes gräns släpper läses ur felet. | Testet: "resets 9pm (UTC)" och andra former ger rätt tid. | v1 | Klar | claude | Admin (chatt) 2026-11-07 |
 | F-73 | När gränsen har släppt försöker processen igen själv. | Testet: en planerad tid som har passerat ger ett nytt försök, en som inte har passerat ger inget. | v1 | Klar | claude | Admin (chatt) 2026-11-07 |
 | F-74 | Beskedet om gränsen säger vilken tid det nya försöket görs. | Testet: beskedet säger klockslaget i svensk tid. | v1 | Klar | claude | Admin (chatt) 2026-11-07 |

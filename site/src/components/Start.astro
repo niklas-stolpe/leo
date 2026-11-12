@@ -93,7 +93,9 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
               {g.id === 'galleri' &&
                 GALLERIBILDER.map((b) => (
                   <li>
-                    <Image src={b.src} alt={b.alt[sprak]} widths={[360, 540, 720]} sizes="(min-width: 40rem) 12rem, 45vw" />
+                    <a href={`${pre}/galleri/${b.id}/`} class:list={{ innanfor: b.passning === 'contain' }}>
+                      <Image src={b.src} alt={b.alt[sprak]} widths={[360, 540, 720]} sizes="(min-width: 40rem) 12rem, 45vw" />
+                    </a>
                   </li>
                 ))}
             </ol>
@@ -335,14 +337,10 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
   .galleri.oversikt img {
     aspect-ratio: 1;
   }
-  .galleri li > img {
-    display: block;
-    width: 100%;
-    aspect-ratio: 1;
-    object-fit: cover;
-    border: 1px solid rgb(184 149 90 / 0.18);
-    background: var(--svart);
-    filter: saturate(0.92);
+  /* Stående bild (F-78): hela motivet syns mitt i rutan, mörk bakgrund runt om. */
+  .galleri a.innanfor img {
+    object-fit: contain;
+    object-position: center;
   }
   .galleri.oversikt .bildtext {
     font-size: 0.95rem;
