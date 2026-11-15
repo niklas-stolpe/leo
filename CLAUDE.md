@@ -76,7 +76,9 @@ Skriv där på enkel svenska, kort och varmt, utan tekniska ord, länkar till Gi
    (oftast PR-texten, se 6) – aldrig en tom commit. Du behöver inte starta om kedjan själv (det får du inte):
    efter din körning startar processen den, eller bygger om PR:en om bygget föll. Skriv till Leo att ett nytt
    försök är på väg och att han får ett mejl. PR-texten ska ha `Closes #<issue>` – med #. Kommer du inte vidare: mejla att han ska **kontakta Niklas**.
-   Informera först, fixa sedan. Skriv aldrig bara till Admin och låt Leo vänta.
+   Informera först, fixa sedan. Skriv aldrig bara till Admin och låt Leo vänta. Leo ska **alltid veta vad som
+   händer**: bygger du något åt honom som han inte ser (skydd, process), skicka ett eget kort besked om det, och
+   säg att han kan mejla som vanligt under tiden. Ett extra mejl är bättre än tystnad (Admin 2026-11-15).
    Lovar du Leo något senare, skriv **"du får ett mejl"** (eller "jag hör av mig") – inkorgens vakt känner igen
    det och säger till Leo och Niklas om löftet inte hålls inom 45 minuter.
    `gh pr create` körs som *ett* kommando (inga `$(…)`, `&&` eller heredoc) – annars nekas det. Nekas det ändå
