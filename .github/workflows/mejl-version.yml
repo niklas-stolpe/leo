@@ -114,20 +114,8 @@ jobs:
           source scripts/lib.sh
           rad="$(grep -oE 'Version [0-9]+ – .*\(https://[^)]+\)' merge.log | sed 's/\x1b\[[0-9;]*m//g' | tail -1 || true)"
           namn="${rad% (*}"; lank="$(printf '%s' "$rad" | grep -oE 'https://[^)]+' || true)"
-          if [ -z "$rad" ]; then
-            text="Hej Leo! Ändringen är klar. Titta på versionssidan: $VERSIONER_URL"
-          else
-            text="Hej Leo! Nu är det klart – **$namn**.
-
-          Titta här: $lank
-
-          Gillar du den? Logga in på versionssidan och tryck Publicera på prod (eller på demo om du vill visa den för någon först): $VERSIONER_URL
-
-          Vill du ändra något, svara bara på det här mejlet."
-          fi
-          gh issue comment "${{ steps.pr.outputs.issue }}" --repo "$REPO" --body "[[till-leo]]
-          $text
-          [[/till-leo]]"
+          # F-80–F-82: länken och versionssidan kontrolleras innan Leo får mejlet.
+          bash scripts/klart-till-leo.sh "${{ steps.pr.outputs.issue }}" "$namn" "$lank"
 
       - name: Granskningsfynd eller annat stopp
         if: failure() && steps.merge.outcome == 'failure'

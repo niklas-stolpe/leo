@@ -51,4 +51,4 @@ else
   ok "Version $n – $titel ($(version_url "$cf"))"
 fi
 
-"$here/versioner.sh"
+"$here/versioner.sh" ${n:+"v$n"}
