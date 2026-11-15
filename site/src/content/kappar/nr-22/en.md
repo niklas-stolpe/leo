@@ -1,7 +1,7 @@
 ---
 alt: "Cane with a curved handle in flamed red-brown wood against a dark background, with a black ring with gold-coloured lines and a red-brown shaft."
 bildtexter:
-  - "Close-up of the handle and collar, with the black ring between handle and shaft."
+  - "The whole handle and part of the shaft, with the black ring in between."
 material:
   - del: Handle
     namn: Tiger Myrtle
