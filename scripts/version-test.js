@@ -16,7 +16,9 @@ function bash(skript, env = {}) {
   fs.writeFileSync(ut, '');
   const k = spawnSync('bash', ['-c', skript], {
     cwd: rot, encoding: 'utf8',
-    env: { ...process.env, UT: ut, RAKNARE: path.join(dir, 'n').replace(/\\/g, '/'), ...env },
+    // Testet får aldrig kunna publicera: en ogiltig Cloudflare-nyckel gör att wrangler vägrar även om ett skript
+    // (till exempel en äldre version) inte stannar före publiceringen.
+    env: { ...process.env, CLOUDFLARE_API_TOKEN: 'test-publicerar-aldrig', CLOUDFLARE_ACCOUNT_ID: '0', UT: ut, RAKNARE: path.join(dir, 'n').replace(/\\/g, '/'), ...env },
   });
   return { ut: fs.readFileSync(ut, 'utf8'), kod: k.status, fel: k.stderr, std: k.stdout };
 }
