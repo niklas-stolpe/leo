@@ -2,11 +2,11 @@
 nummer: 22
 grupp: herr
 bilder:
-  - ./bild.jpg
   - ./bild-2.jpg
+  - ./bild.jpg
 alt: "Käpp med böjt handtag i flammigt rödbrunt trä mot mörk bakgrund, med en svart ring med guldfärgade linjer och ett rödbrunt skaft."
 bildtexter:
-  - "Handtaget och halsbandet nära, med den svarta ringen mellan handtag och skaft."
+  - "Hela handtaget och en bit av skaftet, med den svarta ringen emellan."
 material:
   - del: Handtag
     namn: Tiger Myrtle
