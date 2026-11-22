@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Ett test per krav: F-79–F-82 (versionssidan och Klart-mejlet till Leo).
+// Ett test per krav: F-79–F-82, F-84 (versionssidan, Klart-mejlet och Leos grenar).
 // Kör skripten med gh och curl utbytta mot bash-funktioner, utan nät.
 const fs = require('fs');
 const os = require('os');
@@ -71,6 +71,11 @@ const tester = {
       assert.ok(/issue create .*--label mejl-ut/.test(k.ut) && /Till: Niklas/.test(k.ut), `inget mejl till Niklas (sida ${sida}, länk ${lank})`);
     }
     assert.ok(!/issue create/.test(klart(true, true).ut), 'Niklas fick mejl fast allt fungerade');
+  },
+  'F-84 en ändring från Leos mejl blir en version även på grenar som kappa/ och site/': () => {
+    const k = bash('source scripts/lib.sh; for g in claude/issue-138-x kappa/138-nr-50 site/138-meny process/x docs/sprak main; do leos_gren "$g" && echo "ja $g" >> "$UT" || echo "nej $g" >> "$UT"; done');
+    assert.strictEqual(k.ut.trim(), ['ja claude/issue-138-x', 'ja kappa/138-nr-50', 'ja site/138-meny', 'nej process/x', 'nej docs/sprak', 'nej main'].join('\n'), k.ut + k.fel);
+    assert.ok(/leos_gren "\$GREN"/.test(yml), 'mejl-version.yml använder inte leos_gren');
   },
 };
 
