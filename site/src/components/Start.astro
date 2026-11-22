@@ -76,18 +76,18 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
               {g.kappar.map((k) => (
                 <li>
                   <a href={`${pre}/kappar/${k.id}/`}>
-                    <span class="ram">
-                    <Image
-                      src={k.data.bilder[0]}
-                      alt={altFor(k)}
-                      widths={[360, 540, 720]}
-                      sizes={
-                        g.id === 'galleri'
-                          ? '(min-width: 40rem) 12rem, 45vw'
-                          : '(min-width: 70rem) 22rem, (min-width: 40rem) 45vw, 92vw'
-                      }
-                    />
-                    {k.data.ny && <span class="ny-marke">{t.nyMarke}</span>}
+                    <span class="bildruta">
+                      <Image
+                        src={k.data.bilder[0]}
+                        alt={altFor(k)}
+                        widths={[360, 540, 720]}
+                        sizes={
+                          g.id === 'galleri'
+                            ? '(min-width: 40rem) 12rem, 45vw'
+                            : '(min-width: 70rem) 22rem, (min-width: 40rem) 45vw, 92vw'
+                        }
+                      />
+                      {k.data.ny && <span class="ny-marke">{t.nyMarke}</span>}
                     </span>
                     {g.id !== 'galleri' && <span class="bildtext">{rubrik(k)}</span>}
                   </a>
@@ -318,7 +318,8 @@ const delningsbild = await getImage({ src: leoVaggen, width: 1200, format: 'jpg'
     display: block;
     text-decoration: none;
   }
-  .ram {
+  /* Ram för käppbilden så att "Ny" kan ligga i hörnet. Eget namn – .ram är hälsningsbildens ram (rad ~230). */
+  .bildruta {
     position: relative;
     display: block;
   }
