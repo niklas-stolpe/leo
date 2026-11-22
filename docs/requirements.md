@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-11-22 | #138 (Leo via mejl): ny käpp nr 50 (Tiger Myrtle, small/medium, 6 800 kr) med närbilden som huvudbild, och märket "Ny" (F-83) som kan sättas på fler käppar. |
 | 2026-11-15 | Admin: version 55 och 56 saknades på versionssidan – sidan byggdes sekunder efter att versionen skapats, innan GitHubs lista hade fått med den. Förhandslänkarna i Leos mejl var dessutom trasiga i flera dagar utan att någon märkte det. Krav F-79 (vänta på versionen), F-80 (mejl först när den syns), F-81 (länken fungerar), F-82 (Niklas får mejl annars). |
 | 2026-11-12 | #132 (Leo via mejl): ny hälsningstext på startsidan (svenska ord för ord, engelska översatt av Claude); de två onumrerade galleribilderna får egen sida (F-77, ändrar F-71 som sa "utan egen sida") och käppstället visas hela mitt i rutan (F-78). |
 | 2026-11-07 | Admin: gränsen stoppade Leo i fredags kl 20:52–21:02, och han fick vänta till morgonen. Nu försöker processen igen själv när gränsen släpper (F-72–F-76): tiden läses ur felet, Leo får veta klockslaget, vakten väntar in försöket, och inget försök görs om Claude redan svarat. |
@@ -193,6 +194,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | F-80 | Leo får mejlet om en ny version först när den syns på versionssidan. | Testet: syns den inte får Leo ett besked utan länk. | v1 | Klar | claude | Admin (chatt) 2026-11-15 |
 | F-81 | Länken i Klart-mejlet till Leo fungerar. | Testet: en länk som inte svarar mejlas inte. | v1 | Klar | claude | Admin (chatt) 2026-11-15 |
 | F-82 | Niklas får ett mejl när en ny version inte syns eller länken inte fungerar. | Testet: då skapas ett mejl till Niklas. | v1 | Klar | claude | Admin (chatt) 2026-11-15 |
+| F-83 | En käpp som är ny har ett litet, diskret märke "Ny" nere i vänstra hörnet av sin bild på startsidan (svenska: "Ny", engelska: "New"), och ligger överst i sin grupp. Märket sitter kvar tills Leo säger till att det ska bort. | Käpp 50 visar märket nere till vänster på bilden och ligger först i small/medium på svenska och engelska startsidan; andra käppar har inget märke; ingen horisontell scroll vid 360 px. | v1 | Klar | bygg | Leo via mejl (#138) 2026-11-22 |
 | F-72 | Tiden när Claudes gräns släpper läses ur felet. | Testet: "resets 9pm (UTC)" och andra former ger rätt tid. | v1 | Klar | claude | Admin (chatt) 2026-11-07 |
 | F-73 | När gränsen har släppt försöker processen igen själv. | Testet: en planerad tid som har passerat ger ett nytt försök, en som inte har passerat ger inget. | v1 | Klar | claude | Admin (chatt) 2026-11-07 |
 | F-74 | Beskedet om gränsen säger vilken tid det nya försöket görs. | Testet: beskedet säger klockslaget i svensk tid. | v1 | Klar | claude | Admin (chatt) 2026-11-07 |

@@ -15,6 +15,8 @@ const kappar = defineCollection({
       grupp: z.enum(['dam', 'herr', 'masurbjork', 'galleri']),
       // Käppar som också ska visas i en andra grupp (t.ex. nr 10: Herr och Masurbjörk).
       ocksaGrupp: z.array(z.enum(['dam', 'herr', 'masurbjork', 'galleri'])).default([]),
+      // Visar märket "Ny" på startsidan (F-83) och lägger käppen överst i sin grupp. Leo säger till när det ska bort.
+      ny: z.boolean().default(false),
       titel: z.string().optional(),
       ar: z.number().int().optional(),
       // Material per del (#41): "Handtag och skaft" – masurbjörk (Betula pendula var. carelica).
