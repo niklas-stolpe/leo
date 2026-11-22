@@ -54,5 +54,5 @@ export const GRUPPER = [
 ] as const;
 
 export function kapparIGrupper(kappar: Kappa[]) {
-  return GRUPPER.map((g) => ({ ...g, kappar: kappar.filter((k) => k.data.grupp === g.id || k.data.ocksaGrupp.includes(g.id)) })).filter((g) => g.kappar.length > 0);
+  return GRUPPER.map((g) => ({ ...g, kappar: kappar.filter((k) => k.data.grupp === g.id || k.data.ocksaGrupp.includes(g.id)).sort((a, b) => Number(b.data.ny) - Number(a.data.ny)) })).filter((g) => g.kappar.length > 0);
 }
