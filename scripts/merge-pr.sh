@@ -32,7 +32,7 @@ if gh api --paginate "repos/$REPO/pulls/$pr/files" --jq '.[].filename' | grep -q
   echo "Testar beskedet om Claudes gräns och det nya försöket (F-68–F-70, F-72–F-76)"
   node "$here/claude-gransen-test.js" || fail "testet av beskedet om Claudes gräns föll – se ovan"
 fi
-if gh api --paginate "repos/$REPO/pulls/$pr/files" --jq '.[].filename' | grep -qE '^(scripts/(versioner|version-release|klart-till-leo|version-test|lib.sh)|\.github/workflows/mejl-version\.yml$)'; then
+if gh api --paginate "repos/$REPO/pulls/$pr/files" --jq '.[].filename' | grep -qE '^(scripts/(versioner|version-release|klart-till-leo|version-test|lib.sh)|\.github/workflows/(mejl-version|claude)\.yml$)'; then
   echo "Testar versionssidan och Klart-mejlet (F-79–F-82)"
   node "$here/version-test.js" || fail "testet av versionssidan och Klart-mejlet föll – se ovan"
 fi
