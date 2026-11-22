@@ -154,6 +154,10 @@ Går det ändå inte – kontakta Niklas.
 # svensk_tid <UTC-tid> – "kl 22:05" samma dag, annars "den 8 november kl 05:05" (svensk tid). Fem minuters marginal.
 svensk_tid() { node "$(dirname "${BASH_SOURCE[0]}")/claude-gransen.js" --svensk-tid "$1"; }
 
+# leos_gren <gren> – kan grenen komma från Claude för Leos mejl (F-84)? Claude använder claude/issue-N-… och,
+# enligt CLAUDE.md, kappa/<issue>-<namn> och site/<issue>-<namn>. Processens egna grenar (process/…, docs/…) gör det aldrig.
+leos_gren() { case "$1" in claude/issue-*|kappa/*|site/*) return 0 ;; *) return 1 ;; esac; }
+
 # git_nat <git-argument…> – git mot GitHub. I Actions skickas nyckeln (GH_TOKEN) bara med just det anropet,
 # aldrig via .git/config – bygget av en ändring körs i en worktree som delar den (persist-credentials: false).
 git_nat() {
