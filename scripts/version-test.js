@@ -77,6 +77,10 @@ const tester = {
     assert.strictEqual(k.ut.trim(), ['ja claude/issue-138-x', 'ja kappa/138-nr-50', 'ja site/138-meny', 'nej process/x', 'nej docs/sprak', 'nej main'].join('\n'), k.ut + k.fel);
     assert.ok(/leos_gren "\$GREN"/.test(yml), 'mejl-version.yml använder inte leos_gren');
   },
+  'F-85 Claudes gren för Leos mejl får en PR även på kappa/ och site/': () => {
+    const claude = fs.readFileSync(path.join(rot, '.github/workflows/claude.yml'), 'utf8');
+    for (const g of ['claude/issue-$N-*', 'kappa/$N-*', 'site/$N-*']) assert.ok(claude.includes('"' + g + '"'), g + ' saknas i claude.yml');
+  },
 };
 
 let fel = 0;
