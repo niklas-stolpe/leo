@@ -186,9 +186,10 @@ function skickaSvar() {
       }
       egenskaper.setProperty('skickat:' + issue + ':' + k.id, hash);
     }
-    // Stängt sedan länge → sluta bevaka.
+    // Stängt och tyst sedan länge → sluta bevaka. Räknas från senaste aktiviteten (updated_at), inte från när
+    // ärendet stängdes: Leo kan mejla vidare i en stängd tråd, och då ska svaren fortfarande nå honom (F-86).
     const info = github('GET', `/repos/${REPO}/issues/${issue}`);
-    if (info.state === 'closed' && Date.now() - Date.parse(info.closed_at) > 7 * 864e5) {
+    if (info.state === 'closed' && Date.now() - Date.parse(info.updated_at || info.closed_at) > 7 * 864e5) {
       // Sluta bevaka – och städa markeringarna för ärendet, så att skriptets lagring inte växer för evigt.
       // (Svarar Leo i tråden igen bevakas ärendet på nytt; redan skickade kommentarer kan då skickas en
       // gång till, vilket är bättre än att nya svar tappas.)

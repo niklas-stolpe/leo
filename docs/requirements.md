@@ -14,6 +14,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 
 | Datum | Ändring |
 |---|---|
+| 2026-11-24 | #138: Leo fick inga mejl 22/11 kl 21:10 och framåt. Inkorgen slutade bevaka ärendet 7 dagar efter att det stängts (15/11), fast Leo mejlade vidare i samma tråd – svaren skrevs men skickades aldrig. Krav F-86 (räkna från senaste aktiviteten). |
 | 2026-11-22 | #138: käpp 50 (PR #140, gren kappa/138-nr-50) stod still i fyra timmar – mejl-version hoppade över allt utom claude/issue-…, så granskningsfyndet rättades aldrig och ingen version blev av. CLAUDE.md säger kappa/… för käppar. Krav F-84. |
 | 2026-11-22 | #138 (Leo via mejl): ny käpp nr 50 (Tiger Myrtle, small/medium, 6 800 kr) med närbilden som huvudbild, och märket "Ny" (F-83) som kan sättas på fler käppar. |
 | 2026-11-15 | Admin: version 55 och 56 saknades på versionssidan – sidan byggdes sekunder efter att versionen skapats, innan GitHubs lista hade fått med den. Förhandslänkarna i Leos mejl var dessutom trasiga i flera dagar utan att någon märkte det. Krav F-79 (vänta på versionen), F-80 (mejl först när den syns), F-81 (länken fungerar), F-82 (Niklas får mejl annars). |
@@ -198,6 +199,7 @@ Kraven skrivs så att Leo förstår dem: vad besökaren ska se, göra eller kän
 | F-83 | En käpp som är ny har ett litet, diskret märke "Ny" nere i vänstra hörnet av sin bild på startsidan (svenska: "Ny", engelska: "New"), och ligger överst i sin grupp. Märket sitter kvar tills Leo säger till att det ska bort. | Käpp 50 visar märket nere till vänster på bilden och ligger först i small/medium på svenska och engelska startsidan; andra käppar har inget märke; ingen horisontell scroll vid 360 px. | v1 | Klar | bygg | Leo via mejl (#138) 2026-11-22 |
 | F-84 | En ändring från Leos mejl blir en version även när Claudes gren heter kappa/… eller site/…. | Testet: grenarna claude/issue-…, kappa/… och site/… räknas, processens egna inte. | v1 | Klar | claude | Admin (chatt) 2026-11-22 |
 | F-85 | Pushar Claude en gren för Leos mejl utan att öppna en PR, öppnar processen den även när grenen heter kappa/… eller site/…. | Testet: claude.yml letar efter alla tre slagen av grenar. | v1 | Klar | claude | Admin (chatt) 2026-11-22 |
+| F-86 | Inkorgen slutar inte skicka svar till Leo i ett ärende där det har skrivits något de senaste 7 dagarna, även om ärendet stängdes tidigare. | Testet i `scripts/inkorg-test.js`: ett ärende som stängdes för 7 dagar sedan men fick en kommentar nyss bevakas och kommentaren skickas; ett ärende som varit tyst i 7 dagar slutar bevakas. | v1 | Klar | claude | Admin (chatt) 2026-11-24 |
 | F-72 | Tiden när Claudes gräns släpper läses ur felet. | Testet: "resets 9pm (UTC)" och andra former ger rätt tid. | v1 | Klar | claude | Admin (chatt) 2026-11-07 |
 | F-73 | När gränsen har släppt försöker processen igen själv. | Testet: en planerad tid som har passerat ger ett nytt försök, en som inte har passerat ger inget. | v1 | Klar | claude | Admin (chatt) 2026-11-07 |
 | F-74 | Beskedet om gränsen säger vilken tid det nya försöket görs. | Testet: beskedet säger klockslaget i svensk tid. | v1 | Klar | claude | Admin (chatt) 2026-11-07 |
