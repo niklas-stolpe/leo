@@ -155,3 +155,45 @@ test('F-75: vakten larmar inte innan det nya försöket efter gränsen har gjort
   // Utan planerat försök larmar vakten som förut efter 30 minuter.
   assert.strictEqual(vakt(kommentarer.slice(0, 2), Date.parse('2026-11-06T20:25:00Z')).larm.length, 1);
 });
+
+// Utskicken (skickaSvar) för ett ärende som stängdes för länge sedan men där det har skrivits nyligen.
+function svar(uppdaterad, nu) {
+  const logg = { mejl: [], borttagna: [] };
+  const lagrat = { 'issue:138': 't1' };
+  const miljo = {
+    console, Error, Object, String, Number, JSON, RegExp, Math, isNaN,
+    Date: class extends Date { constructor(...a) { super(...(a.length ? a : [nu])); } static now() { return nu; } },
+    Utilities: { base64Encode: (b) => String(b), computeDigest: (_, t) => t, DigestAlgorithm: {} },
+    PropertiesService: {
+      getScriptProperties: () => ({
+        getProperty: (k) => (k === 'TILLATNA' ? 'leo@exempel.se=Leo' : lagrat[k] || null),
+        setProperty: (k, v) => { lagrat[k] = v; },
+        deleteProperty: (k) => { logg.borttagna.push(k); delete lagrat[k]; },
+        getProperties: () => ({ ...lagrat }),
+      }),
+    },
+    GmailApp: { getThreadById: () => ({ getMessages: () => [{ getFrom: () => 'Leo <leo@exempel.se>', reply: (t) => logg.mejl.push(t) }] }) },
+    UrlFetchApp: {
+      fetch: (url) => {
+        const svar = /comments/.test(url)
+          ? [{ id: 1, user: { login: 'nstolpeflir' }, body: '[[till-leo]]\nHej Leo! Version 59 är klar.\n[[/till-leo]]' }]
+          : { state: 'closed', closed_at: '2026-11-15T20:05:28Z', updated_at: uppdaterad };
+        return { getResponseCode: () => 200, getContentText: () => JSON.stringify(svar) };
+      },
+    },
+  };
+  vm.createContext(miljo);
+  vm.runInContext(logik, miljo);
+  vm.runInContext('skickaSvar(); skickaSvar();', miljo);
+  return logg;
+}
+
+test('F-86: inkorgen slutar inte bevaka ett ärende där det har skrivits de senaste 7 dagarna', () => {
+  // Stängt 15/11, kommentar 22/11 20:10 – körningen 22/11 20:15 och nästa ska båda bevaka ärendet.
+  const aktivt = svar('2026-11-22T20:10:14Z', Date.parse('2026-11-22T20:15:00Z'));
+  assert.ok(!aktivt.borttagna.includes('issue:138'), 'ärendet slutade bevakas fast det skrevs i det nyss');
+  assert.strictEqual(aktivt.mejl.length, 1, 'kommentaren skickades inte (eller två gånger)');
+  // Tyst i mer än 7 dagar: bevakningen tas bort som förut.
+  const tyst = svar('2026-11-15T20:08:53Z', Date.parse('2026-11-22T20:15:00Z'));
+  assert.ok(tyst.borttagna.includes('issue:138'), 'ett tyst ärende bevakas för evigt');
+});
