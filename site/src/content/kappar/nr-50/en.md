@@ -17,8 +17,6 @@ The interesting effects come from fungal attack, which creates interesting disco
 
 The shaft is made of Andaman Padouk (Pterocarpus dalbergioides), which grows on the Andaman Islands and in India. A hard wood that is moderately difficult to work.
 
-Handle in ebony and brass.
-
 Size: Small/Medium
 
 Price: 6,800 SEK

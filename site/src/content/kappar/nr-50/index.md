@@ -26,8 +26,6 @@ De intressanta effekter som uppstår fås genom att svampangrepp skapar intressa
 
 Skaftet är tillverkat i Andaman Padouk (Pterocarpus dalbergioides) växtplats Andamanöarna och Indien. Ett hårt träslag som är medelsvårt att bearbeta.
 
-Handtag i Ebenholtz och mässing.
-
 Storlek: Small/Medium
 
 Pris: 6800 Sek
